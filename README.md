@@ -9,13 +9,52 @@ This repository currently contains the project structure and collaboration proce
 
 ## Project stages
 
-| Stage | Goal | Planned areas |
-|---|---|---|
-| 0 - Foundations | Prepare CO3D and define reproducible embedding extraction | `src/data/`, `src/embeddings/` |
-| 1 - Binary segmentation | Validate the prior proof of concept at larger scale and compare baselines | `src/segmentation/`, `src/baselines/` |
-| 2 - Multiclass classification | Compare image-level and per-pixel classification probes | `src/classification/`, `src/baselines/` |
-| 3 - Optional extension | Multi-object detection/classification, only after a recorded scope decision | To be decided |
-| Close-out | Analysis, architecture diagram, presentation, and report | `docs/`, `reports/` |
+These stages follow the project proposal and work-allocation document. Keep the
+tables current when ownership changes or a pull request completes work. Use one
+of these status values: `Not started`, `Planned`, `In progress`, `Blocked`,
+`Done`, or `Deferred`. Detailed blockers and the current milestone belong in
+[PROJECT_STATUS.md](PROJECT_STATUS.md).
+
+### Stage 0 - Foundations
+
+| Work item | Status | Current owner(s) | Previous contributor(s) | Done so far |
+|---|---|---|---|---|
+| Clarify what the random-initialized CUT3R baseline means and reconcile it with the course guidance | Planned | Aviv Rabi | - | The question is recorded; no technical definition has been accepted yet. |
+| Preprocess CO3D for both segmentation and classification | Planned | Max Bershtman | - | Dataset documentation and leakage-prevention rules exist; preprocessing code has not been implemented. |
+| Define, extract, and cache the headless CUT3R representation ("embeddings") | Planned | Max Bershtman | Max Bershtman (earlier proof of concept) | The earlier extraction path was audited. The exact representation and cache format remain open decisions. |
+| Design the shared code, configuration, and experiment structure for Stages 1 and 2 | In progress | Team (specific owners TBD) | - | The responsibility-based repository skeleton, configuration folders, tests, and documentation workflow are in place. Model interfaces are not yet defined. |
+
+### Stage 1 - Binary segmentation
+
+| Work item | Status | Current owner(s) | Previous contributor(s) | Done so far |
+|---|---|---|---|---|
+| Verify that a binary segmentation probe works on the selected CO3D data | Not started | TBD | Max Bershtman (earlier proof of concept) | The earlier single-sequence proof of concept was audited; validation on the new dataset split has not started. |
+| Decide whether inference with an existing probe is sufficient or whether the MLP must be retrained | Not started | TBD | Max Bershtman (earlier proof of concept) | The decision is recorded as open; no approach has been approved. |
+| Compare against random-weight and state-of-the-art baselines | Not started | TBD | - | Baseline definitions and the evaluation protocol must be agreed before implementation. |
+| Analyze results and produce plots | Not started | TBD | Max Bershtman (earlier proof-of-concept report) | Experiment and metric templates exist; the new project has no results yet. |
+
+### Stage 2 - Multiclass classification
+
+| Work item | Status | Current owner(s) | Previous contributor(s) | Done so far |
+|---|---|---|---|---|
+| Train an MLP head for multiclass object classification | Not started | TBD | - | The task is defined in the proposal; implementation has not started. |
+| Compare image-level classification with per-pixel classification and choose an architecture | Not started | TBD | - | The required comparison is recorded; no architecture has been selected. |
+| Compare against random-weight and state-of-the-art baselines | Not started | TBD | - | Baseline definitions and the evaluation protocol remain open. |
+| Analyze results and produce plots | Not started | TBD | - | Experiment and metric templates exist; the project has no classification results yet. |
+
+### Stage 3 - Optional extension
+
+| Work item | Status | Current owner(s) | Previous contributor(s) | Done so far |
+|---|---|---|---|---|
+| Make a go/no-go decision and define the optional extension, such as multi-object detection or classification | Deferred | Team | - | The stage is intentionally outside the required scope until Stages 0-2 are stable. |
+
+### Project close-out
+
+| Work item | Status | Current owner(s) | Previous contributor(s) | Done so far |
+|---|---|---|---|---|
+| Create the final architecture diagram | Not started | TBD | - | A location for report assets exists; the final architecture is not yet decided. |
+| Prepare the course presentation | Not started | TBD | - | No presentation work has started. |
+| Write and review the final report | Not started | Team (section owners TBD) | Max Bershtman (earlier proof-of-concept report) | The proposal and earlier report provide background material; final-project writing has not started. |
 
 ## Start here
 
