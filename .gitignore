@@ -1,0 +1,60 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Environments and local configuration
+.venv/
+venv/
+env/
+.env
+.env.*
+!.env.example
+
+# IDE and OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Data and large model artifacts
+/data/
+/datasets/
+/checkpoints/
+/weights/
+/embeddings/
+*.ckpt
+*.pth
+*.pt
+*.safetensors
+
+# Generated runs and caches
+outputs/
+results/
+runs/
+wandb/
+mlruns/
+tensorboard/
+cache/
+tmp/
+artifacts/*
+!artifacts/README.md
+
+# Notebooks and native builds
+.ipynb_checkpoints/
+build/
+dist/
+*.egg-info/
+*.o
+*.obj
+*.so
+*.dll
+*.pyd
+*.exp
+*.lib
+.ninja_deps
+.ninja_log
