@@ -75,8 +75,8 @@ of these status values: `Not started`, `Planned`, `In progress`, `Blocked`,
 | Work item | Status | Current owner(s) | Previous contributor(s) | Done so far |
 |---|---|---|---|---|
 | Clarify what the random-initialized CUT3R baseline means and reconcile it with the course guidance | Planned | Aviv Rabi | - | The question is recorded; no technical definition has been accepted yet. |
-| Preprocess CO3D for both segmentation and classification | In progress | Max Bershtman | - | Official sequence splits, deterministic six-frame windows, shared transforms, manifests, configs, and tests are implemented; real CO3Dv2 validation remains. |
-| Define, extract, and cache the headless CUT3R representation ("embeddings") | In progress | Max Bershtman | Max Bershtman (earlier proof of concept) | Proposed image-token/state-token trajectory contract and verified Safetensors cache are implemented; one-window GPU validation remains. |
+| Preprocess CO3D for both segmentation and classification | Planned | Max Bershtman | - | Dataset documentation and leakage-prevention rules exist; preprocessing code has not been implemented. |
+| Define, extract, and cache the headless CUT3R representation ("embeddings") | Planned | Max Bershtman | Max Bershtman (earlier proof of concept) | The earlier extraction path was audited. The exact representation and cache format remain open decisions. |
 | Design the shared code, configuration, and experiment structure for Stages 1 and 2 | In progress | Team (specific owners TBD) | - | The responsibility-based repository skeleton, configuration folders, tests, and documentation workflow are in place. Model interfaces are not yet defined. |
 
 ### Stage 1 - Binary segmentation
