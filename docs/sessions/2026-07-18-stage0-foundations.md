@@ -4,8 +4,8 @@
 - Author: Max Bershtman with Codex
 - Branches: `codex/refine-project-stages`; `codex/curope-compat`;
   `codex/checkpoint-safe-load`
-- Related issue/PR: Stage 0 foundations PR #2 and compatibility PR #3 merged;
-  checkpoint safe-loading PR pending
+- Related issue/PR: Stage 0 foundations PR #2, compatibility PR #3, and
+  checkpoint safe-loading PR #4 merged
 - Assistant/model: Codex
 
 ## Objective
@@ -68,11 +68,30 @@ all-timestep image/state extraction, and verified external caching.
   while approved persistent large-data storage is requested.
 - A storage credential was exposed in diagnostic output. Its value was not
   recorded in the project; course-administrator rotation is required.
+- The environment and checkpoint were rebuilt on the persistent OS disk. PR #4's
+  scoped checkpoint policy loaded all 793,307,858 parameters on CUDA with the
+  exact released checkpoint hash and all state keys matching.
+- The official single-sequence archives for `ball` and `chair` were combined
+  with their verified full-release metadata archives. The valid real manifest
+  contained two `ball` validation sequences, 404 frames, and six windows; it
+  contained no usable `chair`, train, or test windows and is explicitly
+  `smoke-only`.
+- Human review of all six target overlays found aligned masks, preserved aspect
+  ratios, complete foreground objects, and no empty masks for the available
+  ball frames.
+- Two independent one-window extractions matched exactly at zero tolerance for
+  every image/state value. Both caches passed hash, schema, shape, dtype,
+  finiteness, and source-file checks.
+- A six-window cache also reproduced the independently extracted first window
+  exactly. It ran at 0.568 seconds/window, peaked at 3,454,282,752 CUDA bytes,
+  and occupied 71 MiB. Full details are in
+  [EXP-001](../experiments/EXP-001-stage0-real-gpu-smoke.md).
 
-Real CO3Dv2 and GPU extraction remain pending because this workspace contains
-neither the dataset nor the released checkpoint and has no visible CUDA device.
-Static type checkers were not available in the current environment; runtime
-annotations, strict lint, compile checks, and tests were used instead.
+The local Windows workspace still has no dataset, checkpoint, or CUDA device;
+real artifacts remain external on the Technion VM. The next data requirement is
+a balanced `ball`/`chair` subset with nonempty official train, validation, and
+test splits. Static type checkers were not available in the local environment;
+runtime annotations, strict lint, compile checks, and tests were used instead.
 
 ## Human review of AI-assisted work
 
@@ -82,5 +101,5 @@ large cache.
 
 ## Next step
 
-Create/claim the Stage 0 GitHub issue, review this branch, then run the documented
-debug and GPU preflight gates on real artifacts.
+Obtain the missing category/split coverage without downloading the complete
+339 GiB `ball` and `chair` releases, then run the 100-window performance gate.

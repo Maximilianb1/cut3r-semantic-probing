@@ -112,8 +112,8 @@ of these status values: `Not started`, `Planned`, `In progress`, `Blocked`,
 | Work item | Status | Current owner(s) | Previous contributor(s) | Done so far |
 |---|---|---|---|---|
 | Clarify what the random-initialized CUT3R baseline means and reconcile it with the course guidance | Planned | Aviv Rabi | - | The question is recorded; no technical definition has been accepted yet. |
-| Preprocess CO3D for both segmentation and classification | In progress | Max Bershtman | - | Leakage-safe manifests, exact shared RGB/mask transforms, and validation are implemented; real debug data and overlay review remain. |
-| Define, extract, and cache the headless CUT3R representation ("embeddings") | In progress | Max Bershtman | Max Bershtman (earlier proof of concept) | The six-timestep image/state contract, adapter, verified cache, and provenance checks are implemented; real CUDA reproducibility and performance gates remain. |
+| Preprocess CO3D for both segmentation and classification | In progress | Max Bershtman | - | Leakage-safe manifests and transforms passed a real-data smoke test and overlay review. The available subset contained only two `ball` validation sequences, so balanced category/split data remains required. |
+| Define, extract, and cache the headless CUT3R representation ("embeddings") | In progress | Max Bershtman | Max Bershtman (earlier proof of concept) | Six-timestep image/state caches passed exact repeated and single-vs-multi-window CUDA comparisons. The 100-window projection remains before pilot approval. |
 | Design the shared code, configuration, and experiment structure for Stages 1 and 2 | In progress | Team (specific owners TBD) | - | The repository structure, versioned Stage 0 configs, tests, and documentation workflow are implemented; later probe interfaces remain to be finalized. |
 
 ### Stage 1 - Binary segmentation

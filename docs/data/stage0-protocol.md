@@ -44,6 +44,11 @@ Only named category lists and finite caps are accepted to prevent an accidental
 full-dataset download. Unsafe paths, links, missing members, changed remote
 metadata, oversized files, and corrupt existing files fail closed.
 
+An engineering smoke run may use fewer locally available sequences, but it must
+be labeled `smoke-only` when either configured category or any required split is
+empty. Such a run can validate file handling, transforms, model execution, and
+cache determinism; it cannot satisfy the Debug tier or support probe metrics.
+
 ## Split rule
 
 The unit of splitting is a CO3Dv2 sequence: one video of one physical object.
@@ -141,3 +146,6 @@ Before pilot/full extraction:
    projected full runtime/storage.
 
 Probe overfitting and scientific metrics begin in Stages 1 and 2, not Stage 0.
+
+The first real GPU smoke result and its limitations are recorded in
+[EXP-001](../experiments/EXP-001-stage0-real-gpu-smoke.md).
