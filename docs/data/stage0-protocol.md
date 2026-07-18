@@ -97,7 +97,11 @@ identical resize dimensions and crop coordinates.
 Manifest validation recomputes every recorded plan. With `--inspect-files`, it
 also decodes every selected RGB and mask and verifies that both dimensions match
 the CO3D annotation before any GPU work begins. It applies the configured
-transform and threshold to every frame-6 target mask and rejects empty targets.
+transform and threshold while building each frame-6 target. Windows whose
+transformed target mask is empty are deterministically excluded and counted as
+`empty_transformed_target_mask`; a selected sequence with no surviving window
+is excluded as `no_valid_target_windows`. Validation independently repeats the
+same target check before any GPU work begins.
 
 ## Cached trajectory
 

@@ -6,9 +6,15 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
 
+from PIL import Image
+
 from src.common.io import atomic_write_json, load_yaml, sha256_file
 from src.common.tables import write_parquet_atomic
-from src.data.transforms import compute_cut3r_transform
+from src.data.transforms import (
+    binary_mask_array,
+    compute_cut3r_transform,
+    transform_rgb_mask,
+)
 from src.data.windows import choose_sequences, generate_ordered_windows
 
 OFFICIAL_SPLIT_FILES = {
@@ -138,6 +144,32 @@ def _viewpoint_json(viewpoint: Any) -> str | None:
     if viewpoint is None:
         return None
     return json.dumps(viewpoint, sort_keys=True, separators=(",", ":"))
+
+
+def _transformed_target_has_foreground(
+    root: Path,
+    frame: dict[str, Any],
+    preprocessing: dict[str, Any],
+) -> bool:
+    image_path = _dataset_path(root, frame["image_relpath"])
+    mask_path = _dataset_path(root, frame["mask_relpath"])
+    with Image.open(image_path) as image_handle:
+        image = image_handle.copy()
+    with Image.open(mask_path) as mask_handle:
+        mask = mask_handle.copy()
+    _image, transformed_mask, _plan = transform_rgb_mask(
+        image,
+        mask,
+        input_size=int(preprocessing["input_size"]),
+        patch_size=int(preprocessing["patch_size"]),
+        square_ok=bool(preprocessing["square_ok"]),
+    )
+    return bool(
+        binary_mask_array(
+            transformed_mask,
+            threshold=float(preprocessing["mask_threshold"]),
+        ).any()
+    )
 
 
 def _validate_config(config: dict[str, Any]) -> None:
@@ -347,6 +379,33 @@ def build_manifests(config_path: str | Path) -> dict[str, Any]:
                     reason = "fewer_than_six_usable_frames"
                 elif not is_selected:
                     reason = "sequence_cap"
+                frames: list[dict[str, Any]] = []
+                windows: list[dict[str, Any]] = []
+                if is_selected:
+                    frames = sorted(
+                        annotated_frames[sequence_id],
+                        key=lambda row: (row["frame_number"], row["frame_id"]),
+                    )
+                    candidates = generate_ordered_windows(
+                        frames,
+                        window_length=window_length,
+                        windows_per_sequence=windows_per_sequence,
+                    )
+                    if require_local_files:
+                        frame_by_id = {row["frame_id"]: row for row in frames}
+                        for window in candidates:
+                            target = frame_by_id[window["target_frame_id"]]
+                            if _transformed_target_has_foreground(
+                                root, target, preprocessing_cfg
+                            ):
+                                windows.append(window)
+                            else:
+                                rejection_counts["empty_transformed_target_mask"] += 1
+                    else:
+                        windows = candidates
+                    if not windows:
+                        is_selected = False
+                        reason = "no_valid_target_windows"
                 sequence_rows.append(
                     {
                         "schema_version": MANIFEST_SCHEMA_VERSION,
@@ -366,18 +425,8 @@ def build_manifests(config_path: str | Path) -> dict[str, Any]:
                     if reason:
                         rejection_counts[reason] += 1
                     continue
-                frames = sorted(
-                    annotated_frames[sequence_id],
-                    key=lambda row: (row["frame_number"], row["frame_id"]),
-                )
                 frame_rows.extend(frames)
-                window_rows.extend(
-                    generate_ordered_windows(
-                        frames,
-                        window_length=window_length,
-                        windows_per_sequence=windows_per_sequence,
-                    )
-                )
+                window_rows.extend(windows)
 
     if not frame_rows or not window_rows:
         raise ValueError("The selected configuration produced no frames or windows")
