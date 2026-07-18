@@ -40,7 +40,25 @@ SHA-256 `45f7e98a0a64dbeb54901ae2b878cd8cd125f20a4497316483f0bd6f109f8103`.
 Extraction rejects any other file before deserialization and uses a scoped
 seven-type OmegaConf allowlist with PyTorch's restricted weights-only loader.
 
-Build and validate the local debug manifests:
+Download only the files selected by the deterministic debug configuration.
+Run the metadata plan, remote ZIP index, and payload materialization as separate
+gates so disk use is known before downloading image data:
+
+```bash
+python -m scripts.download_co3d_selective \
+  --config configs/stage0/debug.yaml --plan-only \
+  > "$CUT3R_ARTIFACT_ROOT/debug-download-plan.json"
+python -m scripts.download_co3d_selective \
+  --config configs/stage0/debug.yaml --index-only \
+  > "$CUT3R_ARTIFACT_ROOT/debug-download-index.json"
+python -m scripts.download_co3d_selective \
+  --config configs/stage0/debug.yaml \
+  > "$CUT3R_ARTIFACT_ROOT/debug-download-result.json"
+```
+
+The downloader uses byte-range requests against the official full-release ZIPs;
+it does not download whole multi-gigabyte category archives. Then build and
+validate the debug manifests:
 
 ```bash
 python -m scripts.build_manifests --config configs/stage0/debug.yaml

@@ -70,11 +70,33 @@ after an inactivity period and broadcasts a warning first; the course-provided
      --config configs/stage0/debug.yaml \
      --load-model
    ```
-7. Build and validate real debug manifests.
-8. Extract one window into two distinct cache directories, compare them with
+7. In `tmux`, selectively acquire the debug data in three reviewable gates:
+
+   ```bash
+   mkdir -p "$CUT3R_ARTIFACT_ROOT/downloads" "$HOME/cut3r-stage0/logs"
+   set -o pipefail
+   python -m scripts.download_co3d_selective \
+     --config configs/stage0/debug.yaml --plan-only \
+     > "$CUT3R_ARTIFACT_ROOT/downloads/debug-plan.json" \
+     2> >(tee "$HOME/cut3r-stage0/logs/debug-download-plan.log" >&2)
+   python -m scripts.download_co3d_selective \
+     --config configs/stage0/debug.yaml --index-only \
+     > "$CUT3R_ARTIFACT_ROOT/downloads/debug-index.json" \
+     2> >(tee "$HOME/cut3r-stage0/logs/debug-download-index.log" >&2)
+   python -m scripts.download_co3d_selective \
+     --config configs/stage0/debug.yaml \
+     > "$CUT3R_ARTIFACT_ROOT/downloads/debug-result.json" \
+     2> >(tee "$HOME/cut3r-stage0/logs/debug-download.log" >&2)
+   ```
+
+   Review each JSON count/byte projection before continuing. A rerun resumes
+   only from files whose ZIP size and CRC still match; remove a reported corrupt
+   file rather than bypassing validation.
+8. Build and validate real debug manifests.
+9. Extract one window into two distinct cache directories, compare them with
    `scripts.compare_caches`, and validate both caches.
-9. Run and record a 100-window performance pilot.
-10. Approve or revise the pilot/full caps based on measured projections.
+10. Run and record a 100-window performance pilot.
+11. Approve or revise the pilot/full caps based on measured projections.
 
 Do not begin the full extraction until all Stage 0 preflight gates pass.
 

@@ -15,6 +15,35 @@ Categories with fewer sequences use all available official sequences. The caps
 are explicit configuration values and may change only through a new versioned
 configuration and documented rationale.
 
+## Selective acquisition
+
+The bounded Debug and Pilot tiers do not require complete CO3Dv2 category
+archives. `scripts.download_co3d_selective` pins the upstream CO3D link and
+checksum indexes to tooling commit
+`eb51d7583c56ff23dc918d9deafee50f4d8178c3`. It fully downloads and verifies
+each small `<category>_000.zip` metadata archive, applies the exact sampler
+below, and uses HTTP byte ranges to read only selected RGB/mask members from the
+large official ZIPs.
+
+Acquisition has three explicit gates:
+
+1. `--plan-only` verifies metadata and reports selected sequences, windows, and
+   files without inspecting the large data ZIPs.
+2. `--index-only` locates every selected member and reports its source archive
+   plus projected compressed/uncompressed bytes without reading payloads.
+3. Full mode validates member size and ZIP CRC, atomically writes the payload,
+   and records a per-file SHA-256 in
+   `$CO3D_ROOT/.co3d-selective/selection.json`.
+
+The official SHA-256 of every containing ZIP is recorded as provenance. It is
+not claimed as locally verified because proving that hash would require
+downloading the entire archive, which defeats selective acquisition. The small
+metadata ZIP hashes are verified exactly; selected members are verified by ZIP
+CRC and per-file SHA-256, and later cache records bind to the exact local bytes.
+Only named category lists and finite caps are accepted to prevent an accidental
+full-dataset download. Unsafe paths, links, missing members, changed remote
+metadata, oversized files, and corrupt existing files fail closed.
+
 ## Split rule
 
 The unit of splitting is a CO3Dv2 sequence: one video of one physical object.
