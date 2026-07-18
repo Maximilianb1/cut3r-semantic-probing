@@ -2,8 +2,10 @@
 
 - Date: 2026-07-18
 - Author: Max Bershtman with Codex
-- Branches: `codex/refine-project-stages`; `codex/curope-compat`
-- Related issue/PR: Stage 0 foundations PR #2 (merged); compatibility PR pending
+- Branches: `codex/refine-project-stages`; `codex/curope-compat`;
+  `codex/checkpoint-safe-load`
+- Related issue/PR: Stage 0 foundations PR #2 and compatibility PR #3 merged;
+  checkpoint safe-loading PR pending
 - Assistant/model: Codex
 
 ## Objective
@@ -41,10 +43,10 @@ all-timestep image/state extraction, and verified external caching.
 
 ## Verification
 
-- `python -m pytest -q`: 24 passed.
+- `python -m pytest -q`: 27 passed.
 - Strict Ruff checks (`E,F,I,B,UP,SIM`) and Ruff format checks passed.
 - `python -m compileall -q src scripts tests` passed.
-- All six Stage 0 CLI entry points returned valid help output.
+- All seven Stage 0 CLI entry points returned valid help output.
 - `git diff --check` and a local Markdown-link target audit passed.
 - Every repository `README.md` was updated for the Stage 0 contract.
 - Manual comparison with the pinned upstream recurrent path found and corrected
@@ -53,6 +55,19 @@ all-timestep image/state extraction, and verified external caching.
 - Real CUDA preflight exposed upstream CUT3R issue #7 in cuRoPE. The project now
   carries an exact, provenance-checked `tokens.scalar_type()` compatibility
   patch and rejects any additional upstream changes.
+- Real checkpoint preflight exposed PyTorch 2.6+'s restricted-loader default.
+  The official checkpoint loaded with all state keys matching after its exact
+  SHA-256 and seven static OmegaConf globals were verified. The project now
+  enforces that hash-bound scoped loading policy without disabling weights-only
+  loading globally.
+- The course VM later stopped/recreated and reinitialized Azure's temporary
+  `/mnt` resource disk, removing the reproducible repository clones, compiled
+  extension, and downloaded checkpoint. No unique dataset, cache, or result had
+  been produced. The runbook now prohibits persistent artifacts on the resource
+  disk; the 79 GB free OS disk is reserved for code/checkpoint/control artifacts
+  while approved persistent large-data storage is requested.
+- A storage credential was exposed in diagnostic output. Its value was not
+  recorded in the project; course-administrator rotation is required.
 
 Real CO3Dv2 and GPU extraction remain pending because this workspace contains
 neither the dataset nor the released checkpoint and has no visible CUDA device.

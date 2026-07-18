@@ -21,11 +21,19 @@ Stage 0 - repository and experiment foundations.
 
 - Exact six-person roster and GitHub handles are incomplete.
 - ADR 0002 and ADR 0003 are proposed but require team review before becoming accepted scientific contracts.
-- The real CO3Dv2 debug files and released CUT3R checkpoint are not present in this workspace.
+- Real CO3Dv2 debug files are not present. The released CUT3R checkpoint is on
+  no longer present after the Technion VM resource disk was reinitialized; its
+  hash, static globals, and model state were verified before the loss, and it
+  can be downloaded reproducibly. Integrated loading awaits merge of the
+  scoped safe-loading fix.
 - The Technion VM CUDA environment (PyTorch 2.7.1/CUDA 12.8 on an NVIDIA A10-24Q)
   and 1.4 TB local `/mnt` volume are confirmed. One-window runtime,
   reproducibility, and cache-size projection remain to be measured after the
   versioned cuRoPE compatibility patch is deployed and compiled.
+- The VM has 79 GB free on its persistent OS disk, enough for code, the released
+  checkpoint, manifests, logs, and small preflight caches. CO3Dv2 and large
+  caches require an approved managed disk or student-writable persistent share;
+  Azure's `/mnt` resource disk is explicitly prohibited.
 - The meaning and implementation of the random-initialization baseline requires clarification.
 - Baseline models and comparison protocol are not yet selected.
 

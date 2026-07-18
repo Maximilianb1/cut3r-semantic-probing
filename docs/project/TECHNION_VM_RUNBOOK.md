@@ -20,6 +20,22 @@ git --version
 python --version
 ```
 
+Before choosing any artifact path, identify its backing device:
+
+```bash
+lsblk -o NAME,SIZE,FSTYPE,MOUNTPOINTS
+findmnt -T /mnt -o TARGET,SOURCE,FSTYPE,OPTIONS
+readlink -f /dev/disk/azure/resource 2>/dev/null || true
+```
+
+Azure's resource disk is temporary. On this course VM it appears as
+`/dev/disk/azure/resource`, is mounted at `/mnt`, and was observed being
+reinitialized after a VM stop/recreation. Never place repositories,
+checkpoints, datasets, caches, manifests, logs, or results there. Use the
+persistent OS disk only for the small control-plane artifacts that fit, and
+obtain an approved managed data disk or student-writable persistent share for
+CO3Dv2 and large caches.
+
 Use `tmux` or `screen` for extraction. The VM can initiate an automatic shutdown
 after an inactivity period and broadcasts a warning first; the course-provided
 `cancel_shutdown` command cancels a pending shutdown.
@@ -41,14 +57,35 @@ after an inactivity period and broadcasts a warning first; the course-provided
      python setup.py build_ext --inplace)
    ```
 4. Set the five external path variables documented in the root README.
-5. Run the test suite.
-6. Build and validate real debug manifests.
-7. Extract one window into two distinct cache directories, compare them with
+5. Download the released 512 checkpoint and confirm its SHA-256 equals
+   `45f7e98a0a64dbeb54901ae2b878cd8cd125f20a4497316483f0bd6f109f8103`.
+   The hash is a project trust anchor recorded from the official download on
+   2026-07-18; a changed upstream file requires review rather than bypassing the
+   check.
+6. Run the test suite and the checkpoint-load smoke test:
+
+   ```bash
+   python -m pytest -q
+   python -m scripts.validate_checkpoint \
+     --config configs/stage0/debug.yaml \
+     --load-model
+   ```
+7. Build and validate real debug manifests.
+8. Extract one window into two distinct cache directories, compare them with
    `scripts.compare_caches`, and validate both caches.
-8. Run and record a 100-window performance pilot.
-9. Approve or revise the pilot/full caps based on measured projections.
+9. Run and record a 100-window performance pilot.
+10. Approve or revise the pilot/full caps based on measured projections.
 
 Do not begin the full extraction until all Stage 0 preflight gates pass.
+
+## Storage incident response
+
+If `/mnt` contains only `DATALOSS_WARNING_README.txt` and `lost+found`, the
+resource disk has been reinitialized; do not attempt to reconstruct unique data
+there. Re-clone source and re-download verified public artifacts onto approved
+persistent storage. If diagnostic output accidentally includes a credential,
+do not copy it into the repository or another message: notify the owning course
+administrator and have it rotated immediately.
 
 ## After work
 

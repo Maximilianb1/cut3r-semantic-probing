@@ -21,6 +21,12 @@ python -m pip install -e ".[dev]"
 Set external paths. Never commit datasets, checkpoints, caches, VM credentials,
 or generated artifacts.
 
+On Azure, first verify that these paths are backed by a managed OS/data disk or
+an explicitly approved persistent share. Never store repositories, checkpoints,
+datasets, caches, manifests, or results on `/mnt` when it resolves to Azure's
+`/dev/disk/azure/resource` disk; that disk is temporary and can be reinitialized
+after stop/deallocate or host-maintenance events.
+
 ```bash
 export CO3D_ROOT=/data/co3d
 export CUT3R_ROOT=/work/CUT3R
@@ -28,6 +34,11 @@ export CUT3R_CHECKPOINT=/models/cut3r_512_dpt_4_64.pth
 export CUT3R_ARTIFACT_ROOT=/artifacts/cut3r-semantic
 export CUT3R_CACHE_ROOT=/cache/cut3r-semantic
 ```
+
+All Stage 0 configurations pin the released `cut3r_512_dpt_4_64.pth` bytes to
+SHA-256 `45f7e98a0a64dbeb54901ae2b878cd8cd125f20a4497316483f0bd6f109f8103`.
+Extraction rejects any other file before deserialization and uses a scoped
+seven-type OmegaConf allowlist with PyTorch's restricted weights-only loader.
 
 Build and validate the local debug manifests:
 
@@ -48,6 +59,9 @@ python -m scripts.apply_cut3r_compatibility_patch \
   --expected-commit 8bc15dc92a6d7fd92920b4ec81540d3dec7d3ecf
 (cd "$CUT3R_ROOT/src/croco/models/curope" && \
   python setup.py build_ext --inplace)
+python -m scripts.validate_checkpoint \
+  --config configs/stage0/debug.yaml \
+  --load-model
 python -m scripts.extract_features \
   --config configs/stage0/debug.yaml \
   --limit-windows 1 \

@@ -13,14 +13,19 @@ from src.common.io import load_json, load_yaml, sha256_file
 from src.common.tables import read_parquet
 from src.data.validation import validate_manifests
 from src.embeddings.cache import FeatureCacheWriter, verify_cache
+from src.embeddings.checkpoint import trusted_cut3r_checkpoint
 from src.embeddings.cut3r_adapter import Cut3rFeatureExtractor
 from src.embeddings.cut3r_provenance import validate_cut3r_checkout
 from src.embeddings.input import move_views_to_device, prepare_image_window
 
 
 def load_cut3r_model(
-    cut3r_root: str | Path, checkpoint: str | Path, device: torch.device
-) -> Any:
+    cut3r_root: str | Path,
+    checkpoint: str | Path,
+    device: torch.device,
+    *,
+    expected_checkpoint_sha256: str,
+) -> tuple[Any, dict[str, Any]]:
     root = Path(cut3r_root).resolve()
     source = root / "src"
     if not (source / "dust3r" / "model.py").is_file():
@@ -43,23 +48,29 @@ def load_cut3r_model(
                 "dust3r is already imported from a different source tree: "
                 f"{package_paths}"
             )
-    sys.path.insert(0, str(source))
-    try:
-        module = importlib.import_module("dust3r.model")
-        module_path = Path(module.__file__).resolve()
+    with trusted_cut3r_checkpoint(
+        checkpoint, expected_sha256=expected_checkpoint_sha256
+    ) as checkpoint_provenance:
+        sys.path.insert(0, str(source))
         try:
-            module_path.relative_to(source.resolve())
-        except ValueError as error:
-            raise RuntimeError(
-                f"Imported dust3r.model from {module_path}, expected it under {source}"
-            ) from error
-        model = module.ARCroco3DStereo.from_pretrained(str(Path(checkpoint).resolve()))
-    finally:
-        if sys.path[0] == str(source):
-            sys.path.pop(0)
+            module = importlib.import_module("dust3r.model")
+            module_path = Path(module.__file__).resolve()
+            try:
+                module_path.relative_to(source.resolve())
+            except ValueError as error:
+                raise RuntimeError(
+                    "Imported dust3r.model from "
+                    f"{module_path}, expected it under {source}"
+                ) from error
+            model = module.ARCroco3DStereo.from_pretrained(
+                str(Path(checkpoint).resolve())
+            )
+        finally:
+            if sys.path[0] == str(source):
+                sys.path.pop(0)
     model.to(device)
     model.eval()
-    return model
+    return model, checkpoint_provenance
 
 
 def run_extraction(
@@ -105,10 +116,15 @@ def run_extraction(
         expected_patch=model_cfg.get("compatibility_patch"),
         require_compiled_extension=True,
     )
+    model, checkpoint_provenance = load_cut3r_model(
+        cut3r_root,
+        checkpoint,
+        device,
+        expected_checkpoint_sha256=str(model_cfg["checkpoint_sha256"]),
+    )
     contract = {
         "config_sha256": sha256_file(config_path),
-        "checkpoint_sha256": sha256_file(checkpoint),
-        "checkpoint_name": checkpoint.name,
+        "checkpoint_provenance": checkpoint_provenance,
         "cut3r_provenance": cut3r_provenance,
         "manifest_sha256": manifest_summary["manifest_sha256"],
         "input_size": int(preprocessing_cfg["input_size"]),
@@ -137,7 +153,6 @@ def run_extraction(
         if limit_windows < 1:
             raise ValueError("limit_windows must be positive")
         windows = windows[:limit_windows]
-    model = load_cut3r_model(cut3r_root, checkpoint, device)
     extractor = Cut3rFeatureExtractor(model)
     started = time.perf_counter()
     written = skipped = 0
