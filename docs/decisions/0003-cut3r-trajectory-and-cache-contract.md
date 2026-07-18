@@ -57,6 +57,10 @@ the cache to checkpoint, clean CUT3R commit, manifests, configuration,
 transform, runtime stack, and representation contract. Writes are atomic,
 resumable, and verified after every shard and before resuming.
 
+Stage 0 configurations require upstream CUT3R commit
+`8bc15dc92a6d7fd92920b4ec81540d3dec7d3ecf`, the revision against which the
+private recurrent adapter was audited.
+
 ## Rationale
 
 This contract supports all required later probes without recomputing CUT3R and

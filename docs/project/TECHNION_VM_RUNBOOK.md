@@ -26,8 +26,9 @@ after an inactivity period and broadcasts a warning first; the course-provided
 
 ## Stage 0 order
 
-1. Clone this repository and the pinned upstream CUT3R repository; extraction
-   refuses a dirty upstream checkout.
+1. Clone this repository and check upstream CUT3R out at
+   `8bc15dc92a6d7fd92920b4ec81540d3dec7d3ecf`; extraction refuses a dirty or
+   different upstream checkout.
 2. Create a clean CUDA environment following upstream CUT3R instructions.
 3. Install this project with `python -m pip install -e ".[dev]"`.
 4. Set the five external path variables documented in the root README.

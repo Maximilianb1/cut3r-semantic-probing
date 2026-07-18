@@ -119,11 +119,17 @@ def run_extraction(
         )
     device = torch.device(requested_device)
     manifest_summary = load_json(summary_path)
+    cut3r_commit = _git_commit(cut3r_root)
+    expected_commit = str(model_cfg["expected_commit"])
+    if cut3r_commit != expected_commit:
+        raise RuntimeError(
+            f"CUT3R commit mismatch: expected {expected_commit}, got {cut3r_commit}"
+        )
     contract = {
         "config_sha256": sha256_file(config_path),
         "checkpoint_sha256": sha256_file(checkpoint),
         "checkpoint_name": checkpoint.name,
-        "cut3r_commit": _git_commit(cut3r_root),
+        "cut3r_commit": cut3r_commit,
         "manifest_sha256": manifest_summary["manifest_sha256"],
         "input_size": int(preprocessing_cfg["input_size"]),
         "patch_size": int(preprocessing_cfg["patch_size"]),
