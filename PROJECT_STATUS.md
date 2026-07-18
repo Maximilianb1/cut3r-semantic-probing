@@ -4,7 +4,7 @@ Last updated: 2026-07-18
 
 ## Current phase
 
-Stage 0 - repository and experiment foundations.
+Stage 0 - Full-51 frozen representation extraction.
 
 ## Immediate objectives
 
@@ -14,8 +14,10 @@ Stage 0 - repository and experiment foundations.
 - [ ] Review and accept ADRs 0002 and 0003. Owner: team
 - [x] Run a real CO3Dv2 smoke manifest and inspect target-mask overlays. Owner: Max
 - [x] Run exact one-window reproducibility and six-window throughput preflights on the Technion GPU. Owner: Max
-- [ ] Obtain a real debug subset with both configured categories and nonempty train/validation/test splits. Owner: Max
-- [ ] Run the 100-window performance preflight after the balanced debug/pilot data is available. Owner: Max
+- [x] Obtain a real debug subset with both configured categories and official train/validation/test coverage. Owner: Max
+- [x] Complete the valid-target Debug cache and record runtime, VRAM, and storage. Owner: Max
+- [ ] Extract and transfer Full-51 Part A. Owner: Max
+- [ ] Extract and transfer Full-51 Part B. Owner: Max
 - [ ] Approve the shared data-to-embedding interface after real GPU validation. Owner: team
 - [ ] Assign Stage 1 and Stage 2 owners after the sixth member joins.
 
@@ -23,19 +25,15 @@ Stage 0 - repository and experiment foundations.
 
 - Exact six-person roster and GitHub handles are incomplete.
 - ADR 0002 and ADR 0003 are proposed but require team review before becoming accepted scientific contracts.
-- The official CO3Dv2 single-sequence subset plus verified full split metadata
-  produced a valid engineering smoke manifest, but only two `ball` validation
-  sequences had local usable frames: 404 frames and six windows. `chair`, train,
-  and test coverage remain absent, so this cache cannot be used for probe
-  training, category comparison, or scientific evaluation.
-- Real Technion A10-24Q extraction is bit-for-bit reproducible for both image
-  and state trajectories. The six-window run took 3.409 seconds (0.568
-  seconds/window), peaked at 3,454,282,752 CUDA bytes, and occupied 71 MiB.
-  These smoke measurements do not replace the required 100-window projection.
-- The VM has about 76 GB free on its persistent OS disk, enough for code, the released
-  checkpoint, manifests, logs, and small preflight caches. CO3Dv2 and large
-  caches require an approved managed disk or student-writable persistent share;
-  Azure's `/mnt` resource disk is explicitly prohibited.
+- The complete Debug tier produced 41 valid windows after one empty transformed
+  target and its windowless sequence were excluded. Its verified 492 MiB cache
+  ran at 0.464 seconds/window and peaked at 3,532,914,688 CUDA bytes.
+- The combined Full-51 cache is projected near 96 GiB and cannot coexist on the
+  VM disk. Part A and Part B must run sequentially, with each cache transferred
+  to non-OneDrive local storage, hash-verified, and then removed from the VM.
+- Five validation/test sequences per category provide limited independent
+  per-category estimates; later reports must show counts and macro/micro views.
+- Azure's `/mnt` resource disk is temporary and explicitly prohibited.
 - The meaning and implementation of the random-initialization baseline requires clarification.
 - Baseline models and comparison protocol are not yet selected.
 
@@ -51,5 +49,6 @@ Stage 0 - repository and experiment foundations.
 
 ## Latest handoff
 
-See [the Stage 0 foundations session](docs/sessions/2026-07-18-stage0-foundations.md)
-and [the real GPU smoke record](docs/experiments/EXP-001-stage0-real-gpu-smoke.md).
+See the [latest durable handoff](docs/sessions/2026-07-18-stage0-debug-full51-handoff.md),
+[EXP-001](docs/experiments/EXP-001-stage0-real-gpu-smoke.md), and
+[EXP-002](docs/experiments/EXP-002-stage0-complete-debug.md).

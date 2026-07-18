@@ -633,7 +633,9 @@ def run_selective_download(
             "bytes": sum(int(row["size"]) for row in files),
         },
     }
-    atomic_write_json(control_dir / "selection.json", result)
+    selection_path = control_dir / f"selection-{Path(config_path).stem}.json"
+    result["selection_path"] = str(selection_path)
+    atomic_write_json(selection_path, result)
     return result
 
 

@@ -50,10 +50,13 @@ to available resources.
   applying a per-category cap. Filesystem ordering has no effect.
 - Debug uses `ball` and `chair`, three sequences per split, and up to three
   windows per sequence.
-- Pilot uses ten varied categories, caps of 50/10/10 train/val/test sequences,
-  and up to four windows per sequence.
-- Full aims at all 51 categories with the same initial caps. Categories with
-  fewer sequences use all available sequences.
+- Pilot remains available but is skipped after the complete Debug extraction
+  supplied real runtime, VRAM, and storage measurements.
+- Full uses all 51 categories with caps of 30/5/5 train/val/test sequences and
+  up to four windows per sequence. Categories with fewer sequences use all
+  available sequences.
+- Execute Full as two disjoint 26/25-category storage shards. The shards are not
+  train/test partitions and must be combined in later stages.
 - Require RGB, foreground mask, and camera viewpoint annotations. Reject
   sequences with fewer than six usable frames and record every exclusion class.
 - Do not run probe training or test-set evaluation in Stage 0.
@@ -73,7 +76,8 @@ the full configuration.
   per-category results.
 - Rare categories such as `tv` have uncertain per-category estimates and must
   show their sequence counts.
-- The pilot must measure runtime and storage before the full cache is approved.
+- Full extraction requires sequential cache transfer because the combined
+  measured projection exceeds the VM's persistent disk capacity.
 - Blind target/raymap evaluation is deferred.
 
 ## Validation

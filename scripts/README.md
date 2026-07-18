@@ -21,7 +21,9 @@ small official metadata archives. `--index-only` additionally locates all
 required members in the remote ZIPs and reports projected compressed and
 uncompressed bytes. The full mode downloads those members and records ZIP CRC,
 per-file SHA-256, source archive, and official container hash provenance under
-`$CO3D_ROOT/.co3d-selective/selection.json`.
+config-specific records under `$CO3D_ROOT/.co3d-selective/`, preventing Part B
+from overwriting Part A provenance. Use `full51-part-a.yaml` and
+`full51-part-b.yaml` for the sequential all-category run.
 
 The cache override enables genuinely independent reproducibility runs. Reusable
 and tested logic remains under `src/`.

@@ -100,6 +100,12 @@ after an inactivity period and broadcasts a warning first; the course-provided
 
 Do not begin the full extraction until all Stage 0 preflight gates pass.
 
+The gates passed on the complete valid Debug run. The approved all-category
+execution now follows the dedicated
+[Full-51 two-part runbook](FULL51_TWO_PART_RUNBOOK.md): 30/5/5 sequences per
+category, Part A and Part B run sequentially, and each cache is copied and
+hash-verified off-VM before deletion. Never start both parts concurrently.
+
 ## Storage incident response
 
 If `/mnt` contains only `DATALOSS_WARNING_README.txt` and `lost+found`, the
