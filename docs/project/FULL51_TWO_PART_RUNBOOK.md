@@ -14,9 +14,11 @@ windows per sequence, and the same frozen CUT3R/checkpoint/preprocessing
 contract. Part A and Part B are storage shards, not scientific splits.
 
 Measured Debug storage was 492 MiB for 41 windows. Upper projections are about
-49 GiB for Part A (4,160 windows) and 47 GiB for Part B (4,000 windows), before
-invalid targets and unavailable sequences reduce the totals. Keep at least
-60 GiB free on the VM before starting either part and at least 120 GiB free on
+49 GiB for Part A (4,160 windows) and 47 GiB for Part B (4,000 windows) using
+the Debug token-grid mix, before invalid targets and unavailable sequences
+reduce the totals. Full-51 aspect ratios can require more image tokens, so the
+run computes an exact post-manifest projection before extraction. Keep at least
+70 GiB free on the VM before starting either part and at least 120 GiB free on
 the receiving computer before retaining both caches. Never place these caches
 inside OneDrive or on the VM's temporary `/mnt` resource disk.
 
@@ -53,7 +55,7 @@ if test -e "$CACHE" && ! test -d "$CACHE"; then
 fi
 if ! test -d "$CACHE"; then
   available_kib=$(df --output=avail -k "$HOME" | tail -n 1)
-  test "$available_kib" -ge $((60 * 1024 * 1024))
+  test "$available_kib" -ge $((70 * 1024 * 1024))
 fi
 
 set -euo pipefail
@@ -75,6 +77,12 @@ python -m scripts.validate_manifests \
   --dataset-root "$CO3D_ROOT" \
   --inspect-files \
   2>&1 | tee "$LOG_ROOT/manifest-validation.log"
+
+python -m scripts.project_cache_storage \
+  --manifest-dir "$CUT3R_ARTIFACT_ROOT/manifests/full51-part-a-v1" \
+  --filesystem-path "$CUT3R_CACHE_ROOT" \
+  --reserve-gib 10 \
+  2>&1 | tee "$RESULT_ROOT/cache-storage-projection.json"
 
 python -m scripts.extract_features \
   --config "$CONFIG" \
