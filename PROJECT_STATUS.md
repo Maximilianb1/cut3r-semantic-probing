@@ -22,7 +22,10 @@ Stage 0 - repository and experiment foundations.
 - Exact six-person roster and GitHub handles are incomplete.
 - ADR 0002 and ADR 0003 are proposed but require team review before becoming accepted scientific contracts.
 - The real CO3Dv2 debug files and released CUT3R checkpoint are not present in this workspace.
-- The Technion VM's CUDA environment, disk capacity, runtime, and cache-size projection have not yet been measured.
+- The Technion VM CUDA environment (PyTorch 2.7.1/CUDA 12.8 on an NVIDIA A10-24Q)
+  and 1.4 TB local `/mnt` volume are confirmed. One-window runtime,
+  reproducibility, and cache-size projection remain to be measured after the
+  versioned cuRoPE compatibility patch is deployed and compiled.
 - The meaning and implementation of the random-initialization baseline requires clarification.
 - Baseline models and comparison protocol are not yet selected.
 

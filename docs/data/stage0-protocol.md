@@ -84,9 +84,10 @@ window plus timestep because the same image can produce different features
 under different preceding context.
 
 Each cache-index row also stores SHA-256 values for the six exact RGB files and
-their six masks. Cache metadata records the clean upstream CUT3R commit,
-checkpoint hash, manifest hashes, preprocessing, and Python/PyTorch/CUDA device
-runtime. This binds a representation to its actual input bytes and environment.
+their six masks. Cache metadata records the pinned upstream CUT3R commit, exact
+compatibility-patch source hash, compiled cuRoPE shared-object hash, checkpoint
+hash, manifest hashes, preprocessing, and Python/PyTorch/CUDA device runtime.
+This binds a representation to its actual input bytes and environment.
 
 ## Preflight gates
 
