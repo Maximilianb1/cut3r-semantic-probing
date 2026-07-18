@@ -67,12 +67,15 @@ Upper projections from the Debug measurement:
 
 | Part | Categories | Windows | Cache | Extraction only |
 |---|---:|---:|---:|---:|
-| A | 26 | 4,160 | about 49 GiB | about 32 minutes |
-| B | 25 | 4,000 | about 47 GiB | about 31 minutes |
+| A | 26 | 4,160 | about 49 GiB at the Debug grid mix | about 32 minutes |
+| B | 25 | 4,000 | about 47 GiB at the Debug grid mix | about 31 minutes |
 
 Actual totals will be smaller when categories lack the cap or targets are
-invalid. Selective download can take much longer than GPU extraction because it
-performs many HTTP range requests.
+invalid, but varied aspect ratios can increase image-token bytes per window.
+The runbook therefore performs an exact manifest-token-grid projection with 5%
+format overhead and a 10 GiB free-space reserve before extraction. Selective
+download can take much longer than GPU extraction because it performs many HTTP
+range requests.
 
 ## Next action
 

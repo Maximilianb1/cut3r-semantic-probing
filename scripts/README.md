@@ -7,6 +7,7 @@ python -m scripts.download_co3d_selective --config configs/stage0/debug.yaml --p
 python -m scripts.download_co3d_selective --config configs/stage0/debug.yaml --index-only
 python -m scripts.download_co3d_selective --config configs/stage0/debug.yaml
 python -m scripts.build_manifests --config configs/stage0/debug.yaml
+python -m scripts.project_cache_storage --manifest-dir /artifacts/manifests/full51-part-a-v1 --filesystem-path /cache --reserve-gib 10
 python -m scripts.apply_cut3r_compatibility_patch --cut3r-root /work/CUT3R --expected-commit 8bc15dc92a6d7fd92920b4ec81540d3dec7d3ecf
 python -m scripts.validate_checkpoint --config configs/stage0/debug.yaml --load-model
 python -m scripts.validate_manifests --manifest-dir /artifacts/manifests/debug --dataset-root /data/co3d --inspect-files
@@ -27,3 +28,9 @@ from overwriting Part A provenance. Use `full51-part-a.yaml` and
 
 The cache override enables genuinely independent reproducibility runs. Reusable
 and tested logic remains under `src/`.
+
+`project_cache_storage` uses every selected window's recorded token grid to
+project float16 image/state tensor bytes, adds configurable format overhead and
+a free-space reserve, and exits nonzero before extraction if the cache would not
+fit. The Full-51 runbook requires this gate because varied aspect ratios can use
+more image tokens than the Debug measurement.
