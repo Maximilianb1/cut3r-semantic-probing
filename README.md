@@ -5,7 +5,62 @@ Deep Learning course project investigating whether frozen CUT3R representations 
 1. class-agnostic foreground/background segmentation; and
 2. semantic object identity across CO3D categories.
 
-This repository currently contains the project structure and collaboration process only. Implementation code will be added through reviewed pull requests.
+Stage 0 implementation now provides leakage-safe CO3Dv2 manifests, deterministic
+six-frame windows, CUT3R-aligned RGB/mask transforms, frozen CUT3R trajectory
+extraction, and a verified feature cache. The scientific decisions remain
+proposed until team review; no semantic probe is trained in Stage 0.
+
+## Stage 0 quick start
+
+Install the project and development tools:
+
+```bash
+python -m pip install -e ".[dev]"
+```
+
+Set external paths. Never commit datasets, checkpoints, caches, VM credentials,
+or generated artifacts.
+
+```bash
+export CO3D_ROOT=/data/co3d
+export CUT3R_ROOT=/work/CUT3R
+export CUT3R_CHECKPOINT=/models/cut3r_512_dpt_4_64.pth
+export CUT3R_ARTIFACT_ROOT=/artifacts/cut3r-semantic
+export CUT3R_CACHE_ROOT=/cache/cut3r-semantic
+```
+
+Build and validate the local debug manifests:
+
+```bash
+python -m scripts.build_manifests --config configs/stage0/debug.yaml
+python -m scripts.validate_manifests \
+  --manifest-dir "$CUT3R_ARTIFACT_ROOT/manifests/debug" \
+  --dataset-root "$CO3D_ROOT" \
+  --inspect-files
+```
+
+On the CUDA machine, independently extract the same window twice, compare every
+cached tensor exactly, and verify a cache:
+
+```bash
+python -m scripts.extract_features \
+  --config configs/stage0/debug.yaml \
+  --limit-windows 1 \
+  --cache-dir "$CUT3R_CACHE_ROOT/preflight-a"
+python -m scripts.extract_features \
+  --config configs/stage0/debug.yaml \
+  --limit-windows 1 \
+  --cache-dir "$CUT3R_CACHE_ROOT/preflight-b"
+python -m scripts.compare_caches \
+  --left "$CUT3R_CACHE_ROOT/preflight-a" \
+  --right "$CUT3R_CACHE_ROOT/preflight-b"
+python -m scripts.validate_cache --cache-dir "$CUT3R_CACHE_ROOT/preflight-a"
+```
+
+See [the Stage 0 protocol](docs/data/stage0-protocol.md),
+[ADR 0002](docs/decisions/0002-co3dv2-stage0-data-protocol.md), and
+[ADR 0003](docs/decisions/0003-cut3r-trajectory-and-cache-contract.md) before
+running the pilot or full extraction.
 
 ## Project stages
 
@@ -69,8 +124,8 @@ of these status values: `Not started`, `Planned`, `In progress`, `Blocked`,
 
 | Path | Purpose |
 |---|---|
-| `src/data/` | CO3D discovery, filtering, manifests, and preprocessing |
-| `src/embeddings/` | Frozen-backbone feature extraction and caching |
+| `src/data/` | CO3Dv2 annotation parsing, official splits, six-frame windows, transforms, manifests, and validation |
+| `src/embeddings/` | Unmodified-upstream CUT3R adapter, six-timestep feature trajectories, extraction, and verified caching |
 | `src/segmentation/` | Binary segmentation probes and evaluation |
 | `src/classification/` | Multiclass probes and evaluation |
 | `src/baselines/` | Random-weight, simple trained, and advanced frozen baselines |

@@ -5,3 +5,6 @@ Create a note for substantial work, an unresolved investigation, or a handoff be
 Naming: `YYYY-MM-DD-short-description.md`. If names collide, append the GitHub issue number.
 
 Use [the template](template.md). Keep notes factual and concise.
+
+The latest substantial implementation handoff is
+[2026-07-18-stage0-foundations.md](2026-07-18-stage0-foundations.md).

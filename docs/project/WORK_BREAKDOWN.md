@@ -7,9 +7,9 @@ This reflects the current proposal and allocation document. Unassigned work stay
 | Work item | Owner | Output |
 |---|---|---|
 | Clarify the course's intended random-initialization baseline | Aviv | Accepted decision or clarification note |
-| CO3D preprocessing for segmentation and classification | Max | Versioned manifest and preprocessing contract |
-| Define and cache CUT3R representations | Max | Accepted representation ADR and cache specification |
-| Shared code and configuration design | Team | Interface ADR |
+| CO3D preprocessing for segmentation and classification | Max | Implemented manifest/transform pipeline; ADR 0002 review and real-data validation pending |
+| Define and cache CUT3R representations | Max | Implemented trajectory/cache pipeline; ADR 0003 review and GPU validation pending |
+| Shared code and configuration design | Team | Proposed data-to-feature interfaces and versioned debug/pilot/full configurations |
 
 ## Stage 1 - Binary segmentation
 

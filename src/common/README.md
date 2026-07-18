@@ -1,3 +1,6 @@
 # Shared Components
 
-Future home of utilities genuinely shared by multiple stages. Avoid placing stage-specific logic here for convenience.
+`io.py` provides deterministic JSON, stable IDs, SHA-256,
+environment-expanded YAML loading, and atomic writes. `tables.py` provides
+atomic Zstandard-compressed Parquet I/O. Scientific defaults remain in
+versioned YAML rather than shared code.

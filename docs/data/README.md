@@ -16,3 +16,14 @@ Every dataset version used by the project should have:
 - storage location accessible to the team.
 
 Commit manifests and metadata when small. Keep images, masks, depths, and caches in external storage.
+
+## Current Stage 0 protocol
+
+- [Data and feature protocol](stage0-protocol.md)
+- [CO3Dv2 planning statistics](co3dv2-statistics.md)
+- [ADR 0002](../decisions/0002-co3dv2-stage0-data-protocol.md)
+- [ADR 0003](../decisions/0003-cut3r-trajectory-and-cache-contract.md)
+
+Generated manifests consist of `sequences.parquet`, `frames.parquet`,
+`windows.parquet`, and `summary.json`. Keep them external until their size and
+privacy are reviewed; only suitably small summaries/manifests belong in Git.
