@@ -101,5 +101,5 @@ large cache.
 
 ## Next step
 
-Obtain the missing category/split coverage without downloading the complete
-339 GiB `ball` and `chair` releases, then run the 100-window performance gate.
+This early-session next step was completed. Continue from the
+[latest Full-51 handoff](2026-07-18-stage0-debug-full51-handoff.md).

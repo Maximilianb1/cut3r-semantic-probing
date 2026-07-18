@@ -86,3 +86,29 @@ def test_empty_transformed_target_mask_is_rejected(
     Image.new("L", (64, 48), 0).save(root / target["mask_relpath"])
     with pytest.raises(ValueError, match="Transformed target mask is empty"):
         validate_manifests(manifest_dir, dataset_root=root, inspect_files=True)
+
+
+def test_manifest_builder_excludes_empty_transformed_target_window(
+    synthetic_co3d: tuple[Path, Path, Path],
+) -> None:
+    root, config_path, manifest_dir = synthetic_co3d
+    build_manifests(config_path)
+    target_id = read_parquet(manifest_dir / "windows.parquet")[0]["target_frame_id"]
+    target = next(
+        row
+        for row in read_parquet(manifest_dir / "frames.parquet")
+        if row["frame_id"] == target_id
+    )
+    Image.new("L", (64, 48), 0).save(root / target["mask_relpath"])
+
+    summary = build_manifests(config_path)
+    assert summary["selected_sequence_count"] == 3
+    assert summary["window_count"] == 5
+    assert summary["rejection_counts"]["empty_transformed_target_mask"] == 1
+    result = validate_manifests(
+        manifest_dir,
+        dataset_root=root,
+        inspect_files=True,
+    )
+    assert result["valid"] is True
+    assert result["windows"] == 5

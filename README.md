@@ -40,7 +40,25 @@ SHA-256 `45f7e98a0a64dbeb54901ae2b878cd8cd125f20a4497316483f0bd6f109f8103`.
 Extraction rejects any other file before deserialization and uses a scoped
 seven-type OmegaConf allowlist with PyTorch's restricted weights-only loader.
 
-Build and validate the local debug manifests:
+Download only the files selected by the deterministic debug configuration.
+Run the metadata plan, remote ZIP index, and payload materialization as separate
+gates so disk use is known before downloading image data:
+
+```bash
+python -m scripts.download_co3d_selective \
+  --config configs/stage0/debug.yaml --plan-only \
+  > "$CUT3R_ARTIFACT_ROOT/debug-download-plan.json"
+python -m scripts.download_co3d_selective \
+  --config configs/stage0/debug.yaml --index-only \
+  > "$CUT3R_ARTIFACT_ROOT/debug-download-index.json"
+python -m scripts.download_co3d_selective \
+  --config configs/stage0/debug.yaml \
+  > "$CUT3R_ARTIFACT_ROOT/debug-download-result.json"
+```
+
+The downloader uses byte-range requests against the official full-release ZIPs;
+it does not download whole multi-gigabyte category archives. Then build and
+validate the debug manifests:
 
 ```bash
 python -m scripts.build_manifests --config configs/stage0/debug.yaml
@@ -81,6 +99,12 @@ See [the Stage 0 protocol](docs/data/stage0-protocol.md),
 [ADR 0003](docs/decisions/0003-cut3r-trajectory-and-cache-contract.md) before
 running the pilot or full extraction.
 
+The approved all-category run uses two storage shards with 30/5/5
+train/validation/test sequence caps. Follow the
+[Full-51 two-part runbook](docs/project/FULL51_TWO_PART_RUNBOOK.md); Part A and
+Part B are execution shards only and must be combined for later training and
+evaluation.
+
 ## Project stages
 
 These stages follow the project proposal and work-allocation document. Keep the
@@ -94,8 +118,8 @@ of these status values: `Not started`, `Planned`, `In progress`, `Blocked`,
 | Work item | Status | Current owner(s) | Previous contributor(s) | Done so far |
 |---|---|---|---|---|
 | Clarify what the random-initialized CUT3R baseline means and reconcile it with the course guidance | Planned | Aviv Rabi | - | The question is recorded; no technical definition has been accepted yet. |
-| Preprocess CO3D for both segmentation and classification | In progress | Max Bershtman | - | Leakage-safe manifests and transforms passed a real-data smoke test and overlay review. The available subset contained only two `ball` validation sequences, so balanced category/split data remains required. |
-| Define, extract, and cache the headless CUT3R representation ("embeddings") | In progress | Max Bershtman | Max Bershtman (earlier proof of concept) | Six-timestep image/state caches passed exact repeated and single-vs-multi-window CUDA comparisons. The 100-window projection remains before pilot approval. |
+| Preprocess CO3D for both segmentation and classification | In progress | Max Bershtman | - | The complete two-category Debug manifest passed real-file validation; one empty transformed target was excluded deterministically. The approved Full-51 acquisition is split into two bounded execution configs. |
+| Define, extract, and cache the headless CUT3R representation ("embeddings") | In progress | Max Bershtman | Max Bershtman (earlier proof of concept) | The complete valid Debug cache contains 41 windows/82 tensors, is hash-valid, and ran at 0.464 seconds/window with 3.53 GB peak allocated CUDA memory. Full-51 Part A is next. |
 | Design the shared code, configuration, and experiment structure for Stages 1 and 2 | In progress | Team (specific owners TBD) | - | The repository structure, versioned Stage 0 configs, tests, and documentation workflow are implemented; later probe interfaces remain to be finalized. |
 
 ### Stage 1 - Binary segmentation

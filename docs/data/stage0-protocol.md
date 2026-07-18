@@ -8,12 +8,52 @@ train or fine-tune CUT3R, a segmentation head, or a classification head.
 | Tier | Categories | Sequence cap per category (train/val/test) | Windows per sequence | Purpose |
 |---|---:|---:|---:|---|
 | Debug | `ball`, `chair` | 3/3/3 | up to 3 | Local correctness and visualization |
-| Pilot | 10 named categories | 50/10/10 | up to 4 | GPU runtime, memory, storage, and initial pipeline validation |
-| Full | Exactly all 51 CO3Dv2 categories | 50/10/10 | up to 4 | Later probe datasets after the pilot gate |
+| Pilot | 10 named categories | 50/10/10 | up to 4 | Available but skipped after the complete Debug measurement |
+| Full | Exactly all 51 CO3Dv2 categories | 30/5/5 | up to 4 | Two sequential storage shards for later probes |
 
 Categories with fewer sequences use all available official sequences. The caps
 are explicit configuration values and may change only through a new versioned
 configuration and documented rationale.
+
+The Full tier is executed as `full51-part-a.yaml` (26 categories) and
+`full51-part-b.yaml` (25 categories). Tests require the lists to be disjoint and
+their union to equal the official category set. These are storage/execution
+shards only: each category still uses its official train/dev/test sequence
+membership, and later data loading and metrics must combine both caches. The
+30/5/5 cap prioritizes training coverage under the measured disk limit. Five
+validation and five test objects per category make per-category estimates noisy,
+so later reports must show sequence counts plus window-micro, sequence-macro,
+category-macro, and per-category metrics.
+
+## Selective acquisition
+
+The bounded Debug and Pilot tiers do not require complete CO3Dv2 category
+archives. `scripts.download_co3d_selective` pins the upstream CO3D link and
+checksum indexes to tooling commit
+`eb51d7583c56ff23dc918d9deafee50f4d8178c3`. It fully downloads and verifies
+each small `<category>_000.zip` metadata archive, applies the exact sampler
+below, and uses HTTP byte ranges to read only selected RGB/mask members from the
+large official ZIPs.
+
+Acquisition has three explicit gates:
+
+1. `--plan-only` verifies metadata and reports selected sequences, windows, and
+   files without inspecting the large data ZIPs.
+2. `--index-only` locates every selected member and reports its source archive
+   plus projected compressed/uncompressed bytes without reading payloads.
+3. Full mode validates member size and ZIP CRC, atomically writes the payload,
+   and records a per-file SHA-256 in
+   a config-specific record such as
+   `$CO3D_ROOT/.co3d-selective/selection-full51-part-a.json`.
+
+The official SHA-256 of every containing ZIP is recorded as provenance. It is
+not claimed as locally verified because proving that hash would require
+downloading the entire archive, which defeats selective acquisition. The small
+metadata ZIP hashes are verified exactly; selected members are verified by ZIP
+CRC and per-file SHA-256, and later cache records bind to the exact local bytes.
+Only named category lists and finite caps are accepted to prevent an accidental
+full-dataset download. Unsafe paths, links, missing members, changed remote
+metadata, oversized files, and corrupt existing files fail closed.
 
 An engineering smoke run may use fewer locally available sequences, but it must
 be labeled `smoke-only` when either configured category or any required split is
@@ -73,7 +113,11 @@ identical resize dimensions and crop coordinates.
 Manifest validation recomputes every recorded plan. With `--inspect-files`, it
 also decodes every selected RGB and mask and verifies that both dimensions match
 the CO3D annotation before any GPU work begins. It applies the configured
-transform and threshold to every frame-6 target mask and rejects empty targets.
+transform and threshold while building each frame-6 target. Windows whose
+transformed target mask is empty are deterministically excluded and counted as
+`empty_transformed_target_mask`; a selected sequence with no surviving window
+is excluded as `no_valid_target_windows`. Validation independently repeats the
+same target check before any GPU work begins.
 
 ## Cached trajectory
 
@@ -99,7 +143,7 @@ binds a representation to its actual input bytes and environment.
 
 ## Preflight gates
 
-Before pilot/full extraction:
+Before large extraction:
 
 1. CPU tests and CLI help checks pass.
 2. Real debug manifests pass file, split, order, and hash validation.
@@ -109,8 +153,15 @@ Before pilot/full extraction:
    `scripts.compare_caches` confirms exact equality (or a separately documented
    nonzero tolerance if the pinned CUDA stack cannot be bitwise deterministic).
 6. Cache verification passes after a one-window extraction.
-7. A 100-window run records seconds/window, peak VRAM, cache bytes/window, and
-   projected full runtime/storage.
+7. A complete valid Debug run records seconds/window, peak VRAM, cache
+   bytes/window, and projected full runtime/storage.
+
+The complete Debug run wrote 41 valid windows at 0.464 seconds/window, used
+3,532,914,688 peak allocated CUDA bytes, and occupied 492 MiB. Based on roughly
+12 MiB/window, Full-51 Part A has an upper cache projection near 49 GiB and
+Part B near 47 GiB. The project owner elected to skip the separate Pilot tier
+and run the two Full-51 shards sequentially, transferring and verifying each
+cache off-VM before deleting it.
 
 Probe overfitting and scientific metrics begin in Stages 1 and 2, not Stage 0.
 
