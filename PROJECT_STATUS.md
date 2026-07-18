@@ -21,7 +21,9 @@ Stage 0 - repository and experiment foundations.
 
 - Exact six-person roster and GitHub handles are incomplete.
 - ADR 0002 and ADR 0003 are proposed but require team review before becoming accepted scientific contracts.
-- The real CO3Dv2 debug files and released CUT3R checkpoint are not present in this workspace.
+- Real CO3Dv2 debug files are not present. The released CUT3R checkpoint is on
+  the Technion VM and its hash, static globals, and model state were verified;
+  integrated loading awaits merge of the scoped safe-loading fix.
 - The Technion VM CUDA environment (PyTorch 2.7.1/CUDA 12.8 on an NVIDIA A10-24Q)
   and 1.4 TB local `/mnt` volume are confirmed. One-window runtime,
   reproducibility, and cache-size projection remain to be measured after the

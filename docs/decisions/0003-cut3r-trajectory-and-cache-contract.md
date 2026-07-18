@@ -71,6 +71,18 @@ changes. Extraction also requires exactly one compiled in-place cuRoPE shared
 object and records its filename and SHA-256; ignored native build intermediates
 do not weaken the source-content check.
 
+[PyTorch 2.6 changed `torch.load` to use its restricted weights-only unpickler
+by default](https://docs.pytorch.org/docs/stable/notes/serialization.html#torch-load-with-weights-only-true).
+The released CUT3R checkpoint includes OmegaConf configuration containers, so
+Stage 0 pins its exact SHA-256 and statically requires exactly these seven
+globals: `builtins.dict`, `collections.defaultdict`,
+`omegaconf.base.ContainerMetadata`, `omegaconf.base.Metadata`,
+`omegaconf.dictconfig.DictConfig`, `omegaconf.nodes.AnyNode`, and `typing.Any`.
+Those types are added only within a `torch.serialization.safe_globals` context
+around the upstream load call. The project does not set
+`TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD` or otherwise enable unrestricted pickle
+loading globally.
+
 ## Rationale
 
 This contract supports all required later probes without recomputing CUT3R and
@@ -93,6 +105,8 @@ silent reuse of stale or incompatible features an error.
 - round-trip every shard and verify SHA-256;
 - reject duplicate window IDs, missing tensors, shape changes, or incompatible
   metadata;
+- reject a checkpoint hash mismatch or any pickle global outside the audited
+  allowlist before model construction;
 - run two independent extractions of the same debug window into different cache
   directories and compare every tensor with `scripts.compare_caches` using zero
   tolerance first; document any required nonzero tolerance and pinned stack.

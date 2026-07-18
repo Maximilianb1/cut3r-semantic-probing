@@ -86,8 +86,11 @@ under different preceding context.
 Each cache-index row also stores SHA-256 values for the six exact RGB files and
 their six masks. Cache metadata records the pinned upstream CUT3R commit, exact
 compatibility-patch source hash, compiled cuRoPE shared-object hash, checkpoint
-hash, manifest hashes, preprocessing, and Python/PyTorch/CUDA device runtime.
-This binds a representation to its actual input bytes and environment.
+hash and restricted-load policy, manifest hashes, preprocessing, and
+Python/PyTorch/CUDA device runtime. The checkpoint is rejected before
+deserialization unless its SHA-256 matches the versioned configuration and its
+static pickle globals equal the audited seven-type OmegaConf allowlist. This
+binds a representation to its actual input bytes and environment.
 
 ## Preflight gates
 

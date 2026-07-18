@@ -26,6 +26,7 @@ model:
   expected_commit: 8bc15dc92a6d7fd92920b4ec81540d3dec7d3ecf
   compatibility_patch: curope-scalar-type-v1
   checkpoint: ${CUT3R_CHECKPOINT}
+  checkpoint_sha256: 45f7e98a0a64dbeb54901ae2b878cd8cd125f20a4497316483f0bd6f109f8103
   device: cuda
 
 cache:
