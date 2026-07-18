@@ -20,6 +20,22 @@ git --version
 python --version
 ```
 
+Before choosing any artifact path, identify its backing device:
+
+```bash
+lsblk -o NAME,SIZE,FSTYPE,MOUNTPOINTS
+findmnt -T /mnt -o TARGET,SOURCE,FSTYPE,OPTIONS
+readlink -f /dev/disk/azure/resource 2>/dev/null || true
+```
+
+Azure's resource disk is temporary. On this course VM it appears as
+`/dev/disk/azure/resource`, is mounted at `/mnt`, and was observed being
+reinitialized after a VM stop/recreation. Never place repositories,
+checkpoints, datasets, caches, manifests, logs, or results there. Use the
+persistent OS disk only for the small control-plane artifacts that fit, and
+obtain an approved managed data disk or student-writable persistent share for
+CO3Dv2 and large caches.
+
 Use `tmux` or `screen` for extraction. The VM can initiate an automatic shutdown
 after an inactivity period and broadcasts a warning first; the course-provided
 `cancel_shutdown` command cancels a pending shutdown.
@@ -61,6 +77,15 @@ after an inactivity period and broadcasts a warning first; the course-provided
 10. Approve or revise the pilot/full caps based on measured projections.
 
 Do not begin the full extraction until all Stage 0 preflight gates pass.
+
+## Storage incident response
+
+If `/mnt` contains only `DATALOSS_WARNING_README.txt` and `lost+found`, the
+resource disk has been reinitialized; do not attempt to reconstruct unique data
+there. Re-clone source and re-download verified public artifacts onto approved
+persistent storage. If diagnostic output accidentally includes a credential,
+do not copy it into the repository or another message: notify the owning course
+administrator and have it rotated immediately.
 
 ## After work
 

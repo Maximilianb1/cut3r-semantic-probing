@@ -60,6 +60,14 @@ all-timestep image/state extraction, and verified external caching.
   SHA-256 and seven static OmegaConf globals were verified. The project now
   enforces that hash-bound scoped loading policy without disabling weights-only
   loading globally.
+- The course VM later stopped/recreated and reinitialized Azure's temporary
+  `/mnt` resource disk, removing the reproducible repository clones, compiled
+  extension, and downloaded checkpoint. No unique dataset, cache, or result had
+  been produced. The runbook now prohibits persistent artifacts on the resource
+  disk; the 79 GB free OS disk is reserved for code/checkpoint/control artifacts
+  while approved persistent large-data storage is requested.
+- A storage credential was exposed in diagnostic output. Its value was not
+  recorded in the project; course-administrator rotation is required.
 
 Real CO3Dv2 and GPU extraction remain pending because this workspace contains
 neither the dataset nor the released checkpoint and has no visible CUDA device.

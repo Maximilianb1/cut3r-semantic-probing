@@ -21,6 +21,12 @@ python -m pip install -e ".[dev]"
 Set external paths. Never commit datasets, checkpoints, caches, VM credentials,
 or generated artifacts.
 
+On Azure, first verify that these paths are backed by a managed OS/data disk or
+an explicitly approved persistent share. Never store repositories, checkpoints,
+datasets, caches, manifests, or results on `/mnt` when it resolves to Azure's
+`/dev/disk/azure/resource` disk; that disk is temporary and can be reinitialized
+after stop/deallocate or host-maintenance events.
+
 ```bash
 export CO3D_ROOT=/data/co3d
 export CUT3R_ROOT=/work/CUT3R
