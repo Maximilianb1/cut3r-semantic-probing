@@ -2,8 +2,8 @@
 
 - Date: 2026-07-18
 - Author: Max Bershtman with Codex
-- Branch: `codex/refine-project-stages`
-- Related issue/PR: Stage 0 foundations; issue/PR not yet created
+- Branches: `codex/refine-project-stages`; `codex/curope-compat`
+- Related issue/PR: Stage 0 foundations PR #2 (merged); compatibility PR pending
 - Assistant/model: Codex
 
 ## Objective
@@ -20,11 +20,12 @@ all-timestep image/state extraction, and verified external caching.
   uniform/disjoint windows, Parquet manifests, summaries, and leakage checks.
 - Implemented shared RGB/mask transform geometry matching released CUT3R
   preprocessing and recorded every per-frame transform in the manifest.
-- Implemented an adapter around unmodified CUT3R recurrent internals that saves
+- Implemented an adapter around pinned CUT3R recurrent internals that saves
   final image tokens and committed persistent state after all six timesteps.
 - Implemented atomic, resumable, hashed Safetensors shards with Parquet index
   and independent cache-to-cache tensor comparison. Index entries bind each
-  window to exact RGB/mask SHA-256 values; extraction requires clean upstream.
+  window to exact RGB/mask SHA-256 values; extraction requires the pinned
+  upstream commit plus the exact versioned compatibility patch.
 - Added synthetic CO3Dv2, transform, window, fake-model trajectory, and cache
   tests.
 - Documented evaluation aggregation and the credential-free Technion VM runbook.
@@ -40,15 +41,18 @@ all-timestep image/state extraction, and verified external caching.
 
 ## Verification
 
-- `python -m pytest -q`: 22 passed.
+- `python -m pytest -q`: 24 passed.
 - Strict Ruff checks (`E,F,I,B,UP,SIM`) and Ruff format checks passed.
 - `python -m compileall -q src scripts tests` passed.
-- All five Stage 0 CLI entry points returned valid help output.
+- All six Stage 0 CLI entry points returned valid help output.
 - `git diff --check` and a local Markdown-link target audit passed.
 - Every repository `README.md` was updated for the Stage 0 contract.
 - Manual comparison with the pinned upstream recurrent path found and corrected
   the pose-token position to `(-1, -1)`; a pose-enabled regression test now
   guards it.
+- Real CUDA preflight exposed upstream CUT3R issue #7 in cuRoPE. The project now
+  carries an exact, provenance-checked `tokens.scalar_type()` compatibility
+  patch and rejects any additional upstream changes.
 
 Real CO3Dv2 and GPU extraction remain pending because this workspace contains
 neither the dataset nor the released checkpoint and has no visible CUDA device.

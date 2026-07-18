@@ -43,6 +43,11 @@ On the CUDA machine, independently extract the same window twice, compare every
 cached tensor exactly, and verify a cache:
 
 ```bash
+python -m scripts.apply_cut3r_compatibility_patch \
+  --cut3r-root "$CUT3R_ROOT" \
+  --expected-commit 8bc15dc92a6d7fd92920b4ec81540d3dec7d3ecf
+(cd "$CUT3R_ROOT/src/croco/models/curope" && \
+  python setup.py build_ext --inplace)
 python -m scripts.extract_features \
   --config configs/stage0/debug.yaml \
   --limit-windows 1 \
@@ -75,9 +80,9 @@ of these status values: `Not started`, `Planned`, `In progress`, `Blocked`,
 | Work item | Status | Current owner(s) | Previous contributor(s) | Done so far |
 |---|---|---|---|---|
 | Clarify what the random-initialized CUT3R baseline means and reconcile it with the course guidance | Planned | Aviv Rabi | - | The question is recorded; no technical definition has been accepted yet. |
-| Preprocess CO3D for both segmentation and classification | Planned | Max Bershtman | - | Dataset documentation and leakage-prevention rules exist; preprocessing code has not been implemented. |
-| Define, extract, and cache the headless CUT3R representation ("embeddings") | Planned | Max Bershtman | Max Bershtman (earlier proof of concept) | The earlier extraction path was audited. The exact representation and cache format remain open decisions. |
-| Design the shared code, configuration, and experiment structure for Stages 1 and 2 | In progress | Team (specific owners TBD) | - | The responsibility-based repository skeleton, configuration folders, tests, and documentation workflow are in place. Model interfaces are not yet defined. |
+| Preprocess CO3D for both segmentation and classification | In progress | Max Bershtman | - | Leakage-safe manifests, exact shared RGB/mask transforms, and validation are implemented; real debug data and overlay review remain. |
+| Define, extract, and cache the headless CUT3R representation ("embeddings") | In progress | Max Bershtman | Max Bershtman (earlier proof of concept) | The six-timestep image/state contract, adapter, verified cache, and provenance checks are implemented; real CUDA reproducibility and performance gates remain. |
+| Design the shared code, configuration, and experiment structure for Stages 1 and 2 | In progress | Team (specific owners TBD) | - | The repository structure, versioned Stage 0 configs, tests, and documentation workflow are implemented; later probe interfaces remain to be finalized. |
 
 ### Stage 1 - Binary segmentation
 
@@ -125,7 +130,7 @@ of these status values: `Not started`, `Planned`, `In progress`, `Blocked`,
 | Path | Purpose |
 |---|---|
 | `src/data/` | CO3Dv2 annotation parsing, official splits, six-frame windows, transforms, manifests, and validation |
-| `src/embeddings/` | Unmodified-upstream CUT3R adapter, six-timestep feature trajectories, extraction, and verified caching |
+| `src/embeddings/` | Pinned-upstream CUT3R adapter, exact cuRoPE compatibility provenance, six-timestep feature trajectories, extraction, and verified caching |
 | `src/segmentation/` | Binary segmentation probes and evaluation |
 | `src/classification/` | Multiclass probes and evaluation |
 | `src/baselines/` | Random-weight, simple trained, and advanced frozen baselines |

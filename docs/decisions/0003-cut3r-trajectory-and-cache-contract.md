@@ -15,7 +15,8 @@ headless representations whose meanings and provenance are explicit.
 
 - distinguish persistent state from state-conditioned image tokens;
 - preserve all six timesteps for later temporal analysis;
-- leave upstream CUT3R unmodified;
+- keep upstream model logic intact apart from a versioned build-compatibility
+  patch;
 - support resumable, corruption-detecting extraction;
 - prevent incompatible checkpoints or manifests from sharing a cache.
 
@@ -47,19 +48,28 @@ For each ordered six-frame window, cache:
 
 Both tensors retain a batch dimension and are stacked over six timesteps.
 CUT3R runs in evaluation and inference mode, and all parameters have gradients
-disabled. The adapter mirrors the pinned upstream recurrent forward path but
-does not add a semantic head or modify upstream files.
+disabled. The adapter mirrors the pinned upstream recurrent forward path and
+does not copy the upstream model or add a semantic head.
 
 Cache tensors use float16 Safetensors shards. A Parquet index maps stable window
 IDs to tensor keys and records shapes, frame IDs, token grids, shard hashes, and
 dtypes, plus SHA-256 values for all source RGB/mask files. `metadata.json` binds
-the cache to checkpoint, clean CUT3R commit, manifests, configuration,
-transform, runtime stack, and representation contract. Writes are atomic,
+the cache to checkpoint, pinned CUT3R commit and exact compatibility patch,
+manifests, configuration, transform, runtime stack, and representation contract.
+Writes are atomic,
 resumable, and verified after every shard and before resuming.
 
 Stage 0 configurations require upstream CUT3R commit
 `8bc15dc92a6d7fd92920b4ec81540d3dec7d3ecf`, the revision against which the
-private recurrent adapter was audited.
+private recurrent adapter was audited. Modern PyTorch requires the versioned
+`curope-scalar-type-v1` patch documented by
+[upstream CUT3R issue #7](https://github.com/CUT3R/CUT3R/issues/7), which replaces
+the deprecated `tokens.type()`
+dispatch argument with `tokens.scalar_type()`. Provenance validation accepts
+that exact source transformation and no other tracked or untracked source
+changes. Extraction also requires exactly one compiled in-place cuRoPE shared
+object and records its filename and SHA-256; ignored native build intermediates
+do not weaken the source-content check.
 
 ## Rationale
 

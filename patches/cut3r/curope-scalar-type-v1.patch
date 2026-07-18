@@ -1,0 +1,7 @@
+diff --git a/src/croco/models/curope/kernels.cu b/src/croco/models/curope/kernels.cu
+--- a/src/croco/models/curope/kernels.cu
++++ b/src/croco/models/curope/kernels.cu
+@@ -101,2 +101,2 @@
+-    AT_DISPATCH_FLOATING_TYPES_AND_HALF(tokens.type(), "rope_2d_cuda", ([&] {
++    AT_DISPATCH_FLOATING_TYPES_AND_HALF(tokens.scalar_type(), "rope_2d_cuda", ([&] {
+         rope_2d_cuda_kernel<scalar_t> <<<N_BLOCKS, THREADS_PER_BLOCK, SHARED_MEM>>> (

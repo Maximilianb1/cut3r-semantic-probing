@@ -27,10 +27,19 @@ after an inactivity period and broadcasts a warning first; the course-provided
 ## Stage 0 order
 
 1. Clone this repository and check upstream CUT3R out at
-   `8bc15dc92a6d7fd92920b4ec81540d3dec7d3ecf`; extraction refuses a dirty or
-   different upstream checkout.
+   `8bc15dc92a6d7fd92920b4ec81540d3dec7d3ecf`.
 2. Create a clean CUDA environment following upstream CUT3R instructions.
-3. Install this project with `python -m pip install -e ".[dev]"`.
+3. Install this project, apply its versioned `curope-scalar-type-v1` patch, and
+   compile cuRoPE. Extraction accepts only that exact one-line compatibility
+   change and rejects every other upstream modification.
+
+   ```bash
+   python -m scripts.apply_cut3r_compatibility_patch \
+     --cut3r-root "$CUT3R_ROOT" \
+     --expected-commit 8bc15dc92a6d7fd92920b4ec81540d3dec7d3ecf
+   (cd "$CUT3R_ROOT/src/croco/models/curope" && \
+     python setup.py build_ext --inplace)
+   ```
 4. Set the five external path variables documented in the root README.
 5. Run the test suite.
 6. Build and validate real debug manifests.

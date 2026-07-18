@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import importlib
 import platform
-import subprocess
 import sys
 import time
 from pathlib import Path
@@ -15,28 +14,8 @@ from src.common.tables import read_parquet
 from src.data.validation import validate_manifests
 from src.embeddings.cache import FeatureCacheWriter, verify_cache
 from src.embeddings.cut3r_adapter import Cut3rFeatureExtractor
+from src.embeddings.cut3r_provenance import validate_cut3r_checkout
 from src.embeddings.input import move_views_to_device, prepare_image_window
-
-
-def _git_commit(repository: Path) -> str:
-    result = subprocess.run(
-        ["git", "-C", str(repository), "rev-parse", "HEAD"],
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    commit = result.stdout.strip()
-    status = subprocess.run(
-        ["git", "-C", str(repository), "status", "--porcelain"],
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    if status.stdout.strip():
-        raise RuntimeError(
-            f"CUT3R checkout must be clean before extraction: {repository}"
-        )
-    return commit
 
 
 def load_cut3r_model(
@@ -119,17 +98,18 @@ def run_extraction(
         )
     device = torch.device(requested_device)
     manifest_summary = load_json(summary_path)
-    cut3r_commit = _git_commit(cut3r_root)
     expected_commit = str(model_cfg["expected_commit"])
-    if cut3r_commit != expected_commit:
-        raise RuntimeError(
-            f"CUT3R commit mismatch: expected {expected_commit}, got {cut3r_commit}"
-        )
+    cut3r_provenance = validate_cut3r_checkout(
+        cut3r_root,
+        expected_commit=expected_commit,
+        expected_patch=model_cfg.get("compatibility_patch"),
+        require_compiled_extension=True,
+    )
     contract = {
         "config_sha256": sha256_file(config_path),
         "checkpoint_sha256": sha256_file(checkpoint),
         "checkpoint_name": checkpoint.name,
-        "cut3r_commit": cut3r_commit,
+        "cut3r_provenance": cut3r_provenance,
         "manifest_sha256": manifest_summary["manifest_sha256"],
         "input_size": int(preprocessing_cfg["input_size"]),
         "patch_size": int(preprocessing_cfg["patch_size"]),

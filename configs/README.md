@@ -4,8 +4,9 @@
 official split caps, six-frame sampler, released CUT3R 512 contract, cache
 sharding, expected category counts, mask policy, and external paths.
 
-All Stage 0 tiers pin the audited upstream CUT3R Git revision. Extraction fails
-if the configured checkout is dirty or points to another commit.
+All Stage 0 tiers pin the audited upstream CUT3R Git revision plus the exact
+`curope-scalar-type-v1` compatibility patch required by modern PyTorch.
+Extraction fails for any other checkout change.
 
 Missing path environment variables fail rather than falling back to a
 machine-specific location. Scientific changes require a new versioned config
