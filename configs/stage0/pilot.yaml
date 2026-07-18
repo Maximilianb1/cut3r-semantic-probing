@@ -1,0 +1,35 @@
+dataset:
+  version: CO3Dv2-v2_231130
+  root: ${CO3D_ROOT}
+  categories:
+    [backpack, ball, bicycle, bottle, car, chair, hydrant, plant, toyplane, vase]
+  expected_category_count: 10
+  require_viewpoint: true
+  require_local_files: true
+
+sampling:
+  seed: 20260718
+  window_length: 6
+  windows_per_sequence: 4
+  sequence_caps:
+    train: 50
+    val: 10
+    test: 10
+
+preprocessing:
+  input_size: 512
+  patch_size: 16
+  square_ok: false
+  mask_threshold: 0.5
+
+model:
+  cut3r_root: ${CUT3R_ROOT}
+  checkpoint: ${CUT3R_CHECKPOINT}
+  device: cuda
+
+cache:
+  directory: ${CUT3R_CACHE_ROOT}/pilot
+  windows_per_shard: 32
+
+output:
+  manifest_dir: ${CUT3R_ARTIFACT_ROOT}/manifests/pilot

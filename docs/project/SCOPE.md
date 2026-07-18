@@ -18,11 +18,11 @@ Do frozen CUT3R representations encode semantic object identity beyond class-agn
 
 Multi-object detection and classification require a separate go/no-go decision after the required stages are stable.
 
-## Non-goals for the initial scaffold
+## Stage 0 non-goals
 
-- No implementation code.
 - No unreviewed reproduction of the previous proof-of-concept claims.
-- No decision yet about the exact CUT3R layer/token representation.
+- No probe training, CUT3R fine-tuning, scientific test-set results, or blind-target query experiment.
+- No conflation of persistent state with state-conditioned image tokens.
 - No decision yet about baseline model families.
 - No full CO3D download inside the repository.
 

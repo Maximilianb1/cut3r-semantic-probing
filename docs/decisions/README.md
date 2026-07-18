@@ -16,3 +16,5 @@ Use an Architecture/Analysis Decision Record (ADR) for choices that affect inter
 | ADR | Status | Decision |
 |---|---|---|
 | [0001](0001-repository-governance.md) | Accepted | Repository governance and tracking |
+| [0002](0002-co3dv2-stage0-data-protocol.md) | Proposed | Official sequence splits and deterministic six-frame windows |
+| [0003](0003-cut3r-trajectory-and-cache-contract.md) | Proposed | Six-timestep image/state features and verified cache |
