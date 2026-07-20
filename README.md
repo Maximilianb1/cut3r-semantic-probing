@@ -99,6 +99,19 @@ See [the Stage 0 protocol](docs/data/stage0-protocol.md),
 [ADR 0003](docs/decisions/0003-cut3r-trajectory-and-cache-contract.md) before
 running the pilot or full extraction.
 
+## Team cache access
+
+The Full-51 Stage 0 representations are distributed as two immutable external
+cache roots, `full51-part-a-v1` and `full51-part-b-v1`. They are category/storage
+shards, not scientific splits, and must never be merged by copying their files
+together. Teammates should download both to a non-synced local SSD, verify the
+published SHA-256 manifests, validate each cache, and load them as a logical
+union. The cache does not replace the CO3D manifests or RGB/mask files.
+
+Follow the complete [Stage 0 Full-51 cache handoff](docs/data/stage0-full51-cache-handoff.md)
+for the shared-drive layout, upload/download commands, immutable identities,
+verification gates, tensor shapes, timestep semantics, and loading example.
+
 The approved all-category run uses two storage shards with 30/5/5
 train/validation/test sequence caps. Follow the
 [Full-51 two-part runbook](docs/project/FULL51_TWO_PART_RUNBOOK.md); Part A and

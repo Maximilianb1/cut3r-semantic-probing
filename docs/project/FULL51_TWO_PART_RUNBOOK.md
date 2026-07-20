@@ -200,3 +200,18 @@ Do not merge the two cache directories by copying files together: shard names
 overlap and each cache has a distinct extraction contract. Later Stage 1/2 code
 must load the two verified cache roots as a logical union and preserve their
 separate metadata/manifests.
+
+## Publish for the team
+
+After **both** local PowerShell checksum gates pass, publish the two cache roots,
+checksum files, manifests, run records, and audit artifacts using the staging
+and promotion procedure in the
+[Stage 0 Full-51 cache handoff](../data/stage0-full51-cache-handoff.md). Part A
+may upload while Part B transfers, but the shared folder must retain its
+`stage0-full51-v1-staging` name and Part B must not appear in the canonical
+cache path until its local bytes are verified.
+
+Do not train directly from a Google Drive streaming mount. Each teammate copies
+both immutable cache roots to local compute storage, verifies the published
+SHA-256 lists, runs `scripts.validate_cache` on each root, and only then treats
+the two indexes as a logical union.

@@ -20,6 +20,7 @@ Commit manifests and metadata when small. Keep images, masks, depths, and caches
 ## Current Stage 0 protocol
 
 - [Data and feature protocol](stage0-protocol.md)
+- [Full-51 cache publication and team handoff](stage0-full51-cache-handoff.md)
 - [CO3Dv2 planning statistics](co3dv2-statistics.md)
 - [ADR 0002](../decisions/0002-co3dv2-stage0-data-protocol.md)
 - [ADR 0003](../decisions/0003-cut3r-trajectory-and-cache-contract.md)

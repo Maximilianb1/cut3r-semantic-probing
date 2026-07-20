@@ -1,6 +1,6 @@
 # Project Status
 
-Last updated: 2026-07-18
+Last updated: 2026-07-20
 
 ## Current phase
 
@@ -16,8 +16,9 @@ Stage 0 - Full-51 frozen representation extraction.
 - [x] Run exact one-window reproducibility and six-window throughput preflights on the Technion GPU. Owner: Max
 - [x] Obtain a real debug subset with both configured categories and official train/validation/test coverage. Owner: Max
 - [x] Complete the valid-target Debug cache and record runtime, VRAM, and storage. Owner: Max
-- [ ] Extract and transfer Full-51 Part A. Owner: Max
-- [ ] Extract and transfer Full-51 Part B. Owner: Max
+- [x] Extract, transfer, locally SHA-verify, and sample-audit Full-51 Part A. Owner: Max
+- [ ] Finish local transfer and SHA verification of extracted Full-51 Part B. Owner: Max
+- [ ] Publish both immutable cache roots and provenance to the team Shared Drive. Owner: Max
 - [ ] Approve the shared data-to-embedding interface after real GPU validation. Owner: team
 - [ ] Assign Stage 1 and Stage 2 owners after the sixth member joins.
 
@@ -31,6 +32,10 @@ Stage 0 - Full-51 frozen representation extraction.
 - The combined Full-51 cache is projected near 96 GiB and cannot coexist on the
   VM disk. Part A and Part B must run sequentially, with each cache transferred
   to non-OneDrive local storage, hash-verified, and then removed from the VM.
+- Actual extraction produced 3,667 Part A windows (43 GiB) and 3,458 Part B
+  windows (41 GiB), for 7,125 windows across all 51 categories. Part A is
+  locally verified and exactly reproduced in a six-frame GPU audit. Part B is
+  cache-valid on the VM and is currently transferring for local verification.
 - Five validation/test sequences per category provide limited independent
   per-category estimates; later reports must show counts and macro/micro views.
 - Azure's `/mnt` resource disk is temporary and explicitly prohibited.
