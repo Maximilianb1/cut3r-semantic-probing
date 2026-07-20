@@ -3,7 +3,7 @@
 - Date: 2026-07-20
 - Owner: Max Bershtman with Codex
 - Assistant/model: Codex, GPT-5
-- Status: Local cache/source checks complete; GPU reconstruction pending
+- Status: Completed
 
 ## Objective
 
@@ -57,10 +57,39 @@ python -m compileall -q src scripts
 passed
 ```
 
-## Next step
+## GPU reproduction and reconstruction result
 
-Copy the 12 MiB exported reference to the Technion VM, run the `reconstruct`
-subcommand with `configs/stage0/full51-part-a.yaml`, and copy back
-`reconstruction-audit.json`, `reconstruction.ply`, and
-`reconstruction-projections.png`. Completion requires exact zero-difference
-image/state features and a visually inspected finite point cloud.
+The exported 12 MiB reference was copied to the Technion A10 VM and audited
+with `configs/stage0/full51-part-a.yaml`. The fresh six-frame forward pass
+matched the cache exactly after float16 storage conversion:
+
+- image-token maximum absolute difference: `0.0`;
+- state-token maximum absolute difference: `0.0`;
+- predicted frames: `6`;
+- rendered point-cloud vertices: `110,592`, all finite;
+- observed XYZ bounds: `[-0.8020, -0.9081, 1.4785]` to
+  `[0.7642, 0.5526, 2.2556]`.
+
+The three orthographic views were inspected locally. They show the foreground
+apple as a compact orange/yellow 3D cluster and the tabletop as a coherent
+slanted plane across the XY, XZ, and YZ projections. This is a qualitative
+engineering sanity check, not a reconstruction benchmark or semantic result.
+
+External artifact SHA-256 values:
+
+- `reconstruction-projections.png`:
+  `85ac8d745d9ece8c96d038858eacc6e5af85339bf0d60508baf235e6a5a39f2c`;
+- `reconstruction.ply`:
+  `478a6c85854b0b869eb278ca6d2f7a3edc57d9367bc61c62fe962a2435975565`;
+- `reconstruction-audit.json`:
+  `47982a5e59bcb248b4d4c51d31266af47f8ab91d7989020b897aa356b043e6c9`.
+
+## Conclusion and next step
+
+This sampled Part A cache row is correctly organized, source-bound, finite,
+temporally non-repeated, and exactly reproducible with the pinned model stack.
+It also maps to a plausible CUT3R reconstruction. This does not prove every
+window is semantically useful, but it closes the requested small end-to-end
+inspection when combined with the already completed whole-cache SHA and schema
+validation. Finish transferring and independently hash-verifying Part B, then
+publish both immutable caches and their provenance for the team.
