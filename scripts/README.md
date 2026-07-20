@@ -14,6 +14,9 @@ python -m scripts.validate_manifests --manifest-dir /artifacts/manifests/debug -
 python -m scripts.extract_features --config configs/stage0/debug.yaml --limit-windows 1 --cache-dir /cache/preflight-a
 python -m scripts.validate_cache --cache-dir /cache/cut3r-semantic/debug
 python -m scripts.compare_caches --left /cache/preflight-a --right /cache/preflight-b
+python -m scripts.audit_cached_window export --cache-dir /cache/full51-part-a-v1 --output-dir /artifacts/audits/part-a-window
+python -m scripts.audit_cached_window inspect --reference-dir /artifacts/audits/part-a-window --dataset-root /data/co3d --output /artifacts/audits/part-a-window/inputs-and-features.png
+python -m scripts.audit_cached_window reconstruct --reference-dir /artifacts/audits/part-a-window --config configs/stage0/full51-part-a.yaml --output-dir /artifacts/audits/part-a-window/reconstruction
 ```
 
 `download_co3d_selective` accepts only explicit category lists and finite
@@ -34,3 +37,12 @@ project float16 image/state tensor bytes, adds configurable format overhead and
 a free-space reserve, and exits nonzero before extraction if the cache would not
 fit. The Full-51 runbook requires this gate because varied aspect ratios can use
 more image tokens than the Debug measurement.
+
+`audit_cached_window` exports one roughly 12 MiB reference rather than copying a
+whole cache shard. `inspect` verifies the six source RGB/mask hashes and renders
+the transformed inputs beside a shared-PCA view of the spatial tokens.
+`reconstruct` must run on the pinned CUDA machine: it independently recomputes
+the six image/state trajectories, requires exact float16 equality with the
+reference, then invokes CUT3R's original DPT reconstruction head and writes a
+colored point cloud plus three orthographic inspection views. The PCA image is
+only a feature visualization; it is never described as a 3D reconstruction.
