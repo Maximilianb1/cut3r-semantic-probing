@@ -21,6 +21,7 @@ from src.embeddings.audit import (
 from src.embeddings.cut3r_adapter import Cut3rFeatureExtractor
 from src.embeddings.extract import load_cut3r_model
 from src.embeddings.input import move_views_to_device, prepare_image_window
+from src.embeddings.cut3r_provenance import validate_cut3r_checkout
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -70,6 +71,12 @@ def _reconstruct(args: argparse.Namespace) -> dict[str, object]:
         raise ValueError("Fresh preprocessing token grid differs from reference")
     device = torch.device(config["model"].get("device", "cuda"))
     move_views_to_device(views, device)
+    cut3r_provenance = validate_cut3r_checkout(
+        config["model"]["cut3r_root"],
+        expected_commit=config["model"]["expected_commit"],
+        expected_patch=config["model"].get("compatibility_patch"),
+        require_compiled_extension=True,
+    )
     model, checkpoint_provenance = load_cut3r_model(
         config["model"]["cut3r_root"],
         config["model"]["checkpoint"],
@@ -120,6 +127,7 @@ def _reconstruct(args: argparse.Namespace) -> dict[str, object]:
         "frame_ids": reference["frame_ids"],
         "fresh_features_match_cache_exactly": comparison,
         "checkpoint_provenance": checkpoint_provenance,
+        "cut3r_provenance": cut3r_provenance,
         "predicted_frames": len(predictions),
         "rendered_points": int(len(points)),
         "reconstruction_ply": str(output_dir / "reconstruction.ply"),
