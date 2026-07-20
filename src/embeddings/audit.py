@@ -224,6 +224,15 @@ def _contact_sheet(images: list[Image.Image], *, columns: int) -> Image.Image:
     return sheet
 
 
+def _fit_preserving_aspect(image: Image.Image, *, long_side: int = 320) -> Image.Image:
+    width, height = image.size
+    if width >= height:
+        size = (long_side, max(1, round(long_side * height / width)))
+    else:
+        size = (max(1, round(long_side * width / height)), long_side)
+    return image.resize(size, Image.Resampling.LANCZOS)
+
+
 def render_inputs_and_features(
     reference_dir: str | Path,
     dataset_root: str | Path,
@@ -245,7 +254,9 @@ def render_inputs_and_features(
         red = Image.new("RGB", rgb.size, (255, 40, 40))
         alpha = mask.convert("L").point(lambda value: 92 if value >= 128 else 0)
         overlay.paste(red, mask=alpha)
-        transformed.append(_label(overlay.resize((288, 216)), f"t={timestep} input + mask"))
+        transformed.append(
+            _label(_fit_preserving_aspect(overlay), f"t={timestep} input + mask")
+        )
 
     tokens = tensors["image_tokens"][:, 0].float()
     flattened = tokens.reshape(-1, tokens.shape[-1])
@@ -267,9 +278,7 @@ def render_inputs_and_features(
             .byte()
             .numpy()
         )
-        feature = Image.fromarray(rgb, mode="RGB").resize(
-            (288, 216), Image.Resampling.NEAREST
-        )
+        feature = _fit_preserving_aspect(Image.fromarray(rgb, mode="RGB"))
         feature_images.append(_label(feature, f"t={timestep + 1} image-token PCA"))
     sheet = _contact_sheet(transformed + feature_images, columns=6)
     output_path = Path(output_path)

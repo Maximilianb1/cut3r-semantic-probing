@@ -29,9 +29,9 @@ Stage 0 - Full-51 frozen representation extraction.
 - The complete Debug tier produced 41 valid windows after one empty transformed
   target and its windowless sequence were excluded. Its verified 492 MiB cache
   ran at 0.464 seconds/window and peaked at 3,532,914,688 CUDA bytes.
-- The combined Full-51 cache is projected near 96 GiB and cannot coexist on the
-  VM disk. Part A and Part B must run sequentially, with each cache transferred
-  to non-OneDrive local storage, hash-verified, and then removed from the VM.
+- The combined Full-51 cache is 83.053 GiB and did not fit alongside both source
+  payloads on the VM disk. Part A and Part B therefore ran sequentially; each
+  cache was transferred to non-OneDrive local storage and SHA-verified.
 - Actual extraction produced 3,667 Part A windows (43 GiB) and 3,458 Part B
   windows (41 GiB), for 7,125 windows across all 51 categories. Part A is
   locally verified and exactly reproduced in a six-frame GPU audit. Part B is

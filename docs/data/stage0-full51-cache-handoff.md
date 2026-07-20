@@ -26,6 +26,9 @@ access. This is simpler than requesting a Workspace Shared drive, but ownership
 does not belong to the team automatically. Keep the independently verified
 local copies and require at least one teammate to retain a second verified copy.
 
+Canonical restricted folder:
+[Stage 0 Full-51 Google Drive](https://drive.google.com/drive/folders/1UttTnkxRlcz3H3K-Puv1VhVfcjrAZTzN).
+
 During upload, use the temporary name `stage0-full51-v1-staging`; rename it to
 `stage0-full51-v1` only after both parts and all provenance files are present.
 

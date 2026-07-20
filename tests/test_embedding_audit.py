@@ -4,7 +4,11 @@ from pathlib import Path
 
 import torch
 
-from src.embeddings.audit import compare_to_reference, load_audit_reference
+from src.embeddings.audit import (
+    _fit_preserving_aspect,
+    compare_to_reference,
+    load_audit_reference,
+)
 from src.embeddings.cache import FeatureCacheWriter
 from src.embeddings.types import FeatureTrajectory
 
@@ -68,3 +72,12 @@ def test_reference_comparison_requires_exact_float16_values() -> None:
         assert "differs" in str(error)
     else:
         raise AssertionError("Changed features must fail exact comparison")
+
+
+def test_audit_thumbnail_preserves_portrait_and_landscape_aspect() -> None:
+    from PIL import Image
+
+    portrait = _fit_preserving_aspect(Image.new("RGB", (288, 512)))
+    landscape = _fit_preserving_aspect(Image.new("RGB", (512, 288)))
+    assert portrait.size == (180, 320)
+    assert landscape.size == (320, 180)
