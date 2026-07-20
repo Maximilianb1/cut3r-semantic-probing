@@ -117,6 +117,18 @@ Follow the complete [Stage 0 Full-51 cache handoff](docs/data/stage0-full51-cach
 for the private team-folder layout, upload/download commands, immutable identities,
 verification gates, tensor shapes, timestep semantics, and loading example.
 
+Each cached window contains two different tensors; use their exact names rather
+than calling either one simply an "embedding":
+
+| Cache field | Meaning | Cached shape | Primary later use |
+|---|---|---|---|
+| `image_tokens` | Spatial tokens for each current frame after interaction with the preceding recurrent state; the pose token is removed | `[6, 1, grid_height * grid_width, 768]` | Frame-6 segmentation and per-pixel classification; spatial pooling for image classification |
+| `state_tokens` | The persistent recurrent memory after CUT3R has consumed and committed each frame | `[6, 1, 768, 768]` | Pooled image classification and temporal/state analysis; not spatial mask prediction |
+
+Index `t` refers to `frame_ids[t]`. Therefore `image_tokens[5, 0]` describes
+the sixth frame in its five-frame history, while `state_tokens[5, 0]` is the
+memory after all six frames. Both trajectories are saved for later analysis.
+
 The approved all-category run uses two storage shards with 30/5/5
 train/validation/test sequence caps. Follow the
 [Full-51 two-part runbook](docs/project/FULL51_TWO_PART_RUNBOOK.md); Part A and

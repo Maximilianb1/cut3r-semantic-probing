@@ -55,6 +55,7 @@ Stage 0 - Full-51 frozen representation extraction.
 
 ## Latest handoff
 
-See the [latest durable handoff](docs/sessions/2026-07-18-stage0-debug-full51-handoff.md),
+See the [current Full-51 cache handoff](docs/data/stage0-full51-cache-handoff.md),
+the [Part A exact-feature and reconstruction audit](docs/sessions/2026-07-20-stage0-part-a-window-audit.md),
 [EXP-001](docs/experiments/EXP-001-stage0-real-gpu-smoke.md), and
 [EXP-002](docs/experiments/EXP-002-stage0-complete-debug.md).

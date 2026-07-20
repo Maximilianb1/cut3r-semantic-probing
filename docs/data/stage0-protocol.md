@@ -157,11 +157,12 @@ Before large extraction:
    bytes/window, and projected full runtime/storage.
 
 The complete Debug run wrote 41 valid windows at 0.464 seconds/window, used
-3,532,914,688 peak allocated CUDA bytes, and occupied 492 MiB. Based on roughly
-12 MiB/window, Full-51 Part A has an upper cache projection near 49 GiB and
-Part B near 47 GiB. The project owner elected to skip the separate Pilot tier
-and run the two Full-51 shards sequentially, transferring and verifying each
-cache off-VM before deleting it.
+3,532,914,688 peak allocated CUDA bytes, and occupied 492 MiB. It initially
+projected upper bounds of 49 GiB for Full-51 Part A and 47 GiB for Part B. The
+two sequential production runs actually produced 3,667 and 3,458 windows,
+occupying 42.768 and 40.285 GiB respectively. Both were transferred off the VM
+and independently SHA-verified; their canonical identities are recorded in the
+[Full-51 cache handoff](stage0-full51-cache-handoff.md).
 
 Probe overfitting and scientific metrics begin in Stages 1 and 2, not Stage 0.
 

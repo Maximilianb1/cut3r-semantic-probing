@@ -261,6 +261,10 @@ Expected immutable identities:
 
 Treat the roots as a logical union while retaining their identities:
 
+Do not confuse the two **cache roots** with the two **representation fields**.
+Part A and Part B divide the 51 categories for storage; every window in both
+roots contains both `image_tokens` and `state_tokens`.
+
 ```python
 from pathlib import Path
 
@@ -289,6 +293,13 @@ Important semantics:
 
 - Timestep `t` in both tensors corresponds to `frame_ids[t]`.
 - The planned supervised target is timestep `5` (the sixth frame).
+- `image_tokens[t, 0]` is spatial and belongs to the current frame after
+  interaction with the preceding recurrent state. Its token count is
+  `grid_height * grid_width` and therefore may vary with transformed aspect
+  ratio.
+- `state_tokens[t, 0]` is the fixed-size persistent memory after the current
+  frame is committed. It is not pixel-aligned and must not be reshaped as a
+  segmentation grid.
 - For segmentation, reshape `image_tokens[5, 0]` from
   `[grid_height * grid_width, 768]` to `[grid_height, grid_width, 768]`.
 - For image classification, compare spatially pooled
