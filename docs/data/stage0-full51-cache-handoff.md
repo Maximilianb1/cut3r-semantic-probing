@@ -10,8 +10,8 @@ Current status on 2026-07-20:
 | Part | Categories | Windows | Shards | Tensors | Size | Status |
 |---|---:|---:|---:|---:|---:|---|
 | `full51-part-a-v1` | 26 | 3,667 | 115 | 7,334 | about 43 GiB | Locally SHA-verified and GPU-audited |
-| `full51-part-b-v1` | 25 | 3,458 | 109 | 6,916 | about 41 GiB | Extracted and cache-valid; local transfer/verification pending |
-| Combined logical dataset | 51 | 7,125 | 224 | 14,250 | about 84 GiB | Not publishable as complete until Part B transfer passes |
+| `full51-part-b-v1` | 25 | 3,458 | 109 | 6,916 | 40.285 GiB | Locally SHA-verified; VM cache validation passed |
+| Combined logical dataset | 51 | 7,125 | 224 | 14,250 | 83.053 GiB | Both parts verified and ready for staged Drive publication |
 
 Part A and Part B are storage/category shards, **not** train/test splits. The
 official CO3D sequence split recorded in the manifests remains the scientific
@@ -20,11 +20,14 @@ their Safetensors shard names overlap.
 
 ## Canonical team folder
 
-Use a Google Workspace **Shared drive**, not one member's My Drive, when the
-Technion account permits it. Shared-drive files belong to the team and remain
-when an individual member leaves. During upload, use the temporary name
-`stage0-full51-v1-staging`; rename it to `stage0-full51-v1` only after both
-parts and all provenance files are present.
+The project owner chose a private Google **My Drive** folder shared with the
+team. Max owns the folder and its storage usage; teammates receive Viewer
+access. This is simpler than requesting a Workspace Shared drive, but ownership
+does not belong to the team automatically. Keep the independently verified
+local copies and require at least one teammate to retain a second verified copy.
+
+During upload, use the temporary name `stage0-full51-v1-staging`; rename it to
+`stage0-full51-v1` only after both parts and all provenance files are present.
 
 ```text
 cut3r-semantic-probing-data/
@@ -58,24 +61,63 @@ and extraction logs. Do not upload the CUT3R checkpoint or raw CO3D data to this
 team folder. Teammates obtain those from their official sources and verify the
 checkpoint hash recorded in `metadata.json`.
 
-The private shared-drive URL must be distributed in the team's private channel
-or private repository settings; do not place an access token, OAuth credential,
+The private folder URL must be distributed in the team's private channel or
+private repository settings; do not place an access token, OAuth credential,
 or publicly accessible write link in Git.
+
+### Exact files to upload
+
+The final cache payload is exactly:
+
+```text
+caches/full51-part-a-v1/
+  metadata.json
+  index.parquet
+  shard-00000.safetensors ... shard-00114.safetensors  # 117 files total
+caches/full51-part-b-v1/
+  metadata.json
+  index.parquet
+  shard-00000.safetensors ... shard-00108.safetensors  # 111 files total
+checksums/full51-part-a-v1.sha256
+checksums/full51-part-b-v1.sha256
+```
+
+Do not omit either `metadata.json` or `index.parquet`; the Safetensors files are
+not usable or auditable without them. Do not rename any cache file.
+
+Also upload these small provenance directories from the VM:
+
+```text
+manifests/full51-part-a-v1/{sequences,frames,windows}.parquet
+manifests/full51-part-a-v1/summary.json
+manifests/full51-part-b-v1/{sequences,frames,windows}.parquet
+manifests/full51-part-b-v1/summary.json
+run-records/full51-part-a-v1/
+run-records/full51-part-b-v1/
+logs/full51-part-a-v1/
+logs/full51-part-b-v1/
+audits/part-a-window-000/
+```
+
+The cache directories and two checksum lists are mandatory. The manifests are
+mandatory for later scientific split/category/target lookup. Run records, logs,
+and the audit are mandatory provenance for the final team release but are not
+read on every training batch.
 
 ## Upload from the verified Windows copy
 
 Google Drive for desktop is preferred over a browser upload because it retries
-interrupted transfers. Configure it to **Stream files**. Shared drives are
-streamed by design; do not mark these caches "Available offline". While another
+interrupted transfers. Configure My Drive to **Stream files**; do not use
+Mirror files and do not mark these caches "Available offline". While another
 large transfer is active, Drive for desktop can limit its upload rate under
 `Settings -> Preferences -> Advanced settings`.
 
-After Drive for desktop mounts the shared drive, set the actual drive/folder in
-PowerShell. This example uses `G:` and a placeholder shared-drive name:
+After Drive for desktop mounts My Drive, set the actual drive/folder in
+PowerShell. This example uses the usual `G:` mount:
 
 ```powershell
 $SourceRoot = 'C:\cut3r-full51'
-$DriveRoot = 'G:\Shared drives\TEAM_SHARED_DRIVE\cut3r-semantic-probing-data\stage0-full51-v1-staging'
+$DriveRoot = 'G:\My Drive\cut3r-semantic-probing-data\stage0-full51-v1-staging'
 
 New-Item -ItemType Directory -Force "$DriveRoot\caches" | Out-Null
 New-Item -ItemType Directory -Force "$DriveRoot\checksums" | Out-Null
@@ -100,20 +142,51 @@ criteria. Keep the verified source directory until another team member has
 downloaded and SHA-verified the Drive copy. A Drive "sync complete" indicator
 does not replace end-to-end hash verification.
 
-Repeat the command for Part B only after the local Part B verifier prints
-`FULL51_PART_B_LOCAL_COPY_OK`. Do not upload a partially transferred Part B
-directory into the canonical `caches/full51-part-b-v1` path.
+Part B printed `FULL51_PART_B_LOCAL_COPY_OK` on 2026-07-20. Upload it with the
+same command after replacing `part-a` with `part-b`. Do not upload any future
+partially transferred cache into a canonical cache path.
+
+Download the small VM provenance before promoting the folder. From PowerShell:
+
+```powershell
+$Extra = 'C:\cut3r-full51\stage0-full51-v1-extra'
+New-Item -ItemType Directory -Force `
+  "$Extra\manifests", "$Extra\run-records", "$Extra\logs", "$Extra\audits"
+sftp vmadmin@VM_PUBLIC_IP
+```
+
+At the `sftp>` prompt:
+
+```text
+lcd C:/cut3r-full51/stage0-full51-v1-extra/manifests
+get -R /home/vmadmin/cut3r-stage0/artifacts/manifests/full51-part-a-v1
+get -R /home/vmadmin/cut3r-stage0/artifacts/manifests/full51-part-b-v1
+lcd C:/cut3r-full51/stage0-full51-v1-extra/run-records
+get -R /home/vmadmin/cut3r-stage0/artifacts/runs/full51-part-a-v1
+get -R /home/vmadmin/cut3r-stage0/artifacts/runs/full51-part-b-v1
+lcd C:/cut3r-full51/stage0-full51-v1-extra/logs
+get -R /home/vmadmin/cut3r-stage0/logs/full51-part-a-v1
+get -R /home/vmadmin/cut3r-stage0/logs/full51-part-b-v1
+lcd C:/cut3r-full51/stage0-full51-v1-extra/audits
+get -R /home/vmadmin/cut3r-stage0/artifacts/audits/part-a-window-000
+bye
+```
+
+Copy the four resulting local directories into the matching Drive paths after
+both large caches finish uploading.
 
 ## Download for a teammate
 
-Install Google Drive for desktop, sign in with the authorized team account, and
-use streaming. Copy both cache directories from the shared drive to a local
-non-synced SSD with at least 100 GiB free. Do not train directly against the
-streamed `G:` paths because random Safetensors access would repeatedly depend on
-the network/cache layer.
+The owner shares the completed `stage0-full51-v1` folder with each teammate as
+Viewer. A teammate opens the link in Drive on the web and uses
+`Organize -> Add shortcut to My Drive`, then installs Google Drive for desktop
+and uses streaming. Copy both cache directories to a local non-synced SSD with
+at least 100 GiB free. Do not train directly against the streamed `G:` paths
+because random Safetensors access would repeatedly depend on the network/cache
+layer.
 
 ```powershell
-$DriveRoot = 'G:\Shared drives\TEAM_SHARED_DRIVE\cut3r-semantic-probing-data\stage0-full51-v1'
+$DriveRoot = 'G:\My Drive\stage0-full51-v1'
 $LocalRoot = 'D:\cut3r-stage0-full51-v1'
 
 New-Item -ItemType Directory -Force "$LocalRoot\caches" | Out-Null
@@ -226,17 +299,20 @@ Important semantics:
 
 ## Permissions and retention
 
-- Give ordinary teammates Viewer access to the immutable release folder.
-- Limit write access to the release maintainer(s).
+- Give teammates Viewer access to the immutable release folder. Max remains the
+  sole owner/editor unless a second maintainer is explicitly required.
+- The folder consumes the owner's My Drive quota even when shared.
 - Never modify a published cache in place. Corrections require a new versioned
   folder and new checksums.
 - Retain at least one independently verified local copy until the final course
   submission and one teammate has reproduced validation.
-- Record the final private Shared Drive location in the team's private channel.
+- Record the final private My Drive folder location in the team's private
+  channel.
 
 Official Google references:
 
-- [Shared-drive storage and ownership](https://support.google.com/drive/answer/7286514)
 - [Install Drive for desktop](https://support.google.com/a/users/answer/13022292)
 - [Stream versus mirror](https://support.google.com/drive/answer/13401938)
 - [Drive for desktop bandwidth limits](https://support.google.com/drive/answer/13470231)
+- [Share folders and choose Viewer access](https://support.google.com/drive/answer/7166529)
+- [Find shared folders and add a My Drive shortcut](https://support.google.com/drive/answer/2375057)

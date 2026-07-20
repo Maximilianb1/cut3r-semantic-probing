@@ -109,7 +109,7 @@ published SHA-256 manifests, validate each cache, and load them as a logical
 union. The cache does not replace the CO3D manifests or RGB/mask files.
 
 Follow the complete [Stage 0 Full-51 cache handoff](docs/data/stage0-full51-cache-handoff.md)
-for the shared-drive layout, upload/download commands, immutable identities,
+for the private team-folder layout, upload/download commands, immutable identities,
 verification gates, tensor shapes, timestep semantics, and loading example.
 
 The approved all-category run uses two storage shards with 30/5/5
