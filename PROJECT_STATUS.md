@@ -1,6 +1,6 @@
 # Project Status
 
-Last updated: 2026-07-18
+Last updated: 2026-07-20
 
 ## Current phase
 
@@ -16,8 +16,9 @@ Stage 0 - Full-51 frozen representation extraction.
 - [x] Run exact one-window reproducibility and six-window throughput preflights on the Technion GPU. Owner: Max
 - [x] Obtain a real debug subset with both configured categories and official train/validation/test coverage. Owner: Max
 - [x] Complete the valid-target Debug cache and record runtime, VRAM, and storage. Owner: Max
-- [ ] Extract and transfer Full-51 Part A. Owner: Max
-- [ ] Extract and transfer Full-51 Part B. Owner: Max
+- [x] Extract, transfer, locally SHA-verify, and sample-audit Full-51 Part A. Owner: Max
+- [x] Transfer and locally SHA-verify extracted Full-51 Part B. Owner: Max
+- [ ] Publish both immutable cache roots and provenance to Max's private Drive folder shared read-only with the team. Owner: Max
 - [ ] Approve the shared data-to-embedding interface after real GPU validation. Owner: team
 - [ ] Assign Stage 1 and Stage 2 owners after the sixth member joins.
 
@@ -28,9 +29,14 @@ Stage 0 - Full-51 frozen representation extraction.
 - The complete Debug tier produced 41 valid windows after one empty transformed
   target and its windowless sequence were excluded. Its verified 492 MiB cache
   ran at 0.464 seconds/window and peaked at 3,532,914,688 CUDA bytes.
-- The combined Full-51 cache is projected near 96 GiB and cannot coexist on the
-  VM disk. Part A and Part B must run sequentially, with each cache transferred
-  to non-OneDrive local storage, hash-verified, and then removed from the VM.
+- The combined Full-51 cache is 83.053 GiB and did not fit alongside both source
+  payloads on the VM disk. Part A and Part B therefore ran sequentially; each
+  cache was transferred to non-OneDrive local storage and SHA-verified.
+- Actual extraction produced 3,667 Part A windows (43 GiB) and 3,458 Part B
+  windows (41 GiB), for 7,125 windows across all 51 categories. Part A is
+  locally verified and exactly reproduced in a six-frame GPU audit. Part B is
+  cache-valid on the VM and all 111 transferred files match the published
+  SHA-256 list locally. Both parts are ready for staged Drive publication.
 - Five validation/test sequences per category provide limited independent
   per-category estimates; later reports must show counts and macro/micro views.
 - Azure's `/mnt` resource disk is temporary and explicitly prohibited.

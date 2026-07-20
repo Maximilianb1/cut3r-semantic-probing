@@ -99,6 +99,24 @@ See [the Stage 0 protocol](docs/data/stage0-protocol.md),
 [ADR 0003](docs/decisions/0003-cut3r-trajectory-and-cache-contract.md) before
 running the pilot or full extraction.
 
+## Team cache access
+
+The Full-51 Stage 0 representations are distributed as two immutable external
+cache roots, `full51-part-a-v1` and `full51-part-b-v1`. They are category/storage
+shards, not scientific splits, and must never be merged by copying their files
+together. Teammates should download both to a non-synced local SSD, verify the
+published SHA-256 manifests, validate each cache, and load them as a logical
+union. The cache does not replace the CO3D manifests or RGB/mask files.
+
+Authorized teammates can access the private
+[Stage 0 Full-51 Google Drive folder](https://drive.google.com/drive/folders/1UttTnkxRlcz3H3K-Puv1VhVfcjrAZTzN).
+The folder remains restricted; request Viewer access from Max if the link does
+not open.
+
+Follow the complete [Stage 0 Full-51 cache handoff](docs/data/stage0-full51-cache-handoff.md)
+for the private team-folder layout, upload/download commands, immutable identities,
+verification gates, tensor shapes, timestep semantics, and loading example.
+
 The approved all-category run uses two storage shards with 30/5/5
 train/validation/test sequence caps. Follow the
 [Full-51 two-part runbook](docs/project/FULL51_TWO_PART_RUNBOOK.md); Part A and
@@ -118,8 +136,8 @@ of these status values: `Not started`, `Planned`, `In progress`, `Blocked`,
 | Work item | Status | Current owner(s) | Previous contributor(s) | Done so far |
 |---|---|---|---|---|
 | Clarify what the random-initialized CUT3R baseline means and reconcile it with the course guidance | Planned | Aviv Rabi | - | The question is recorded; no technical definition has been accepted yet. |
-| Preprocess CO3D for both segmentation and classification | In progress | Max Bershtman | - | The complete two-category Debug manifest passed real-file validation; one empty transformed target was excluded deterministically. The approved Full-51 acquisition is split into two bounded execution configs. |
-| Define, extract, and cache the headless CUT3R representation ("embeddings") | In progress | Max Bershtman | Max Bershtman (earlier proof of concept) | The complete valid Debug cache contains 41 windows/82 tensors, is hash-valid, and ran at 0.464 seconds/window with 3.53 GB peak allocated CUDA memory. Full-51 Part A is next. |
+| Preprocess CO3D for both segmentation and classification | Done | Max Bershtman | - | The deterministic Full-51 manifests cover all 51 categories with 30/5/5 train/validation/test sequence caps and sequence-level split isolation. |
+| Define, extract, and cache the headless CUT3R representation ("embeddings") | In progress | Max Bershtman | Max Bershtman (earlier proof of concept) | Both immutable cache roots are extracted and verified: 7,125 windows, 14,250 tensors, and 83.053 GiB total. Private Drive publication is in progress. |
 | Design the shared code, configuration, and experiment structure for Stages 1 and 2 | In progress | Team (specific owners TBD) | - | The repository structure, versioned Stage 0 configs, tests, and documentation workflow are implemented; later probe interfaces remain to be finalized. |
 
 ### Stage 1 - Binary segmentation
