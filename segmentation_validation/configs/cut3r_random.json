@@ -1,0 +1,56 @@
+{
+  "experiment": "segmentation-cut3r-random",
+  "backbone": {
+    "kind": "cut3r",
+    "weights": "random",
+    "options": {
+      "cut3r_root": "${CUT3R_ROOT}",
+      "checkpoint": "${CUT3R_CHECKPOINT}",
+      "checkpoint_sha256": "45f7e98a0a64dbeb54901ae2b878cd8cd125f20a4497316483f0bd6f109f8103",
+      "expected_commit": "8bc15dc92a6d7fd92920b4ec81540d3dec7d3ecf",
+      "compatibility_patch": "curope-scalar-type-v1",
+      "input_size": 512,
+      "patch_size": 16,
+      "square_ok": false,
+      "device": "cuda",
+      "random_init": {"strategy": "reset_parameters", "seed": 20260729}
+    }
+  },
+  "probe_cache": {
+    "dir": "${CUT3R_CACHE_ROOT}/probe/cut3r-random"
+  },
+  "data": {
+    "manifest_dir": "${CUT3R_ARTIFACT_ROOT}/manifests/full51-part-a-v1",
+    "dataset_root": "${CO3D_ROOT}"
+  },
+  "extraction": {
+    "layout": "target_only",
+    "device": "cuda",
+    "mask_threshold": 0.5,
+    "windows_per_shard": 32,
+    "inspect_files": false,
+    "verify_source_hashes": true,
+    "seed": 20260729
+  },
+  "mask_threshold": 0.5,
+  "model": {
+    "feature_dim": 768,
+    "num_classes": 1,
+    "hidden_dims": [512],
+    "activation": "gelu",
+    "dropout": 0.0
+  },
+  "training": {
+    "epochs": 20,
+    "batch_size": 16,
+    "lr": 0.001,
+    "weight_decay": 0.0,
+    "pos_weight": null,
+    "seed": 20260729,
+    "device": "cpu",
+    "num_workers": 0
+  },
+  "splits": {"train": "train", "val": "val", "test": "test"},
+  "output": {"dir": "runs/segmentation-cut3r-random"},
+  "notes": "Random-initialized CUT3R baseline. Its scientific meaning is an OPEN decision (see src/backbones/README.md and PROJECT_STATUS); the reset_parameters init is a provisional placeholder pending a baseline ADR."
+}

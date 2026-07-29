@@ -8,7 +8,7 @@ from src.data.co3d import CO3DV2_231130_CATEGORIES
 
 
 def _load_config(name: str) -> dict:
-    path = Path("configs/stage0") / name
+    path = Path(__file__).resolve().parents[1] / "configs" / "stage0" / name
     with path.open(encoding="utf-8") as handle:
         return yaml.safe_load(handle)
 

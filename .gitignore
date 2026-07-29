@@ -41,8 +41,8 @@ mlruns/
 tensorboard/
 cache/
 tmp/
-artifacts/*
-!artifacts/README.md
+data_pipeline/artifacts/*
+!data_pipeline/artifacts/README.md
 
 # Notebooks and native builds
 .ipynb_checkpoints/
