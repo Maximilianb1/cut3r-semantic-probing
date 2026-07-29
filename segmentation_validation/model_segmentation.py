@@ -1,21 +1,19 @@
-"""Segmentation probe: a frozen backbone plus a trainable MLP head.
+"""Segmentation probe: a trainable MLP head over precomputed token features.
 
-The head is applied independently to every spatial token, turning per-token
-features into per-token foreground logits. Reshaping those to the token grid and
-upsampling gives a pixel mask.
+A "token" is one 16x16 patch of the window's target frame. The head is applied
+independently to every token, turning that token's feature vector into one
+foreground logit. Reshaping the logits back to the token grid (and optionally
+upsampling) gives a mask.
+
+The model operates purely on **precomputed embeddings** from the probe-feature
+cache -- it does not hold a backbone. Backbones live in ``src.backbones`` and are
+run once, ahead of time, by the extraction script; training/inference only read
+their cached outputs.
 
 Terminology (LLM_GUIDE guardrail): with ``hidden_dims=()`` the head is a genuine
 **linear probe**; with one or more hidden layers it is a nonlinear **MLP probe**.
 The class does not pretend a multi-layer head is linear -- ``head.is_linear``
 reports which it is.
-
-Two usage modes share one head:
-
-- **Cached (default for training):** features are precomputed in the probe cache,
-  so construct with ``feature_dim`` and call ``forward(spatial_tokens)``.
-- **End-to-end (inference/analysis):** attach a live ``backbone`` and call
-  ``extract_and_predict(frame_rows, dataset_root=...)``; the backbone stays
-  frozen and only the head runs with gradients.
 """
 
 from __future__ import annotations
@@ -90,12 +88,11 @@ class MLPHead(nn.Module):
 
 
 class SegmentationProbe(nn.Module):
-    """Frozen backbone (optional) + trainable per-token MLP head."""
+    """Trainable per-token MLP head over precomputed token features."""
 
-    def __init__(self, config: HeadConfig, *, backbone: Any | None = None) -> None:
+    def __init__(self, config: HeadConfig) -> None:
         super().__init__()
         self.head = MLPHead(config)
-        self.backbone = backbone  # kept out of nn parameters; frozen if present
 
     @property
     def num_classes(self) -> int:
@@ -139,24 +136,7 @@ class SegmentationProbe(nn.Module):
             return torch.sigmoid(grid_logits)
         return torch.softmax(grid_logits, dim=1)
 
-    @torch.inference_mode()
-    def extract_and_predict(
-        self, frame_rows: list[dict[str, Any]], *, dataset_root: str
-    ) -> dict[str, torch.Tensor]:
-        """End-to-end: run the attached frozen backbone, then the head."""
-        if self.backbone is None:
-            raise RuntimeError("No backbone attached; construct with backbone=... ")
-        extraction = self.backbone.extract_window(frame_rows, dataset_root=dataset_root)
-        spatial = extraction.features.spatial_tokens[None]  # [1, N, D]
-        grid = extraction.features.token_grid
-        probability = self.predict_mask(spatial, grid)
-        return {
-            "probability": probability,
-            "target_labels": extraction.target_labels()[None],
-            "token_grid": torch.tensor(grid),
-        }
 
-
-def build_probe(config: dict[str, Any], *, backbone: Any | None = None) -> SegmentationProbe:
+def build_probe(config: dict[str, Any]) -> SegmentationProbe:
     """Build a :class:`SegmentationProbe` from a config ``model`` block."""
-    return SegmentationProbe(HeadConfig.from_dict(config), backbone=backbone)
+    return SegmentationProbe(HeadConfig.from_dict(config))

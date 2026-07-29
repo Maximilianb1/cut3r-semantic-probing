@@ -7,7 +7,7 @@ import torch
 
 from model_segmentation import HeadConfig, MLPHead, SegmentationProbe, build_probe
 from segmentation_dataset import ProbeCacheDataset, assert_sequence_disjoint, collate_windows
-from src.backbones.base import Backbone, BackboneFeatures, WindowExtraction
+from src.backbones.base import Backbone, BackboneFeatures, TrajectoryExtraction, WindowExtraction
 from src.backbones.probe_cache import extract_to_cache
 from segmentation_inference import run_inference
 from train_segmentation import train_from_config
@@ -43,7 +43,41 @@ class _SeparableBackbone(Backbone):
         return {"backbone": self.name}
 
 
-def _build_cache(tmp_path, *, count: int = 8):
+class _SeparableTrajectoryBackbone(Backbone):
+    """CUT3R-trained analog: full trajectory whose target frame is separable."""
+
+    name = "separable-trajectory"
+
+    def __init__(self, *, grid: tuple[int, int] = (4, 4), dim: int = 4) -> None:
+        self.grid = grid
+        self.dim = dim
+
+    def extract_window(self, frame_rows, *, dataset_root):  # pragma: no cover - unused
+        raise NotImplementedError
+
+    def extract_trajectory(self, frame_rows: list[dict[str, Any]], *, dataset_root: str) -> TrajectoryExtraction:
+        grid_h, grid_w = self.grid
+        image = torch.zeros(6, 1, grid_h * grid_w, self.dim)
+        for row in range(grid_h):
+            signal = 1.0 if row < grid_h / 2 else -1.0
+            for col in range(grid_w):
+                image[5, 0, row * grid_w + col, 0] = signal  # target frame (index 5) separable
+        mask = torch.zeros(grid_h * 8, grid_w * 8)
+        mask[: (grid_h * 8) // 2, :] = 1.0
+        return TrajectoryExtraction(
+            image_tokens=image,
+            state_tokens=torch.randn(6, 1, self.dim, self.dim),
+            token_grid=self.grid,
+            frame_ids=[row["frame_id"] for row in frame_rows],
+            target_mask=mask,
+        )
+
+    def provenance(self) -> dict[str, Any]:
+        return {"backbone": self.name}
+
+
+def _build_cache(tmp_path, *, backbone: Backbone | None = None, layout: str = "target_only", count: int = 8):
+    backbone = backbone if backbone is not None else _SeparableBackbone()
     windows = [
         {
             "window_id": f"w{i}",
@@ -60,7 +94,7 @@ def _build_cache(tmp_path, *, count: int = 8):
         for fid in window["frame_ids"]
     }
     extract_to_cache(
-        _SeparableBackbone(), layout="target_only", windows=windows, frame_by_id=frame_by_id,
+        backbone, layout=layout, windows=windows, frame_by_id=frame_by_id,
         dataset_root=".", cache_dir=tmp_path, contract={}, windows_per_shard=4,
         verify_source_hashes=False,
     )
@@ -120,6 +154,26 @@ def test_training_learns_separable_signal(tmp_path) -> None:
     assert final["macro_foreground_iou"] > 0.9
     assert (tmp_path / "runs" / "metrics.json").is_file()
     assert (tmp_path / "runs" / "head.pt").is_file()
+
+
+def test_training_works_on_trajectory_layout(tmp_path) -> None:
+    """Same probe code trains on a CUT3R-trained (trajectory) cache, not just target-only.
+
+    Covers the third model layout: target-only exercises random-CUT3R and DINOv2;
+    this exercises CUT3R-trained. The training code is backbone/layout-agnostic
+    because it reads the target-frame spatial tokens via the cache's accessor.
+    """
+    cache = _build_cache(tmp_path, backbone=_SeparableTrajectoryBackbone(), layout="trajectory")
+    config = {
+        "experiment": "smoke-trajectory",
+        "probe_cache": {"dir": str(cache)},
+        "model": {"feature_dim": 4, "num_classes": 1, "hidden_dims": []},
+        "training": {"epochs": 60, "batch_size": 4, "lr": 0.05, "seed": 0, "device": "cpu"},
+        "splits": {"train": "train", "val": "val"},
+        "output": {"dir": str(tmp_path / "runs")},
+    }
+    result = train_from_config(config)
+    assert result["final_val"]["macro_foreground_iou"] > 0.9
 
 
 def test_inference_reloads_trained_probe(tmp_path) -> None:

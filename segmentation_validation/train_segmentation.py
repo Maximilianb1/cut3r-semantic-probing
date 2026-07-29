@@ -1,18 +1,24 @@
-"""Train and evaluate a binary-segmentation probe over cached backbone features.
+"""Train and evaluate the binary segmentation probe over cached features.
 
-Reads one JSON config (see ``configs/``), builds a :class:`SegmentationProbe`
-head over a probe-feature cache, and trains it with a per-token loss while the
-backbone stays frozen and precomputed. Reports token accuracy and foreground IoU
-(macro over windows, micro over tokens, and per-category macro) on the held-out
-split. Splits are the manifest's sequence-level assignment and are asserted
-disjoint before training.
+This is the shared driver for all three backbones; only the config differs. The
+backbone is never run here - it was run ahead of time and its outputs live in the
+probe-feature cache, so training only fits the small MLP head.
 
-Run from inside ``segmentation_validation/`` after installing the project from
-the repo root::
+Reading guide - what one run does (see :func:`train_from_config`):
+
+1. Read the JSON config and pick device / seed.
+2. Build the train and val datasets from the cache, and assert their CO3D
+   sequences don't overlap (no leakage).
+3. Build the head (:class:`SegmentationProbe`) and an Adam optimizer over it.
+4. Each epoch: for every batch of tokens, predict a foreground logit per token,
+   compute per-token ``BCEWithLogitsLoss`` against the labels, and step.
+5. After each epoch, evaluate on val (:func:`evaluate_binary`) - foreground IoU
+   (macro over windows, micro over tokens, per-category) plus token accuracy, all
+   at token / patch-grid resolution. Finally save ``metrics.json`` and ``head.pt``.
+
+Run from inside ``segmentation_validation/`` after installing from the repo root::
 
     python train_segmentation.py --config configs/cut3r_trained.json
-
-This is the shared driver for all three backbones; only the config differs.
 """
 
 from __future__ import annotations
@@ -45,7 +51,16 @@ def evaluate_binary(
     loader: DataLoader,
     device: torch.device,
 ) -> dict[str, Any]:
-    """Token accuracy + foreground IoU (macro/micro/per-category) for binary probes."""
+    """Token accuracy + foreground IoU (macro/micro/per-category) for binary probes.
+
+    All metrics are at **token / patch-grid resolution** (the mask was pooled to
+    the backbone's token grid), not full pixel resolution. A token is predicted
+    foreground when its logit ``> 0`` (i.e. ``sigmoid(logit) > 0.5``).
+
+    Convention: a window whose prediction and target are both entirely background
+    (foreground union ``== 0``) scores IoU ``1.0``. This is an open choice (see
+    the README) and can inflate macro-IoU for foreground-free windows.
+    """
     model.eval()
     per_window_iou: list[float] = []
     per_category_iou: dict[str, list[float]] = {}
@@ -54,6 +69,9 @@ def evaluate_binary(
     for batch in loader:
         spatial = batch["spatial"].to(device)
         labels = batch["labels"].to(device)
+        # Apply the head directly to the flat [sum_N, D] token pile. We call
+        # model.head (not model.forward, which expects a [B, N, D] batch) because
+        # collation already flattened all windows' tokens into one dimension.
         logits = model.head(spatial).squeeze(-1)  # [sum_N]
         prediction = (logits > 0.0).to(torch.float32)
         correct += float((prediction == labels).sum().item())
@@ -86,6 +104,14 @@ def evaluate_binary(
 
 
 def train_from_config(config: dict[str, Any]) -> dict[str, Any]:
+    """Train the binary segmentation probe from a parsed config dict.
+
+    Builds the probe-cache datasets (sequence-disjoint train/val), trains only
+    the MLP head with per-token BCE while the backbone stays frozen/precomputed,
+    evaluates on val each epoch, and (if ``output.dir`` is set) writes
+    ``metrics.json`` and ``head.pt``. Returns the run record incl. per-epoch
+    history. Note: ``head.pt`` is the **final** epoch's head, not the best-val one.
+    """
     training = config.get("training", {})
     splits = config.get("splits", {"train": "train", "val": "val"})
     model_cfg = dict(config["model"])

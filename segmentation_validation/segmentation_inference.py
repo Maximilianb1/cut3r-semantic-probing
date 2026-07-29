@@ -6,13 +6,13 @@ it on a chosen split of the probe-feature cache -- reporting the same token
 accuracy and foreground IoU (macro / micro / per-category), plus optional
 per-window predictions and grid-resolution predicted masks.
 
-The backbone stays frozen and precomputed (features come from the cache); only
-the trained head runs. Run from inside ``segmentation_validation/``::
+The backbone is not involved here: features come from the probe-feature cache
+and only the trained head runs. Run from inside ``segmentation_validation/``::
 
     python segmentation_inference.py --config configs/cut3r_trained.json --split test
 
-To predict masks directly from raw frames instead of the cache, use
-``SegmentationProbe.extract_and_predict`` with a live backbone attached.
+Grid-resolution or upsampled masks come from ``SegmentationProbe.predict_mask``
+on the cached tokens (see ``predict_windows``).
 """
 
 from __future__ import annotations
