@@ -166,7 +166,7 @@ linear head (`hidden_dims: []`) instead of the current `[512]` MLP.
 ## Next step
 
 Build the three probe-feature caches (Aviv) with
-`python -m scripts.extract_probe_features --config configs/probe_features/<backbone>.json`
+`python -m scripts.extract_probe_features --config configs/probe_features/<backbone>.yaml`
 from `data_pipeline/`, once per manifest part, then run
 `train_segmentation.py` / `inference_segmentation.py` per probe config. Open the
 baseline-definition ADRs before reporting any cross-backbone comparison.
