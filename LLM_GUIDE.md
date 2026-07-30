@@ -4,7 +4,7 @@ This file is the single source of truth for Codex, Claude, Gemini, and other cod
 
 ## Before changing anything
 
-1. Read `README.md`, `PROJECT_STATUS.md`, and `CONTRIBUTING.md`.
+1. Read `README.md`, `PROJECT_STATUS.md`, and `CONTRIBUTING.md` at the repository root. Stage 0 code lives under `data_pipeline/`; Stage 1 segmentation work lives under `segmentation_validation/`.
 2. Read accepted ADRs relevant to the task.
 3. Read the latest applicable session and experiment records.
 4. Inspect the actual code path. Treat comments, reports, and previous assistant statements as claims to verify.

@@ -5,135 +5,44 @@ Deep Learning course project investigating whether frozen CUT3R representations 
 1. class-agnostic foreground/background segmentation; and
 2. semantic object identity across CO3D categories.
 
-Stage 0 implementation now provides leakage-safe CO3Dv2 manifests, deterministic
-six-frame windows, CUT3R-aligned RGB/mask transforms, frozen CUT3R trajectory
-extraction, and a verified feature cache. The scientific decisions remain
-proposed until team review; no semantic probe is trained in Stage 0.
+CUT3R is used as a frozen backbone. Only lightweight probe heads are trained, so
+any semantic signal we measure comes from the representation, not from the probe.
 
-## Stage 0 quick start
+## Repository layout
 
-Install the project and development tools:
+| Path | Purpose |
+|---|---|
+| `data_pipeline/` | Stage 0 code: CO3Dv2 preprocessing, leakage-safe manifests, deterministic six-frame windows, frozen backbones, and embedding extraction. See [data_pipeline/README.md](data_pipeline/README.md). |
+| `segmentation_validation/` | Stage 1 code: the binary segmentation probe, training, and inference. See [segmentation_validation/README.md](segmentation_validation/README.md). |
+| `docs/` | Repository-wide records: ADRs, session notes, experiments, dataset provenance, and project protocol. |
+| `artifacts/`, `reports/`, `notebooks/` | Registries and sources for external artifacts, the final report, and exploration. |
+| `pyproject.toml` | Packaging. Installs the `data_pipeline` code as the importable `src` and `scripts` packages. |
+| `LLM_GUIDE.md` | Shared guide for AI-assisted work. |
+
+Code lives in the stage directories; everything that describes the project as a
+whole lives at the repository root.
+
+## Getting started
+
+Install once from the repository root:
 
 ```bash
 python -m pip install -e ".[dev]"
 ```
 
-Set external paths. Never commit datasets, checkpoints, caches, VM credentials,
-or generated artifacts.
+This exposes the pipeline as top-level `src.*` and `scripts.*` packages, so every
+workspace imports it the same way (for example
+`from src.backbones import build_backbone`).
 
-On Azure, first verify that these paths are backed by a managed OS/data disk or
-an explicitly approved persistent share. Never store repositories, checkpoints,
-datasets, caches, manifests, or results on `/mnt` when it resolves to Azure's
-`/dev/disk/azure/resource` disk; that disk is temporary and can be reinitialized
-after stop/deallocate or host-maintenance events.
+Run pipeline scripts and any command that uses a relative `configs/...` path from
+inside `data_pipeline/`. Run the test suite from the repository root:
 
 ```bash
-export CO3D_ROOT=/data/co3d
-export CUT3R_ROOT=/work/CUT3R
-export CUT3R_CHECKPOINT=/models/cut3r_512_dpt_4_64.pth
-export CUT3R_ARTIFACT_ROOT=/artifacts/cut3r-semantic
-export CUT3R_CACHE_ROOT=/cache/cut3r-semantic
+pytest
 ```
 
-All Stage 0 configurations pin the released `cut3r_512_dpt_4_64.pth` bytes to
-SHA-256 `45f7e98a0a64dbeb54901ae2b878cd8cd125f20a4497316483f0bd6f109f8103`.
-Extraction rejects any other file before deserialization and uses a scoped
-seven-type OmegaConf allowlist with PyTorch's restricted weights-only loader.
-
-Download only the files selected by the deterministic debug configuration.
-Run the metadata plan, remote ZIP index, and payload materialization as separate
-gates so disk use is known before downloading image data:
-
-```bash
-python -m scripts.download_co3d_selective \
-  --config configs/stage0/debug.yaml --plan-only \
-  > "$CUT3R_ARTIFACT_ROOT/debug-download-plan.json"
-python -m scripts.download_co3d_selective \
-  --config configs/stage0/debug.yaml --index-only \
-  > "$CUT3R_ARTIFACT_ROOT/debug-download-index.json"
-python -m scripts.download_co3d_selective \
-  --config configs/stage0/debug.yaml \
-  > "$CUT3R_ARTIFACT_ROOT/debug-download-result.json"
-```
-
-The downloader uses byte-range requests against the official full-release ZIPs;
-it does not download whole multi-gigabyte category archives. Then build and
-validate the debug manifests:
-
-```bash
-python -m scripts.build_manifests --config configs/stage0/debug.yaml
-python -m scripts.validate_manifests \
-  --manifest-dir "$CUT3R_ARTIFACT_ROOT/manifests/debug" \
-  --dataset-root "$CO3D_ROOT" \
-  --inspect-files
-```
-
-On the CUDA machine, independently extract the same window twice, compare every
-cached tensor exactly, and verify a cache:
-
-```bash
-python -m scripts.apply_cut3r_compatibility_patch \
-  --cut3r-root "$CUT3R_ROOT" \
-  --expected-commit 8bc15dc92a6d7fd92920b4ec81540d3dec7d3ecf
-(cd "$CUT3R_ROOT/src/croco/models/curope" && \
-  python setup.py build_ext --inplace)
-python -m scripts.validate_checkpoint \
-  --config configs/stage0/debug.yaml \
-  --load-model
-python -m scripts.extract_features \
-  --config configs/stage0/debug.yaml \
-  --limit-windows 1 \
-  --cache-dir "$CUT3R_CACHE_ROOT/preflight-a"
-python -m scripts.extract_features \
-  --config configs/stage0/debug.yaml \
-  --limit-windows 1 \
-  --cache-dir "$CUT3R_CACHE_ROOT/preflight-b"
-python -m scripts.compare_caches \
-  --left "$CUT3R_CACHE_ROOT/preflight-a" \
-  --right "$CUT3R_CACHE_ROOT/preflight-b"
-python -m scripts.validate_cache --cache-dir "$CUT3R_CACHE_ROOT/preflight-a"
-```
-
-See [the Stage 0 protocol](docs/data/stage0-protocol.md),
-[ADR 0002](docs/decisions/0002-co3dv2-stage0-data-protocol.md), and
-[ADR 0003](docs/decisions/0003-cut3r-trajectory-and-cache-contract.md) before
-running the pilot or full extraction.
-
-## Team cache access
-
-The Full-51 Stage 0 representations are distributed as two immutable external
-cache roots, `full51-part-a-v1` and `full51-part-b-v1`. They are category/storage
-shards, not scientific splits, and must never be merged by copying their files
-together. Teammates should download both to a non-synced local SSD, verify the
-published SHA-256 manifests, validate each cache, and load them as a logical
-union. The cache does not replace the CO3D manifests or RGB/mask files.
-
-Authorized teammates can access the private
-[Stage 0 Full-51 Google Drive folder](https://drive.google.com/drive/folders/1UttTnkxRlcz3H3K-Puv1VhVfcjrAZTzN).
-The folder remains restricted; request Viewer access from Max if the link does
-not open.
-
-Follow the complete [Stage 0 Full-51 cache handoff](docs/data/stage0-full51-cache-handoff.md)
-for the private team-folder layout, upload/download commands, immutable identities,
-verification gates, tensor shapes, timestep semantics, and loading example.
-
-Each cached window contains two different tensors; use their exact names rather
-than calling either one simply an "embedding":
-
-| Cache field | Meaning | Cached shape | Primary later use |
-|---|---|---|---|
-| `image_tokens` | Spatial tokens for each current frame after interaction with the preceding recurrent state; the pose token is removed | `[6, 1, grid_height * grid_width, 768]` | Frame-6 segmentation and per-pixel classification; spatial pooling for image classification |
-| `state_tokens` | The persistent recurrent memory after CUT3R has consumed and committed each frame | `[6, 1, 768, 768]` | Pooled image classification and temporal/state analysis; not spatial mask prediction |
-
-Index `t` refers to `frame_ids[t]`. Therefore `image_tokens[5, 0]` describes
-the sixth frame in its five-frame history, while `state_tokens[5, 0]` is the
-memory after all six frames. Both trajectories are saved for later analysis.
-
-The approved all-category run uses two storage shards with 30/5/5
-train/validation/test sequence caps. Follow the
-[Full-51 two-part runbook](docs/project/FULL51_TWO_PART_RUNBOOK.md); Part A and
-Part B are execution shards only and must be combined for later training and
-evaluation.
+Large datasets, embeddings, checkpoints, and generated results must never be
+committed to Git.
 
 ## Project stages
 
@@ -156,16 +65,16 @@ of these status values: `Not started`, `Planned`, `In progress`, `Blocked`,
 
 | Work item | Status | Current owner(s) | Previous contributor(s) | Done so far |
 |---|---|---|---|---|
-| Verify that a binary segmentation probe works on the selected CO3D data | Not started | TBD | Max Bershtman (earlier proof of concept) | The earlier single-sequence proof of concept was audited; validation on the new dataset split has not started. |
+| Verify that a binary segmentation probe works on the selected CO3D data | In progress | Aviv Rabi | Max Bershtman (earlier proof of concept) | The probe, dataset, training, and inference code exist and pass synthetic tests; no run on real embeddings yet. |
 | Decide whether inference with an existing probe is sufficient or whether the MLP must be retrained | Not started | TBD | Max Bershtman (earlier proof of concept) | The decision is recorded as open; no approach has been approved. |
-| Compare against random-weight and state-of-the-art baselines | Not started | TBD | - | Baseline definitions and the evaluation protocol must be agreed before implementation. |
+| Compare against random-weight and state-of-the-art baselines | In progress | Aviv Rabi | - | Shared backbones and a single extraction script cover CUT3R-trained, CUT3R-random, and DINOv2; the baseline definitions still need ADRs. |
 | Analyze results and produce plots | Not started | TBD | Max Bershtman (earlier proof-of-concept report) | Experiment and metric templates exist; the new project has no results yet. |
 
 ### Stage 2 - Multiclass classification
 
 | Work item | Status | Current owner(s) | Previous contributor(s) | Done so far |
 |---|---|---|---|---|
-| Train an MLP head for multiclass object classification | Not started | TBD | - | The task is defined in the proposal; implementation has not started. |
+| Train an MLP head for multiclass object classification | Not started | TBD | - | The embedding cache already stores per-window category labels; no classification probe is implemented. |
 | Compare image-level classification with per-pixel classification and choose an architecture | Not started | TBD | - | The required comparison is recorded; no architecture has been selected. |
 | Compare against random-weight and state-of-the-art baselines | Not started | TBD | - | Baseline definitions and the evaluation protocol remain open. |
 | Analyze results and produce plots | Not started | TBD | - | Experiment and metric templates exist; the project has no classification results yet. |
@@ -192,25 +101,6 @@ of these status values: `Not started`, `Planned`, `In progress`, `Blocked`,
 4. Create or claim a GitHub issue.
 5. Work on a short-lived branch and open a pull request.
 6. Add a session note when handing work to another person or assistant.
-
-## Repository map
-
-| Path | Purpose |
-|---|---|
-| `src/data/` | CO3Dv2 annotation parsing, official splits, six-frame windows, transforms, manifests, and validation |
-| `src/embeddings/` | Pinned-upstream CUT3R adapter, exact cuRoPE compatibility provenance, six-timestep feature trajectories, extraction, and verified caching |
-| `src/segmentation/` | Binary segmentation probes and evaluation |
-| `src/classification/` | Multiclass probes and evaluation |
-| `src/baselines/` | Random-weight, simple trained, and advanced frozen baselines |
-| `configs/` | Versioned experiment configurations |
-| `tests/` | Unit and integration tests |
-| `docs/decisions/` | Architectural and scientific decision records |
-| `docs/sessions/` | Concise work-session and handoff notes |
-| `docs/experiments/` | Reproducible experiment records |
-| `docs/data/` | Dataset versions, manifests, splits, and provenance |
-| `artifacts/` | Instructions and indexes for external large artifacts |
-
-Large datasets, embeddings, checkpoints, and generated results must not be committed to Git.
 
 ## Team
 

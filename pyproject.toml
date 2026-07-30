@@ -24,8 +24,8 @@ dev = ["pytest>=8,<9"]
 
 [tool.pytest.ini_options]
 addopts = "-ra"
-testpaths = ["tests"]
+testpaths = ["data_pipeline/tests", "segmentation_validation/tests"]
 
 [tool.setuptools.packages.find]
-where = ["."]
-include = ["src*"]
+where = ["data_pipeline"]
+include = ["src*", "scripts*"]

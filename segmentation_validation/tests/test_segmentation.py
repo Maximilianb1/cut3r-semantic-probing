@@ -1,0 +1,254 @@
+from __future__ import annotations
+
+from typing import Any
+
+import pytest
+import torch
+
+from model_segmentation import HeadConfig, MLPHead, SegmentationProbe, build_probe
+from segmentation_dataset import ProbeCacheDataset, assert_sequence_disjoint, collate_windows
+from src.backbones.base import Backbone, BackboneFeatures, TrajectoryExtraction, WindowExtraction
+from src.backbones.probe_cache import extract_to_cache
+from segmentation_inference import run_inference
+from train_segmentation import train_from_config
+
+
+class _SeparableBackbone(Backbone):
+    """Features linearly separable by the top/bottom-half mask, so a probe can learn."""
+
+    name = "separable"
+
+    def __init__(self, *, grid: tuple[int, int] = (4, 4), dim: int = 4) -> None:
+        self.grid = grid
+        self.dim = dim
+
+    def extract_window(self, frame_rows: list[dict[str, Any]], *, dataset_root: str) -> WindowExtraction:
+        grid_h, grid_w = self.grid
+        tokens = torch.zeros(grid_h * grid_w, self.dim)
+        for row in range(grid_h):
+            signal = 1.0 if row < grid_h / 2 else -1.0
+            for col in range(grid_w):
+                tokens[row * grid_w + col, 0] = signal
+        features = BackboneFeatures(
+            spatial_tokens=tokens,
+            token_grid=self.grid,
+            global_tokens=torch.ones(1, self.dim),
+            frame_id=frame_rows[-1]["frame_id"],
+        )
+        mask = torch.zeros(grid_h * 8, grid_w * 8)
+        mask[: (grid_h * 8) // 2, :] = 1.0  # top half foreground -> top rows are class 1
+        return WindowExtraction(features=features, target_mask=mask)
+
+    def provenance(self) -> dict[str, Any]:
+        return {"backbone": self.name}
+
+
+class _SeparableTrajectoryBackbone(Backbone):
+    """CUT3R-trained analog: full trajectory whose target frame is separable."""
+
+    name = "separable-trajectory"
+
+    def __init__(self, *, grid: tuple[int, int] = (4, 4), dim: int = 4) -> None:
+        self.grid = grid
+        self.dim = dim
+
+    def extract_window(self, frame_rows, *, dataset_root):  # pragma: no cover - unused
+        raise NotImplementedError
+
+    def extract_trajectory(self, frame_rows: list[dict[str, Any]], *, dataset_root: str) -> TrajectoryExtraction:
+        grid_h, grid_w = self.grid
+        image = torch.zeros(6, 1, grid_h * grid_w, self.dim)
+        for row in range(grid_h):
+            signal = 1.0 if row < grid_h / 2 else -1.0
+            for col in range(grid_w):
+                image[5, 0, row * grid_w + col, 0] = signal  # target frame (index 5) separable
+        mask = torch.zeros(grid_h * 8, grid_w * 8)
+        mask[: (grid_h * 8) // 2, :] = 1.0
+        return TrajectoryExtraction(
+            image_tokens=image,
+            state_tokens=torch.randn(6, 1, self.dim, self.dim),
+            token_grid=self.grid,
+            frame_ids=[row["frame_id"] for row in frame_rows],
+            target_mask=mask,
+        )
+
+    def provenance(self) -> dict[str, Any]:
+        return {"backbone": self.name}
+
+
+def _build_cache(tmp_path, *, backbone: Backbone | None = None, layout: str = "target_only", count: int = 8):
+    backbone = backbone if backbone is not None else _SeparableBackbone()
+    windows = [
+        {
+            "window_id": f"w{i}",
+            "frame_ids": [f"{i}_{j}" for j in range(6)],
+            "category": "apple" if i % 2 else "ball",
+            "sequence_id": f"seq{i}",
+            "split": "train" if i < count - 2 else "val",
+        }
+        for i in range(count)
+    ]
+    frame_by_id = {
+        fid: {"frame_id": fid, "image_relpath": "x", "mask_relpath": "y"}
+        for window in windows
+        for fid in window["frame_ids"]
+    }
+    extract_to_cache(
+        backbone, layout=layout, windows=windows, frame_by_id=frame_by_id,
+        dataset_root=".", cache_dir=tmp_path, contract={}, windows_per_shard=4,
+        verify_source_hashes=False,
+    )
+    return tmp_path
+
+
+def test_mlp_head_linear_vs_nonlinear() -> None:
+    linear = MLPHead(HeadConfig(feature_dim=8, hidden_dims=()))
+    assert linear.is_linear
+    assert linear(torch.randn(3, 5, 8)).shape == (3, 5, 1)
+    mlp = MLPHead(HeadConfig(feature_dim=8, hidden_dims=(16,), num_classes=1))
+    assert not mlp.is_linear
+    assert mlp(torch.randn(7, 8)).shape == (7, 1)
+
+
+def test_probe_logit_grid_shape() -> None:
+    probe = build_probe({"feature_dim": 8, "num_classes": 1})
+    logits = probe.logit_grid(torch.randn(2, 16, 8), (4, 4))
+    assert logits.shape == (2, 1, 4, 4)
+    with torch.no_grad():
+        probability = probe.predict_mask(torch.randn(2, 16, 8), (4, 4), output_size=(64, 64))
+    assert probability.shape == (2, 1, 64, 64)
+    assert float(probability.min()) >= 0.0 and float(probability.max()) <= 1.0
+
+
+def test_collate_concatenates_variable_grids() -> None:
+    batch = [
+        {"spatial": torch.randn(16, 8), "labels": torch.zeros(16), "count": 16, "token_grid": (4, 4), "window_id": "a", "category": "apple"},
+        {"spatial": torch.randn(9, 8), "labels": torch.ones(9), "count": 9, "token_grid": (3, 3), "window_id": "b", "category": "ball"},
+    ]
+    collated = collate_windows(batch)
+    assert collated["spatial"].shape == (25, 8)
+    assert collated["counts"].tolist() == [16, 9]
+
+
+def test_sequence_disjoint_guard(tmp_path) -> None:
+    cache = _build_cache(tmp_path)
+    train_set = ProbeCacheDataset(cache, split="train")
+    val_set = ProbeCacheDataset(cache, split="val")
+    assert_sequence_disjoint(train_set, val_set)  # disjoint by construction
+
+
+def test_training_learns_separable_signal(tmp_path) -> None:
+    cache = _build_cache(tmp_path)
+    config = {
+        "experiment": "smoke",
+        "probe_cache": {"dir": str(cache)},
+        "model": {"feature_dim": 4, "num_classes": 1, "hidden_dims": []},
+        "training": {"epochs": 60, "batch_size": 4, "lr": 0.05, "seed": 0, "device": "cpu"},
+        "splits": {"train": "train", "val": "val"},
+        "output": {"dir": str(tmp_path / "runs")},
+    }
+    result = train_from_config(config)
+    assert result["is_linear_probe"] is True
+    final = result["final_val"]
+    assert final["token_accuracy"] > 0.95
+    assert final["macro_foreground_iou"] > 0.9
+    assert (tmp_path / "runs" / "metrics.json").is_file()
+    assert (tmp_path / "runs" / "head.pt").is_file()
+
+
+def test_training_works_on_trajectory_layout(tmp_path) -> None:
+    """Same probe code trains on a CUT3R-trained (trajectory) cache, not just target-only.
+
+    Covers the third model layout: target-only exercises random-CUT3R and DINOv2;
+    this exercises CUT3R-trained. The training code is backbone/layout-agnostic
+    because it reads the target-frame spatial tokens via the cache's accessor.
+    """
+    cache = _build_cache(tmp_path, backbone=_SeparableTrajectoryBackbone(), layout="trajectory")
+    config = {
+        "experiment": "smoke-trajectory",
+        "probe_cache": {"dir": str(cache)},
+        "model": {"feature_dim": 4, "num_classes": 1, "hidden_dims": []},
+        "training": {"epochs": 60, "batch_size": 4, "lr": 0.05, "seed": 0, "device": "cpu"},
+        "splits": {"train": "train", "val": "val"},
+        "output": {"dir": str(tmp_path / "runs")},
+    }
+    result = train_from_config(config)
+    assert result["final_val"]["macro_foreground_iou"] > 0.9
+
+
+def test_dataset_does_not_read_whole_shard_per_window(tmp_path, monkeypatch) -> None:
+    """Reading a window must not materialize its entire shard (PR #10 review).
+
+    A shard holds many windows, so a full-shard read per window would multiply
+    training I/O. We assert the full-shard loader is never called on the read
+    path by making it raise.
+    """
+    import src.backbones.probe_cache as probe_cache
+
+    cache = _build_cache(tmp_path)
+    dataset = ProbeCacheDataset(cache, split="train")
+
+    def _explode(*args, **kwargs):  # pragma: no cover - only runs on regression
+        raise AssertionError("load_file() read the whole shard for a single window")
+
+    monkeypatch.setattr(probe_cache, "load_file", _explode)
+    item = dataset[0]
+    assert item["spatial"].shape[0] == item["count"]
+    assert item["labels"].numel() == item["count"]
+
+
+def test_inference_single_pass_matches_metrics(tmp_path) -> None:
+    """Per-window IoUs come from the same batched pass as the aggregate metrics."""
+    cache = _build_cache(tmp_path)
+    config = {
+        "experiment": "smoke",
+        "probe_cache": {"dir": str(cache)},
+        "model": {"feature_dim": 4, "num_classes": 1, "hidden_dims": []},
+        "training": {"epochs": 30, "batch_size": 4, "lr": 0.05, "seed": 0, "device": "cpu"},
+        "splits": {"train": "train", "val": "val"},
+        "output": {"dir": str(tmp_path / "runs")},
+    }
+    train_from_config(config)
+    result = run_inference(config, split="val")
+    per_window = result["per_window_iou"]
+    assert len(per_window) == result["windows"]
+    # The macro IoU must equal the mean of the per-window IoUs from that same pass.
+    mean_iou = sum(p["foreground_iou"] for p in per_window) / len(per_window)
+    assert abs(mean_iou - result["metrics"]["macro_foreground_iou"]) < 1e-9
+    # per_window must not leak into the reported metrics blob.
+    assert "per_window" not in result["metrics"]
+
+
+def test_training_history_stays_small(tmp_path) -> None:
+    """Per-epoch validation metrics must not carry per-window records."""
+    cache = _build_cache(tmp_path)
+    config = {
+        "experiment": "smoke",
+        "probe_cache": {"dir": str(cache)},
+        "model": {"feature_dim": 4, "num_classes": 1, "hidden_dims": []},
+        "training": {"epochs": 2, "batch_size": 4, "lr": 0.05, "seed": 0, "device": "cpu"},
+        "splits": {"train": "train", "val": "val"},
+    }
+    result = train_from_config(config)
+    for record in result["history"]:
+        assert "per_window" not in record["val"]
+
+
+def test_inference_reloads_trained_probe(tmp_path) -> None:
+    cache = _build_cache(tmp_path)
+    config = {
+        "experiment": "smoke",
+        "probe_cache": {"dir": str(cache)},
+        "model": {"feature_dim": 4, "num_classes": 1, "hidden_dims": []},
+        "training": {"epochs": 60, "batch_size": 4, "lr": 0.05, "seed": 0, "device": "cpu"},
+        "splits": {"train": "train", "val": "val"},
+        "output": {"dir": str(tmp_path / "runs")},
+    }
+    train_from_config(config)
+    result = run_inference(
+        config, split="val", save_dir=str(tmp_path / "infer"), save_masks=True
+    )
+    assert result["metrics"]["macro_foreground_iou"] > 0.9
+    assert len(result["per_window_iou"]) == result["windows"]
+    assert (tmp_path / "infer" / "inference-val.json").is_file()
+    assert (tmp_path / "infer" / "masks-val.pt").is_file()
