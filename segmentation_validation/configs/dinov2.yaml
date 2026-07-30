@@ -1,0 +1,40 @@
+experiment: segmentation-dinov2
+backbone: dinov2-vitb14
+
+# Advanced frozen baseline. The DINOv2 variant is an OPEN decision pending a
+# baseline ADR; feature_dim 768 matches CUT3R so the head is comparable.
+# Note its token grid is finer than CUT3R's (patch 14 vs 16), so IoU is measured
+# on a different grid - see the cross-backbone comparison ADR.
+probe_cache:
+  dir: ${CUT3R_CACHE_ROOT}/probe/dinov2-vitb14
+
+model:
+  feature_dim: 768
+  num_classes: 1
+  # [] is a true linear probe; [512] is a 1-hidden-layer MLP probe.
+  # Which one Stage 1 reports is an OPEN decision.
+  hidden_dims: [512]
+  activation: gelu
+  dropout: 0.0
+
+training:
+  # adam | adamw | sgd (sgd also reads `momentum`)
+  optimizer: adam
+  epochs: 20
+  batch_size: 16
+  lr: 0.001
+  weight_decay: 0.0
+  pos_weight: null
+  seed: 20260729
+  device: cpu
+  num_workers: 0
+  # tqdm bars; they draw only on a real terminal, never into a redirected log
+  progress: true
+
+splits:
+  train: train
+  val: val
+  test: test
+
+output:
+  dir: runs/segmentation-dinov2

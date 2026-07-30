@@ -123,10 +123,30 @@ labels (segmentation grid and category). See
 [`src/backbones/README.md`](src/backbones/README.md) for the contract and the
 open baseline decisions.
 
+Run once per backbone, from this directory:
+
 ```bash
-python -m scripts.extract_probe_features \
-  --config ../segmentation_validation/configs/dinov2.json
+python -m scripts.extract_probe_features --config configs/probe_features/dinov2.yaml
 ```
+
+Full-51 has two manifest parts. Run each config once per part into the **same**
+cache directory, passing the part B manifests explicitly:
+
+```bash
+python -m scripts.extract_probe_features --config configs/probe_features/dinov2.yaml --manifest-dir "$CUT3R_ARTIFACT_ROOT/manifests/full51-part-b-v1"
+```
+
+The configs reference `${ENV}` paths (no hardcoded locations); export the Stage 0
+variables before running:
+
+- **DINOv2:** `CO3D_ROOT`, `CUT3R_ARTIFACT_ROOT`, `CUT3R_CACHE_ROOT`
+- **random-CUT3R:** those plus `CUT3R_ROOT` (the checkpoint resolves to CUT3R's
+  default `${CUT3R_ROOT}/src/cut3r_512_dpt_4_64.pth`)
+- **CUT3R-trained:** reuses the existing Stage 0 cache — no GPU, no re-extraction
+
+Each cache written here is what
+[`segmentation_validation/`](../segmentation_validation/README.md) consumes; the
+probe config of the same name must point at the same `probe_cache.dir`.
 
 ## Team cache access
 

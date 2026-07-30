@@ -10,10 +10,10 @@ Layout is derived from the backbone (override with ``extraction.layout``):
 - CUT3R-random   -> ``target_only`` (grid + latent, last state)
 - DINOv2         -> ``target_only`` (grid + latent, last state)
 
-Run one config at a time (from the repository root)::
+Run one config at a time (from ``data_pipeline/``)::
 
     python -m scripts.extract_probe_features \
-      --config segmentation_validation/configs/cut3r_trained.json
+      --config configs/probe_features/cut3r_trained.yaml
 
 Add ``--limit-windows N`` for a quick smoke, ``--device`` / ``--cache-dir`` to
 override. Requires the CO3Dv2 manifests + data and (for CUT3R) the CUT3R repo +
@@ -37,15 +37,15 @@ from src.backbones.probe_cache import (
     attach_labels_from_trajectory_cache,
     extract_to_cache,
 )
-from src.common.io import expand_environment, load_json, load_yaml, sha256_file
+from src.common.io import load_json, load_yaml, sha256_file
 from src.common.tables import read_parquet
 from src.data.validation import validate_manifests
 
 
 def _load_config(path: Path) -> dict[str, Any]:
-    """Load a config and resolve ``${ENV_VAR}`` references (e.g. ``${CO3D_ROOT}``)."""
-    if path.suffix == ".json":
-        return expand_environment(load_json(path))
+    """Load a YAML config and resolve ``${ENV_VAR}`` references (e.g. ``${CO3D_ROOT}``)."""
+    if path.suffix not in (".yaml", ".yml"):
+        raise ValueError(f"Config must be .yaml or .yml, got {path.suffix!r}: {path}")
     return load_yaml(path)
 
 

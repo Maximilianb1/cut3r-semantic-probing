@@ -1,5 +1,13 @@
 # Configurations
 
+`stage0/` configures CO3D preprocessing and Stage 0 CUT3R feature extraction.
+`probe_features/` configures `scripts/extract_probe_features.py`, one file per
+probing backbone: which backbone to run, over which manifests, and which
+probe-feature cache to write. These are extraction configs only — the probe head
+and its optimization are configured separately in
+`../../segmentation_validation/configs/`, whose file of the same name must point
+at the same `probe_cache.dir`.
+
 `stage0/debug.yaml`, `pilot.yaml`, and `full.yaml` encode the conceptual dataset
 tiers. The approved 51-category extraction is physically sharded into
 `full51-part-a.yaml` and `full51-part-b.yaml` so one cache fits on the Technion

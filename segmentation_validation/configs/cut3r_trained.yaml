@@ -1,0 +1,37 @@
+experiment: segmentation-cut3r-trained
+backbone: cut3r-trained
+
+# Written by data_pipeline/configs/probe_features/cut3r_trained.yaml; must match it.
+probe_cache:
+  dir: ${CUT3R_CACHE_ROOT}/probe/cut3r-trained
+
+model:
+  feature_dim: 768
+  num_classes: 1
+  # [] is a true linear probe; [512] is a 1-hidden-layer MLP probe.
+  # Which one Stage 1 reports is an OPEN decision.
+  hidden_dims: [512]
+  activation: gelu
+  dropout: 0.0
+
+training:
+  # adam | adamw | sgd (sgd also reads `momentum`)
+  optimizer: adam
+  epochs: 20
+  batch_size: 16
+  lr: 0.001
+  weight_decay: 0.0
+  pos_weight: null
+  seed: 20260729
+  device: cpu
+  num_workers: 0
+  # tqdm bars; they draw only on a real terminal, never into a redirected log
+  progress: true
+
+splits:
+  train: train
+  val: val
+  test: test
+
+output:
+  dir: runs/segmentation-cut3r-trained

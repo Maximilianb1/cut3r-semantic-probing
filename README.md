@@ -65,7 +65,7 @@ of these status values: `Not started`, `Planned`, `In progress`, `Blocked`,
 
 | Work item | Status | Current owner(s) | Previous contributor(s) | Done so far |
 |---|---|---|---|---|
-| Verify that a binary segmentation probe works on the selected CO3D data | In progress | Aviv Rabi | Max Bershtman (earlier proof of concept) | The probe, dataset, training, and inference code exist and pass synthetic tests; no run on real embeddings yet. |
+| Verify that a binary segmentation probe works on the selected CO3D data | In progress | Aviv Rabi | Max Bershtman (earlier proof of concept) | The probe, dataset, training, and inference code exist and run end to end on a synthetic cache; no automated tests and no run on real embeddings yet. |
 | Decide whether inference with an existing probe is sufficient or whether the MLP must be retrained | Not started | TBD | Max Bershtman (earlier proof of concept) | The decision is recorded as open; no approach has been approved. |
 | Compare against random-weight and state-of-the-art baselines | In progress | Aviv Rabi | - | Shared backbones and a single extraction script cover CUT3R-trained, CUT3R-random, and DINOv2; the baseline definitions still need ADRs. |
 | Analyze results and produce plots | Not started | TBD | Max Bershtman (earlier proof-of-concept report) | Experiment and metric templates exist; the new project has no results yet. |
