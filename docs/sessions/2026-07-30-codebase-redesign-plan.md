@@ -256,7 +256,7 @@ interpolation).
 
 | # | Change | Proposer | Diff | Size | Sev | Status |
 |---|---|---|---|---|---|---|
-| 6.1 | After §4.4, structure is `configs/stage0/*.yaml`. Add `configs/README.md` describing the schema and env-var resolution. | Agent | S | 1f / +40 LOC | med | Accepted |
+| 6.1 | After §4.4, structure is `configs/stage0/*.yaml`. Add `configs/README.md` describing the schema and env-var resolution. | Agent | S | 1f / +40 LOC | med | WIP (Commit 6). Existing thin README rewritten to include: directory layout for future stages, env-var resolution mechanism (strict-fail via `src/common/io.expand_environment`), the five env vars each Stage 0 config expects, top-level schema per section (`dataset`, `sampling`, `preprocessing`, `model`, `cache`, `output`), and rules for adding new configs. Original tier-description content preserved. |
 | 6.2 | **Flag only** (read-only): recommend Aviv/Lihi convert `segmentation_validation/configs/*.json` → YAML in their next PR, for consistency with Stage 0. Do not touch. | Agent | — | — | med | Read-only |
 | 6.3 | Add `configs/segmentation/` and `configs/classification/` after §4.9 lands. Not now. | Ron | — | — | low | Deferred |
 
@@ -389,7 +389,7 @@ commit-readiness handoff. Uses the same Status vocabulary as §§1–9.
 | 4 | staged | §4.8, §7.2 — path fixes across README, PROJECT_STATUS, CONTRIBUTING, LLM_GUIDE, docs/, subdir READMEs | Staged, awaiting Ron's `git commit`. Scope collapsed to a single file (`README.md`) after audit — the other targets were already layout-independent. |
 | 5 | not started | §5.2 — Ron verifies install + pytest in Python 3.11+ venv on Windows and Technion VM | Windows part complete (54/55 pass; single failure is numpy-1.26.4 cp313 native crash, unrelated to flatten). Technion VM part still owed. |
 | 6 | staged | §2.1, §2.2, §2.4 — `.github/prompts/` + `fix_pr_comments.prompt.md` (§11) + CODEOWNERS refresh | Staged, awaiting Ron's `git commit`. §2.4 turned out to be a no-op today (CODEOWNERS has no path patterns); genuine ownership refresh filed as a follow-up pending GitHub handles. |
-| 7 | not started | §6.1 — `configs/README.md` | Accepted |
+| 7 | staged | §6.1 — `configs/README.md` rewritten with schema + env-var resolution | Staged, awaiting Ron's `git commit`. |
 | 8 | not started | §3.3, §3.2 — `docs/README.md` + docs de-dup audit | Accepted |
 
 **Deferred to follow-up branch `seg-into-src` (post-merge with Aviv/Lihi):**
@@ -401,6 +401,19 @@ commit-readiness handoff. Uses the same Status vocabulary as §§1–9.
 
 ### Follow-up notes surfaced during PR execution
 
+- **Promote `fix_pr_comments` prompt to a skill if the team forgets to invoke
+  it (Commit 5 decision).** Kept as a prompt for cross-tool portability and
+  because the negotiate-first flow benefits from explicit user consent. If
+  real usage shows the team defaults to "just fix what the reviewer said"
+  without invoking the prompt, promote it to a Copilot skill or Claude
+  subagent under `.claude/agents/` so it fires automatically on PR-comment
+  context. Revisit after two or three PRs land.
+- **`reject_unknown_keys` is dead code (Commit 6 audit).**
+  `src/common/io.reject_unknown_keys` is defined but never called; today
+  Stage 0 configs silently ignore typo'd top-level keys. Wire it into the
+  config-loading path in a small hardening PR (needs an explicit list of
+  allowed keys per section — candidate for a dataclass or pydantic model).
+  Documented in `configs/README.md` so users know the gap exists.
 - **`CODEOWNERS` refresh (Commit 5 audit).** Today `.github/CODEOWNERS` is
   `* @Maximilianb1`, which routes every review to Max. Once GitHub handles for
   the rest of the team are documented, add path-scoped ownership: Aviv & Lihi
