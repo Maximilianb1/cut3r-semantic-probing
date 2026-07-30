@@ -132,8 +132,8 @@ class BinaryMetrics:
             self.loss_sum = (self.loss_sum or 0.0) + loss * labels.numel()
 
         # IoU
-        preds = _split_by_counts(prediction.cpu(), batch["counts"])
-        gts = _split_by_counts(labels.cpu(), batch["counts"])
+        preds = _split_by_counts(prediction, batch["counts"])
+        gts = _split_by_counts(labels, batch["counts"])
         for position, (pred, gt, category) in enumerate(zip(preds, gts, batch["categories"])):
             intersection = float(((pred == 1) & (gt == 1)).sum().item())
             union = float(((pred == 1) | (gt == 1)).sum().item())
@@ -151,8 +151,8 @@ class BinaryMetrics:
                     "foreground_iou": iou,
                 }
                 if self.collect_masks:
-                    record["predicted_labels"] = pred.reshape(grid)
-                    record["target_labels"] = gt.reshape(grid)
+                    record["predicted_labels"] = pred.reshape(grid).cpu()
+                    record["target_labels"] = gt.reshape(grid).cpu()
                 self.windows.append(record)
 
     def result(self) -> dict[str, Any]:
