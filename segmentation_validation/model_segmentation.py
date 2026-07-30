@@ -25,8 +25,8 @@ _ACTIVATIONS = {"relu": nn.ReLU, "gelu": nn.GELU, "tanh": nn.Tanh}
 
 @dataclass
 class HeadConfig:
-    """Convert json config to a data class."""
-    feature_dim: int = 768 # Backbone output dim per patch
+    """Configuration for the probe head (parsed from the config file)."""
+    feature_dim: int  # Backbone output dim per patch
     num_classes: int = 1  # 1 => binary foreground/background segmentation
     hidden_dims: Sequence[int] = field(default_factory=tuple) # MLP layers
     activation: str = "gelu"
