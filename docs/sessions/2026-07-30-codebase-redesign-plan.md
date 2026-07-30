@@ -64,9 +64,9 @@ Add the Copilot one. Push the meat into `LLM_GUIDE.md`.
 
 | # | Change | Proposer | Diff | Size | Sev | Status |
 |---|---|---|---|---|---|---|
-| 1.1 | **Keep** `AGENTS.md`, `CLAUDE.md`, `GEMINI.md` at root as 1-line redirects. Document *why* in `LLM_GUIDE.md` ("these are convention filenames, do not delete"). | Agent | S | 1f / +3 LOC | low | Accepted |
-| 1.2 | **Add** `.github/copilot-instructions.md` — same 1-line redirect to `LLM_GUIDE.md`. | Agent | S | 1f / +1 LOC | med | Accepted |
-| 1.3 | Move all agent-shared guardrails into `LLM_GUIDE.md`; keep it as the single source of truth. Already true today — just re-audit after §4 renames land so paths in it stay correct. | Ron | S | 1f / ~10 LOC | low | Accepted |
+| 1.1 | **Keep** `AGENTS.md`, `CLAUDE.md`, `GEMINI.md` at root as 1-line redirects. Document *why* in `LLM_GUIDE.md` ("these are convention filenames, do not delete"). | Agent | S | 1f / +3 LOC | low | WIP (Commit 2, `2698cd1`) |
+| 1.2 | **Add** `.github/copilot-instructions.md` — same 1-line redirect to `LLM_GUIDE.md`. | Agent | S | 1f / +1 LOC | med | WIP (Commit 2, `2698cd1`) |
+| 1.3 | Move all agent-shared guardrails into `LLM_GUIDE.md`; keep it as the single source of truth. Already true today — just re-audit after §4 renames land so paths in it stay correct. | Ron | S | 1f / ~10 LOC | low | WIP (Commit 2, `2698cd1`) |
 
 ---
 
@@ -205,16 +205,16 @@ We must **not** move that directory in this branch. The plan:
 
 | # | Change | Proposer | Diff | Size | Sev | Status |
 |---|---|---|---|---|---|---|
-| 4.1 | Move `data_pipeline/src/` → root `src/`. Delete empty root stubs first. | Agent + Ron | M | ~40f moved | high | Accepted |
-| 4.2 | Move `data_pipeline/scripts/` → root `scripts/`. | Agent | S | ~12f moved | high | Accepted |
-| 4.3 | Move `data_pipeline/tests/` → root `tests/`. | Agent | S | ~12f moved | high | Accepted |
-| 4.4 | Move `data_pipeline/configs/` → root `configs/stage0/`. | Agent | S | ~5f moved | high | Accepted |
-| 4.5 | Move `data_pipeline/patches/` → root `patches/`. | Agent | S | ~1f moved | med | Accepted |
-| 4.6 | Delete `data_pipeline/` (empty by now). | Agent | S | 1d | med | Accepted |
-| 4.7 | Update `pyproject.toml`: `where = ["."]`, `include = ["src*", "scripts*"]`, `testpaths = ["tests", "segmentation_validation/tests"]`. | Agent | S | 1f / ~4 LOC | high | Accepted |
+| 4.1 | Move `data_pipeline/src/` → root `src/`. Delete empty root stubs first. | Agent + Ron | M | ~40f moved | high | WIP (Commit 3, staged) |
+| 4.2 | Move `data_pipeline/scripts/` → root `scripts/`. | Agent | S | ~12f moved | high | WIP (Commit 3, staged) |
+| 4.3 | Move `data_pipeline/tests/` → root `tests/`. | Agent | S | ~12f moved | high | WIP (Commit 3, staged) |
+| 4.4 | Move `data_pipeline/configs/` → root `configs/stage0/`. | Agent | S | ~5f moved | high | WIP (Commit 3, staged) |
+| 4.5 | Move `data_pipeline/patches/` → root `patches/`. | Agent | S | ~1f moved | med | WIP (Commit 3, staged) |
+| 4.6 | Delete `data_pipeline/` (empty by now). | Agent | S | 1d | med | WIP (Commit 3, staged) |
+| 4.7 | Update `pyproject.toml`: `where = ["."]`, `include = ["src*", "scripts*"]`, `testpaths = ["tests", "segmentation_validation/tests"]`. | Agent | S | 1f / ~4 LOC | high | WIP (Commit 3, staged; same edit as §5.1) |
 | 4.8 | Update every `data_pipeline/…` path in root README, PROJECT_STATUS, CONTRIBUTING, LLM_GUIDE, docs/. | Agent | M | ~15f | med | Accepted |
 | 4.9 | **Deferred** (post-merge with Aviv/Lihi): rename `segmentation_validation/` → `src/segmentation/`. Separate branch. | Ron | M | ~10f | med | Deferred |
-| 4.10 | Delete `data_pipeline/src/segmentation/` placeholder (currently a lone `README.md`) — it will conflict with 4.9. | Agent | S | 1f | low | Accepted |
+| 4.10 | Delete the `src/segmentation/README.md` placeholder — it will collide with 4.9. **Deferred to the §4.9 PR**: that PR does the collision resolution as part of its own move; keeping the placeholder here preserves the "future home" signal and keeps this PR's diff purely mechanical (Ron, 2026-07-30). | Agent → Ron | S | 1f | low | Deferred |
 
 ---
 
@@ -238,8 +238,8 @@ transition. Nothing else changes.
 
 | # | Change | Proposer | Diff | Size | Sev | Status |
 |---|---|---|---|---|---|---|
-| 5.1 | Rewrite the two blocks above. | Agent | S | 1f / ~6 LOC | high | Accepted |
-| 5.2 | Verify `pip install -e ".[dev]"` from repo root exposes `src.backbones`, `src.data`, `scripts.build_manifests`. Run in a clean venv on Windows and on the Technion VM. | Ron | S | — | high | Accepted |
+| 5.1 | Rewrite the two blocks above. | Agent | S | 1f / ~6 LOC | high | WIP (Commit 3, staged) |
+| 5.2 | Verify `pip install -e ".[dev]"` from repo root exposes `src.backbones`, `src.data`, `scripts.build_manifests`. Run in a clean venv on Windows and on the Technion VM. | Ron | S | — | high | **Windows: WIP-passing.** Ron 2026-07-30: install + pytest run in Python 3.13 venv at `C:\dev\venvs\cut3r\` (moved outside OneDrive to dodge MAX_PATH); 54/55 tests pass; the 1 failure (`test_cut3r_provenance::test_compatibility_patch_is_applied_and_validated`) is a numpy-1.26.4-on-cp313 native crash (exit `0xC0000005`), unrelated to flatten. **Technion VM: not run yet.** |
 
 ---
 
@@ -273,7 +273,7 @@ These exist on disk but are not tracked in git — leftover from the commit
 
 | # | Change | Proposer | Diff | Size | Sev | Status |
 |---|---|---|---|---|---|---|
-| 7.1 | Delete the untracked empty stubs **before** §4 moves, so `git mv` targets are clean. | Agent | S | — | med | Accepted |
+| 7.1 | Delete the untracked empty stubs **before** §4 moves, so `git mv` targets are clean. | Agent | S | — | med | WIP (done pre-Commit 2; no git changes needed since dirs were untracked) |
 | 7.2 | Keep `notebooks/`, `reports/`, `artifacts/` at root (they are registries for external artifacts — mentioned in README). Update their READMEs after §4 renames. | Agent | S | 3f / ~30 LOC | low | Accepted |
 
 ---
@@ -290,17 +290,48 @@ Aviv & Lihi own this directory. Findings for their consideration only:
 | 8.4 | `SegmentationProbe.backbone` is stored as a plain attribute (not registered as a submodule). This is intentional per the docstring (keeps it out of `.parameters()`), but means `model.to(device)` will **not** move it. Worth a one-line note in the docstring for the next reader. | low | Read-only |
 | 8.5 | `train_segmentation.py`, `segmentation_inference.py`, `segmentation_dataset.py`, `model_segmentation.py` live at the top of the directory rather than under a package (no `__init__.py`). Once §4.9 moves this to `src/segmentation/`, package init + explicit exports will be needed. | med | Read-only |
 
+### Handoff to Aviv & Lihi
+
+- This branch **does not move or edit** `segmentation_validation/`. You keep
+  working on it exactly as today.
+- What changes around you: `data_pipeline/` is deleted. Its subdirs are now at
+  root (`src/`, `scripts/`, `tests/`, `configs/`, `patches/`). Any config or
+  import in your dir that referenced `data_pipeline/…` needs the prefix
+  dropped. Grep-and-replace: `data_pipeline/` → `` (empty). We will do a
+  best-effort scan in §4.8 but please double-check your JSON configs after
+  rebase.
+- The follow-up branch `seg-into-src` (§4.9) will rename
+  `segmentation_validation/` → `src/segmentation/` *after* your PR merges. We
+  will coordinate timing on Slack/GitHub before starting.
+
 ---
 
 ## 9. Read-only findings on `data_pipeline/src/backbones/probe_cache.py`
 
-Aviv & Lihi co-own. **Do not edit on this branch.** Findings only:
+Aviv & Lihi co-own. **Do not edit on this branch.** The §4 flatten moves this
+file to `src/backbones/probe_cache.py` via `git mv` — contents unchanged,
+history preserved. Findings only:
 
 | # | Finding | Sev | Status |
 |---|---|---|---|
 | 9.1 | Uses `from src.backbones.base import ...` — already root-relative. Compatible with §4 as-is; no import changes needed post-flatten. | — | Read-only |
 | 9.2 | 550 LOC in one module. Long-term this is worth splitting into `layout_trajectory.py`, `layout_target_only.py`, `writer.py`, `reader.py`. Not urgent — mention next time the owners open it. | low | Read-only |
 | 9.3 | Metadata schema (category vocab, layout tag, SHA-256) is defined inline. Consider a `probe_cache_schema.py` or a pydantic/dataclass model so classification (Stage 2) reuses it without copy-paste. | low | Read-only |
+
+### Handoff to Aviv & Lihi
+
+- This branch renames `data_pipeline/src/backbones/probe_cache.py` →
+  `src/backbones/probe_cache.py` and **does not touch its contents**. Git records
+  it as a rename, so `git log --follow` and `git blame` stay intact.
+- When you rebase your in-flight branch on the merged main, git's rename
+  detection will reapply your edits at the new path automatically. Expected
+  outcome: no conflicts.
+- Risk: if your working copy has a very large rewrite of the file (>50% content
+  change), rename detection may miss and treat the change as delete + add,
+  effectively discarding your edits. Mitigation: pause big rewrites until this
+  PR merges, or rebase early. Ping Ron if unsure.
+- Imports do not change (`from src.backbones.base import ...` works before and
+  after).
 
 ---
 
@@ -324,9 +355,9 @@ Justification for one PR:
 
 1. **§7.1** — delete untracked empty root dirs.
 2. **§1.1, §1.2, §1.3** — meta files + Copilot instructions + LLM_GUIDE audit.
-3. **§4.1–4.7, §4.10, §5.1** — the flatten (`git mv` per subdir, then
+3. **§4.1–4.7, §5.1** — the flatten (`git mv` per subdir, then
    `pyproject.toml`). One commit per subdir move keeps `git log --follow`
-   working.
+   working. §4.10 is deferred to the §4.9 PR (see below).
 4. **§4.8, §7.2** — path fixes across README, PROJECT_STATUS, CONTRIBUTING,
    LLM_GUIDE, docs/, and root subdir READMEs.
 5. **§5.2** — Ron verifies install + `pytest` on Windows and Technion VM.
@@ -339,10 +370,56 @@ Justification for one PR:
    so reviewers can look at it independently.
 
 **Explicitly out of this PR / branch:**
-- §4.9, §4.10-part-2 — the `segmentation_validation/` → `src/segmentation/`
-  rename. Follow-up branch `seg-into-src` after Aviv/Lihi merge.
+- §4.9, §4.10 — the `segmentation_validation/` → `src/segmentation/`
+  rename **and** the placeholder README delete. Follow-up branch `seg-into-src`
+  after Aviv/Lihi merge.
 - §6.2, §8.x, §9.x — filed as GitHub issues assigned to Aviv/Lihi.
 - §2.3 — `.claude/agents/` tree deferred until a workflow needs it.
+
+## Progress log
+
+Living record of what has been implemented on this branch. Update at every
+commit-readiness handoff. Uses the same Status vocabulary as §§1–9.
+
+| # | Commit | Contents | Status |
+|---|---|---|---|
+| 1 | pre-branch cleanup | §7.1 | Done (untracked dirs; nothing to git-commit) |
+| 2 | `2698cd1` | §1.1, §1.2, §1.3 — `.github/copilot-instructions.md`, LLM_GUIDE working-style section, plan landed as session note | Committed on branch |
+| 3 | staged | §4.1–4.7, §5.1 — flatten `data_pipeline/` into root + `pyproject.toml` rewrite | Staged, awaiting Ron's `git commit` |
+| 4 | not started | §4.8, §7.2 — path fixes across README, PROJECT_STATUS, CONTRIBUTING, LLM_GUIDE, docs/, subdir READMEs | Accepted |
+| 5 | not started | §5.2 — Ron verifies install + pytest in Python 3.11+ venv on Windows and Technion VM | Windows part complete (54/55 pass; single failure is numpy-1.26.4 cp313 native crash, unrelated to flatten). Technion VM part still owed. |
+| 6 | not started | §2.1, §2.2, §2.4 — `.github/prompts/`, `fix_pr_comments.prompt.md`, CODEOWNERS refresh | Accepted |
+| 7 | not started | §6.1 — `configs/README.md` | Accepted |
+| 8 | not started | §3.3, §3.2 — `docs/README.md` + docs de-dup audit | Accepted |
+
+**Deferred to follow-up branch `seg-into-src` (post-merge with Aviv/Lihi):**
+§4.9, §4.10.
+
+**Deferred to GitHub issues assigned to Aviv/Lihi:** §6.2, §8.1–8.5, §9.1–9.3.
+
+**Deferred until a workflow needs it:** §2.3 (`.claude/agents/` tree).
+
+### Follow-up notes surfaced during Commit 3 execution
+
+- **numpy 1.26.4 + Python 3.13 (Windows).** No official cp313 wheel; PyPI serves
+  a MinGW-w64 build that warns "CRASHES ARE TO BE EXPECTED" and does crash
+  (exit `0xC0000005`) inside `scripts.apply_cut3r_compatibility_patch`. Not a
+  flatten regression. Options for a separate PR: (a) pin `python = ">=3.11,<3.13"`
+  in `pyproject.toml` and standardize on 3.12, or (b) bump `numpy` to 2.x
+  (needs a wider dep-compatibility check with torch/pyarrow). Track as a GitHub
+  issue after this PR merges.
+- **Windows workspace inside OneDrive is hostile to venvs.** Two failures hit
+  during §5.2 setup: (1) pip's `setuptools 58 → 83` uninstall step fails
+  `[Errno 22]` when OneDrive holds file handles; workaround was
+  `python -m venv --upgrade-deps` (Python 3.13 no longer bundles setuptools).
+  (2) `WinError 206 filename too long` on torch's nested license paths;
+  workaround was moving the venv to `C:\dev\venvs\cut3r\` outside OneDrive.
+  Both workarounds are documented in `docs/project/LOCAL_DEV_WINDOWS.md`
+  (added in Commit 3) so Aviv, Lihi, and Max don't have to rediscover them.
+  Long-term fix: enable Windows long-path support system-wide, or standardize
+  on the Technion VM.
+
+---
 
 ## 11. `fix_pr_comments` prompt spec (Ron)
 

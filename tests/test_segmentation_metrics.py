@@ -6,7 +6,7 @@ from pathlib import Path
 import torch
 
 
-_SEGMENTATION_DIR = Path(__file__).resolve().parents[2] / "segmentation_validation"
+_SEGMENTATION_DIR = Path(__file__).resolve().parents[1] / "segmentation_validation"
 if str(_SEGMENTATION_DIR) not in sys.path:
     sys.path.insert(0, str(_SEGMENTATION_DIR))
 
