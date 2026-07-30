@@ -317,7 +317,7 @@ def train_from_config(config: dict[str, Any]) -> dict[str, Any]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--config", required=True, type=Path, help="Path to a YAML (or JSON) config")
+    parser.add_argument("--config", required=True, type=Path, help="Path to a YAML config (.yaml/.yml)")
     arguments = parser.parse_args()
     train_from_config(load_config(arguments.config))
 
