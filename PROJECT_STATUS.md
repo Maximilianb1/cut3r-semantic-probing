@@ -1,6 +1,6 @@
 # Project Status
 
-Last updated: 2026-07-20
+Last updated: 2026-07-30
 
 ## Current phase
 
@@ -42,6 +42,7 @@ Stage 0 - Full-51 frozen representation extraction.
 - Azure's `/mnt` resource disk is temporary and explicitly prohibited.
 - The meaning and implementation of the random-initialization baseline requires clarification.
 - Baseline models and comparison protocol are not yet selected.
+- The `codebaseNdatapipeline-redesign` PR is in review and flattens `data_pipeline/` into the repo root. Teammates should rebase in-flight branches after it merges. Imports do not change (already root-relative `from src.…`); configs move from `data_pipeline/configs/stage0/` to `configs/stage0/`; Stage 0 tests/scripts/patches move to repo root. `segmentation_validation/` is intentionally not moved on this branch. A new reusable prompt `.github/prompts/fix_pr_comments.prompt.md` is also introduced. Details in [docs/sessions/2026-07-30-codebase-redesign.md](docs/sessions/2026-07-30-codebase-redesign.md).
 
 ## Milestones
 
