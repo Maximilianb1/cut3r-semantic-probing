@@ -212,7 +212,7 @@ We must **not** move that directory in this branch. The plan:
 | 4.5 | Move `data_pipeline/patches/` → root `patches/`. | Agent | S | ~1f moved | med | WIP (Commit 3, staged) |
 | 4.6 | Delete `data_pipeline/` (empty by now). | Agent | S | 1d | med | WIP (Commit 3, staged) |
 | 4.7 | Update `pyproject.toml`: `where = ["."]`, `include = ["src*", "scripts*"]`, `testpaths = ["tests", "segmentation_validation/tests"]`. | Agent | S | 1f / ~4 LOC | high | WIP (Commit 3, staged; same edit as §5.1) |
-| 4.8 | Update every `data_pipeline/…` path in root README, PROJECT_STATUS, CONTRIBUTING, LLM_GUIDE, docs/. | Agent | M | ~15f | med | Accepted |
+| 4.8 | Update every `data_pipeline/…` path in root README, PROJECT_STATUS, CONTRIBUTING, LLM_GUIDE, docs/. | Agent | M | ~15f | med | WIP (Commit 4, staged). Only `README.md` had stale layout content — rewritten to describe root `src/`, `scripts/`, `tests/`, `configs/`, `patches/` and add a pointer to `docs/project/LOCAL_DEV_WINDOWS.md`. `PROJECT_STATUS.md`, `CONTRIBUTING.md`, `LLM_GUIDE.md`, and the three subdir READMEs (`notebooks/`, `reports/`, `artifacts/`) had no stale references — they were already layout-independent. Historical session notes and `segmentation_validation/README.md` left untouched per ground rules. |
 | 4.9 | **Deferred** (post-merge with Aviv/Lihi): rename `segmentation_validation/` → `src/segmentation/`. Separate branch. | Ron | M | ~10f | med | Deferred |
 | 4.10 | Delete the `src/segmentation/README.md` placeholder — it will collide with 4.9. **Deferred to the §4.9 PR**: that PR does the collision resolution as part of its own move; keeping the placeholder here preserves the "future home" signal and keeps this PR's diff purely mechanical (Ron, 2026-07-30). | Agent → Ron | S | 1f | low | Deferred |
 
@@ -274,7 +274,7 @@ These exist on disk but are not tracked in git — leftover from the commit
 | # | Change | Proposer | Diff | Size | Sev | Status |
 |---|---|---|---|---|---|---|
 | 7.1 | Delete the untracked empty stubs **before** §4 moves, so `git mv` targets are clean. | Agent | S | — | med | WIP (done pre-Commit 2; no git changes needed since dirs were untracked) |
-| 7.2 | Keep `notebooks/`, `reports/`, `artifacts/` at root (they are registries for external artifacts — mentioned in README). Update their READMEs after §4 renames. | Agent | S | 3f / ~30 LOC | low | Accepted |
+| 7.2 | Keep `notebooks/`, `reports/`, `artifacts/` at root (they are registries for external artifacts — mentioned in README). Update their READMEs after §4 renames. | Agent | S | 3f / ~30 LOC | low | WIP (Commit 4). Audited: all three README bodies already describe purpose without referencing `data_pipeline/`; no edits needed. |
 
 ---
 
@@ -386,7 +386,7 @@ commit-readiness handoff. Uses the same Status vocabulary as §§1–9.
 | 1 | pre-branch cleanup | §7.1 | Done (untracked dirs; nothing to git-commit) |
 | 2 | `2698cd1` | §1.1, §1.2, §1.3 — `.github/copilot-instructions.md`, LLM_GUIDE working-style section, plan landed as session note | Committed on branch |
 | 3 | staged | §4.1–4.7, §5.1 — flatten `data_pipeline/` into root + `pyproject.toml` rewrite | Staged, awaiting Ron's `git commit` |
-| 4 | not started | §4.8, §7.2 — path fixes across README, PROJECT_STATUS, CONTRIBUTING, LLM_GUIDE, docs/, subdir READMEs | Accepted |
+| 4 | staged | §4.8, §7.2 — path fixes across README, PROJECT_STATUS, CONTRIBUTING, LLM_GUIDE, docs/, subdir READMEs | Staged, awaiting Ron's `git commit`. Scope collapsed to a single file (`README.md`) after audit — the other targets were already layout-independent. |
 | 5 | not started | §5.2 — Ron verifies install + pytest in Python 3.11+ venv on Windows and Technion VM | Windows part complete (54/55 pass; single failure is numpy-1.26.4 cp313 native crash, unrelated to flatten). Technion VM part still owed. |
 | 6 | not started | §2.1, §2.2, §2.4 — `.github/prompts/`, `fix_pr_comments.prompt.md`, CODEOWNERS refresh | Accepted |
 | 7 | not started | §6.1 — `configs/README.md` | Accepted |
