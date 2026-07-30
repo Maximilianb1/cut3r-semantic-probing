@@ -96,10 +96,10 @@ later if it grows a distinct tool policy (e.g. "may write, may not push").
 
 | # | Change | Proposer | Diff | Size | Sev | Status |
 |---|---|---|---|---|---|---|
-| 2.1 | Create `.github/prompts/` with a README explaining the convention (target: Copilot prompt files, cross-tool usable). | Agent | S | 2f / +30 LOC | med | Accepted |
-| 2.2 | Author `.github/prompts/fix_pr_comments.prompt.md` per Ron's spec (see §11). | Ron | M | 1f / ~60 LOC | med | Accepted |
+| 2.1 | Create `.github/prompts/` with a README explaining the convention (target: Copilot prompt files, cross-tool usable). | Agent | S | 2f / +30 LOC | med | WIP (Commit 5). `.github/prompts/README.md` created — explains why the convention exists (per-tool auto-discovery), what belongs vs does not belong here, `.prompt.md` file format with minimal `description` frontmatter, and how to add a new prompt. |
+| 2.2 | Author `.github/prompts/fix_pr_comments.prompt.md` per Ron's spec (see §11). | Ron | M | 1f / ~60 LOC | med | WIP (Commit 5). Created verbatim per §11: 6-step flow (ingest, read code, read comment, take-position-and-stop, negotiate, act) with non-negotiable ground rules (one thread at a time, never push/post unattended, never invent test results, honour `LLM_GUIDE.md`). Imperative bullets per LLM_GUIDE working-style rule for agent-facing files. |
 | 2.3 | Do **not** create a `.claude/agents/` tree yet. Defer until a workflow actually needs its own tool policy. | Agent | — | 0 | low | Deferred |
-| 2.4 | Review `CODEOWNERS` after §4 renames — path patterns will change. | Agent | S | 1f / ~5 LOC | med | Accepted |
+| 2.4 | Review `CODEOWNERS` after §4 renames — path patterns will change. | Agent | S | 1f / ~5 LOC | med | No-op (Commit 5 audit). `CODEOWNERS` is a single glob `* @Maximilianb1` with no path patterns to update. Genuine gap surfaced: Aviv & Lihi should own `segmentation_validation/` and `src/backbones/probe_cache.py`, but their GitHub handles are not documented (README explicitly says "handles will be added when available"). Filed as follow-up: refresh `CODEOWNERS` once handles land. |
 
 ---
 
@@ -388,7 +388,7 @@ commit-readiness handoff. Uses the same Status vocabulary as §§1–9.
 | 3 | staged | §4.1–4.7, §5.1 — flatten `data_pipeline/` into root + `pyproject.toml` rewrite | Staged, awaiting Ron's `git commit` |
 | 4 | staged | §4.8, §7.2 — path fixes across README, PROJECT_STATUS, CONTRIBUTING, LLM_GUIDE, docs/, subdir READMEs | Staged, awaiting Ron's `git commit`. Scope collapsed to a single file (`README.md`) after audit — the other targets were already layout-independent. |
 | 5 | not started | §5.2 — Ron verifies install + pytest in Python 3.11+ venv on Windows and Technion VM | Windows part complete (54/55 pass; single failure is numpy-1.26.4 cp313 native crash, unrelated to flatten). Technion VM part still owed. |
-| 6 | not started | §2.1, §2.2, §2.4 — `.github/prompts/`, `fix_pr_comments.prompt.md`, CODEOWNERS refresh | Accepted |
+| 6 | staged | §2.1, §2.2, §2.4 — `.github/prompts/` + `fix_pr_comments.prompt.md` (§11) + CODEOWNERS refresh | Staged, awaiting Ron's `git commit`. §2.4 turned out to be a no-op today (CODEOWNERS has no path patterns); genuine ownership refresh filed as a follow-up pending GitHub handles. |
 | 7 | not started | §6.1 — `configs/README.md` | Accepted |
 | 8 | not started | §3.3, §3.2 — `docs/README.md` + docs de-dup audit | Accepted |
 
@@ -399,18 +399,24 @@ commit-readiness handoff. Uses the same Status vocabulary as §§1–9.
 
 **Deferred until a workflow needs it:** §2.3 (`.claude/agents/` tree).
 
-### Follow-up notes surfaced during Commit 3 execution
+### Follow-up notes surfaced during PR execution
 
-- **numpy 1.26.4 + Python 3.13 (Windows).** No official cp313 wheel; PyPI serves
-  a MinGW-w64 build that warns "CRASHES ARE TO BE EXPECTED" and does crash
-  (exit `0xC0000005`) inside `scripts.apply_cut3r_compatibility_patch`. Not a
-  flatten regression. Options for a separate PR: (a) pin `python = ">=3.11,<3.13"`
-  in `pyproject.toml` and standardize on 3.12, or (b) bump `numpy` to 2.x
-  (needs a wider dep-compatibility check with torch/pyarrow). Track as a GitHub
-  issue after this PR merges.
-- **Windows workspace inside OneDrive is hostile to venvs.** Two failures hit
-  during §5.2 setup: (1) pip's `setuptools 58 → 83` uninstall step fails
-  `[Errno 22]` when OneDrive holds file handles; workaround was
+- **`CODEOWNERS` refresh (Commit 5 audit).** Today `.github/CODEOWNERS` is
+  `* @Maximilianb1`, which routes every review to Max. Once GitHub handles for
+  the rest of the team are documented, add path-scoped ownership: Aviv & Lihi
+  on `segmentation_validation/` and `src/backbones/probe_cache.py`; team-wide
+  on `docs/` and `configs/`. Track as a GitHub issue.
+- **numpy 1.26.4 + Python 3.13 (Windows) (Commit 3 §5.2).** No official cp313
+  wheel; PyPI serves a MinGW-w64 build that warns "CRASHES ARE TO BE EXPECTED"
+  and does crash (exit `0xC0000005`) inside
+  `scripts.apply_cut3r_compatibility_patch`. Not a flatten regression. Options
+  for a separate PR: (a) pin `python = ">=3.11,<3.13"` in `pyproject.toml` and
+  standardize on 3.12, or (b) bump `numpy` to 2.x (needs a wider
+  dep-compatibility check with torch/pyarrow). Track as a GitHub issue after
+  this PR merges.
+- **Windows workspace inside OneDrive is hostile to venvs (Commit 3 §5.2).**
+  Two failures hit during setup: (1) pip's `setuptools 58 → 83` uninstall step
+  fails `[Errno 22]` when OneDrive holds file handles; workaround was
   `python -m venv --upgrade-deps` (Python 3.13 no longer bundles setuptools).
   (2) `WinError 206 filename too long` on torch's nested license paths;
   workaround was moving the venv to `C:\dev\venvs\cut3r\` outside OneDrive.
