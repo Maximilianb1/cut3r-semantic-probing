@@ -1,3 +1,23 @@
+"""Tests for the shared backbone contract and the embedding cache.
+
+What this file covers:
+
+- the :class:`Backbone` **contract** every backbone must satisfy - feature/grid
+  validation, and pooling a target-frame mask onto the token grid;
+- the **embedding cache** both backbones' layouts write to - round trip, resume,
+  corruption detection, and the category vocabulary/index binding;
+- the **reuse path** that attaches labels to existing Stage 0 embeddings,
+  including its guard against a mask that changed since extraction;
+- the parts of the real baseline backbones that run **without weights or data**:
+  DINOv2's patch-14 geometry and its extraction path (via an injected fake model),
+  and CUT3R's seeded random re-initialization.
+
+What it deliberately does not cover: running real CUT3R or DINOv2 weights. Those
+need a GPU, the pinned checkpoint / hub download, and CO3D files, so the contract
+is exercised with lightweight fake backbones here and the real models are
+validated on the VM during extraction.
+"""
+
 from __future__ import annotations
 
 from typing import Any
@@ -229,6 +249,85 @@ def test_reuse_rejects_mask_that_changed_since_extraction(tmp_path) -> None:
             traj_dir, windows=windows, frame_by_id=frame_by_id, dataset_root=dataset_root,
             cache_dir=tmp_path / "v2", contract={},
         )
+
+
+def test_dinov2_grid_is_aspect_preserving_multiple_of_patch() -> None:
+    """DINOv2 uses a 14-pixel patch, so its grid geometry differs from CUT3R's."""
+    from src.backbones.dinov2 import _PATCH_SIZE, _target_grid
+
+    for width, height in ((640, 480), (480, 640), (800, 800)):
+        grid_h, grid_w = _target_grid(width, height, image_size=518)
+        assert grid_h % _PATCH_SIZE == 0 and grid_w % _PATCH_SIZE == 0
+        assert max(grid_h, grid_w) <= 518
+        # Landscape stays landscape, portrait stays portrait.
+        assert (width > height) == (grid_w > grid_h) or width == height
+
+
+def test_dinov2_backbone_extracts_without_downloading_weights(tmp_path) -> None:
+    """The DINOv2 extraction path is exercised with an injected fake model.
+
+    Real weights need a torch.hub download, so the backbone accepts a
+    ``model_loader``; this checks the preprocessing, token grid, and
+    mask alignment without any network access.
+    """
+    import numpy as np
+    from PIL import Image
+
+    from src.backbones.dinov2 import _PATCH_SIZE, Dinov2Backbone
+
+    dataset_root = tmp_path / "co3d"
+    dataset_root.mkdir()
+    mask_array = np.zeros((224, 224), dtype=np.uint8)
+    mask_array[:112, :] = 255  # top half foreground
+    Image.new("RGB", (224, 224), (10, 20, 30)).save(dataset_root / "rgb.png")
+    Image.fromarray(mask_array, mode="L").save(dataset_root / "mask.png")
+    frame_rows = [
+        {"frame_id": f"f{i}", "image_relpath": "rgb.png", "mask_relpath": "mask.png"}
+        for i in range(6)
+    ]
+
+    class _FakeDinov2(torch.nn.Module):
+        def forward_features(self, image: torch.Tensor) -> dict[str, torch.Tensor]:
+            height, width = image.shape[-2:]
+            patches = (height // _PATCH_SIZE) * (width // _PATCH_SIZE)
+            return {
+                "x_norm_patchtokens": torch.randn(1, patches, 768),
+                "x_norm_clstoken": torch.randn(1, 768),
+            }
+
+    backbone = Dinov2Backbone(
+        image_size=224, device="cpu", model_loader=lambda variant: _FakeDinov2()
+    )
+    extraction = backbone.extract_window(frame_rows, dataset_root=str(dataset_root))
+    grid_h, grid_w = extraction.features.token_grid
+    assert extraction.features.spatial_tokens.shape == (grid_h * grid_w, 768)
+    assert extraction.features.global_tokens.shape == (1, 768)
+    assert extraction.features.frame_id == "f5"  # the window's target frame
+    labels = extraction.target_labels()
+    assert labels.shape == (grid_h, grid_w)
+    assert float(labels.mean()) == pytest.approx(0.5, abs=0.1)  # top half foreground
+    assert backbone.provenance()["patch_size"] == _PATCH_SIZE
+
+
+def test_random_cut3r_reinitialization_is_seeded_and_changes_weights() -> None:
+    """The random baseline must be reproducible and must actually re-initialize."""
+    from src.backbones.cut3r import randomize_weights
+
+    def _model(seed: int) -> torch.nn.Module:
+        torch.manual_seed(1234)  # identical starting weights every time
+        module = torch.nn.Sequential(torch.nn.Linear(8, 8), torch.nn.Linear(8, 4))
+        randomize_weights(module, seed=seed, strategy="reset_parameters")
+        return module
+
+    torch.manual_seed(1234)
+    original = torch.nn.Sequential(torch.nn.Linear(8, 8), torch.nn.Linear(8, 4))
+    same_a, same_b, different = _model(7), _model(7), _model(8)
+
+    assert torch.equal(same_a[0].weight, same_b[0].weight)  # same seed reproduces
+    assert not torch.equal(same_a[0].weight, different[0].weight)  # seed matters
+    assert not torch.equal(same_a[0].weight, original[0].weight)  # weights changed
+    with pytest.raises(ValueError):
+        randomize_weights(original, seed=0, strategy="not-a-strategy")
 
 
 def test_build_backbone_dispatch_and_validation() -> None:

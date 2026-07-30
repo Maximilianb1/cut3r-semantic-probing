@@ -30,6 +30,7 @@ from pathlib import Path
 from typing import Any, Iterable
 
 import torch
+from safetensors import safe_open
 from safetensors.torch import load_file, save_file
 
 from src.backbones.base import (
@@ -292,9 +293,23 @@ def load_probe_index(cache_dir: str | Path) -> list[dict[str, Any]]:
 
 
 def load_embedding_sample(cache_dir: str | Path, row: dict[str, Any]) -> EmbeddingSample:
+    """Load one window's tensors from its shard.
+
+    Reads **only this window's tensors** via ``safe_open`` rather than
+    materializing the whole shard. A shard holds many windows (32 by default), so
+    a full ``load_file`` per window would read tens to hundreds of megabytes to
+    return a few, once per window per epoch. Lazy reads keep training I/O
+    proportional to what is actually used and stay efficient under shuffling.
+    """
     directory = Path(cache_dir)
-    tensors = load_file(directory / row["shard"], device="cpu")
     grid = tuple(int(value) for value in row["token_grid"])
+    wanted = ["seg_labels_key"] + (
+        ["image_tokens_key", "state_tokens_key"]
+        if row["layout"] == TRAJECTORY
+        else ["spatial_key", "global_key"]
+    )
+    with safe_open(directory / row["shard"], framework="pt", device="cpu") as handle:
+        tensors = {row[field]: handle.get_tensor(row[field]) for field in wanted}
     common = {
         "window_id": row["window_id"],
         "category": row["category"],

@@ -50,6 +50,9 @@ def evaluate_binary(
     model: torch.nn.Module,
     loader: DataLoader,
     device: torch.device,
+    *,
+    collect_windows: bool = False,
+    collect_masks: bool = False,
 ) -> dict[str, Any]:
     """Token accuracy + foreground IoU (macro/micro/per-category) for binary probes.
 
@@ -60,10 +63,16 @@ def evaluate_binary(
     Convention: a window whose prediction and target are both entirely background
     (foreground union ``== 0``) scores IoU ``1.0``. This is an open choice (see
     the README) and can inflate macro-IoU for foreground-free windows.
+
+    Set ``collect_windows`` to also return a ``per_window`` list (id, category,
+    IoU), and ``collect_masks`` to include each window's predicted/target label
+    grids. Both are off by default so per-epoch training history stays small;
+    inference turns them on to avoid a second pass over the data.
     """
     model.eval()
     per_window_iou: list[float] = []
     per_category_iou: dict[str, list[float]] = {}
+    windows: list[dict[str, Any]] = []
     global_intersection = global_union = 0.0
     correct = total = 0
     for batch in loader:
@@ -78,7 +87,9 @@ def evaluate_binary(
         total += int(labels.numel())
         preds = _split_by_counts(prediction.cpu(), batch["counts"])
         gts = _split_by_counts(labels.cpu(), batch["counts"])
-        for pred, gt, category in zip(preds, gts, batch["categories"]):
+        for position, (pred, gt, category) in enumerate(
+            zip(preds, gts, batch["categories"])
+        ):
             intersection = float(((pred == 1) & (gt == 1)).sum().item())
             union = float(((pred == 1) | (gt == 1)).sum().item())
             global_intersection += intersection
@@ -86,12 +97,24 @@ def evaluate_binary(
             iou = 1.0 if union == 0.0 else intersection / union
             per_window_iou.append(iou)
             per_category_iou.setdefault(category, []).append(iou)
+            if collect_windows:
+                grid = tuple(batch["token_grids"][position])
+                record = {
+                    "window_id": batch["window_ids"][position],
+                    "category": category,
+                    "token_grid": list(grid),
+                    "foreground_iou": iou,
+                }
+                if collect_masks:
+                    record["predicted_labels"] = pred.reshape(grid)
+                    record["target_labels"] = gt.reshape(grid)
+                windows.append(record)
     macro_iou = sum(per_window_iou) / len(per_window_iou) if per_window_iou else 0.0
     micro_iou = 1.0 if global_union == 0.0 else global_intersection / global_union
     category_iou = {
         category: sum(values) / len(values) for category, values in per_category_iou.items()
     }
-    return {
+    metrics = {
         "token_accuracy": correct / total if total else 0.0,
         "macro_foreground_iou": macro_iou,
         "micro_foreground_iou": micro_iou,
@@ -101,6 +124,9 @@ def evaluate_binary(
         "per_category_iou": category_iou,
         "windows": len(per_window_iou),
     }
+    if collect_windows:
+        metrics["per_window"] = windows
+    return metrics
 
 
 def train_from_config(config: dict[str, Any]) -> dict[str, Any]:

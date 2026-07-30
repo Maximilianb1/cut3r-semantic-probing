@@ -176,6 +176,64 @@ def test_training_works_on_trajectory_layout(tmp_path) -> None:
     assert result["final_val"]["macro_foreground_iou"] > 0.9
 
 
+def test_dataset_does_not_read_whole_shard_per_window(tmp_path, monkeypatch) -> None:
+    """Reading a window must not materialize its entire shard (PR #10 review).
+
+    A shard holds many windows, so a full-shard read per window would multiply
+    training I/O. We assert the full-shard loader is never called on the read
+    path by making it raise.
+    """
+    import src.backbones.probe_cache as probe_cache
+
+    cache = _build_cache(tmp_path)
+    dataset = ProbeCacheDataset(cache, split="train")
+
+    def _explode(*args, **kwargs):  # pragma: no cover - only runs on regression
+        raise AssertionError("load_file() read the whole shard for a single window")
+
+    monkeypatch.setattr(probe_cache, "load_file", _explode)
+    item = dataset[0]
+    assert item["spatial"].shape[0] == item["count"]
+    assert item["labels"].numel() == item["count"]
+
+
+def test_inference_single_pass_matches_metrics(tmp_path) -> None:
+    """Per-window IoUs come from the same batched pass as the aggregate metrics."""
+    cache = _build_cache(tmp_path)
+    config = {
+        "experiment": "smoke",
+        "probe_cache": {"dir": str(cache)},
+        "model": {"feature_dim": 4, "num_classes": 1, "hidden_dims": []},
+        "training": {"epochs": 30, "batch_size": 4, "lr": 0.05, "seed": 0, "device": "cpu"},
+        "splits": {"train": "train", "val": "val"},
+        "output": {"dir": str(tmp_path / "runs")},
+    }
+    train_from_config(config)
+    result = run_inference(config, split="val")
+    per_window = result["per_window_iou"]
+    assert len(per_window) == result["windows"]
+    # The macro IoU must equal the mean of the per-window IoUs from that same pass.
+    mean_iou = sum(p["foreground_iou"] for p in per_window) / len(per_window)
+    assert abs(mean_iou - result["metrics"]["macro_foreground_iou"]) < 1e-9
+    # per_window must not leak into the reported metrics blob.
+    assert "per_window" not in result["metrics"]
+
+
+def test_training_history_stays_small(tmp_path) -> None:
+    """Per-epoch validation metrics must not carry per-window records."""
+    cache = _build_cache(tmp_path)
+    config = {
+        "experiment": "smoke",
+        "probe_cache": {"dir": str(cache)},
+        "model": {"feature_dim": 4, "num_classes": 1, "hidden_dims": []},
+        "training": {"epochs": 2, "batch_size": 4, "lr": 0.05, "seed": 0, "device": "cpu"},
+        "splits": {"train": "train", "val": "val"},
+    }
+    result = train_from_config(config)
+    for record in result["history"]:
+        assert "per_window" not in record["val"]
+
+
 def test_inference_reloads_trained_probe(tmp_path) -> None:
     cache = _build_cache(tmp_path)
     config = {

@@ -11,8 +11,8 @@ and only the trained head runs. Run from inside ``segmentation_validation/``::
 
     python segmentation_inference.py --config configs/cut3r_trained.json --split test
 
-Grid-resolution or upsampled masks come from ``SegmentationProbe.predict_mask``
-on the cached tokens (see ``predict_windows``).
+Everything is produced in a single batched pass: metrics, per-window IoUs, and
+(only with ``--save-masks``) each window's predicted/target label grids.
 """
 
 from __future__ import annotations
@@ -33,40 +33,18 @@ from train_segmentation import _resolve_device, evaluate_binary
 def load_trained_probe(
     config: dict[str, Any], checkpoint_path: str | Path, device: torch.device
 ) -> torch.nn.Module:
-    checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)
+    """Rebuild the probe and load the trained head from ``head.pt``.
+
+    Loaded with ``weights_only=True`` so PyTorch's restricted unpickler stays on:
+    the checkpoint only holds a tensor state_dict plus a plain-dict config, so it
+    never needs arbitrary pickle execution (matching ADR 0003's loading policy).
+    """
+    checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=True)
     model_cfg = config.get("model") or checkpoint["model_config"]
     model = build_probe(model_cfg)
     model.head.load_state_dict(checkpoint["head_state_dict"])
     model.to(device).eval()
     return model
-
-
-@torch.no_grad()
-def predict_windows(
-    model: torch.nn.Module, dataset: ProbeCacheDataset, device: torch.device
-) -> list[dict[str, Any]]:
-    """Per-window predicted foreground label grids and IoU vs. the target."""
-    predictions: list[dict[str, Any]] = []
-    for index in range(len(dataset)):
-        item = dataset[index]
-        spatial = item["spatial"].to(device)[None]  # [1, N, D]
-        grid = item["token_grid"]
-        logits = model.logit_grid(spatial, grid)[0, 0]  # [h, w]
-        predicted = (logits > 0.0).to(torch.float32).cpu()
-        target = item["labels"].reshape(grid).cpu()
-        intersection = float(((predicted == 1) & (target == 1)).sum().item())
-        union = float(((predicted == 1) | (target == 1)).sum().item())
-        predictions.append(
-            {
-                "window_id": item["window_id"],
-                "category": item["category"],
-                "token_grid": list(grid),
-                "foreground_iou": 1.0 if union == 0.0 else intersection / union,
-                "predicted_labels": predicted,
-                "target_labels": target,
-            }
-        )
-    return predictions
 
 
 def run_inference(
@@ -95,8 +73,12 @@ def run_inference(
         shuffle=False,
         collate_fn=collate_windows,
     )
-    metrics = evaluate_binary(model, loader, resolved_device)
-    per_window = predict_windows(model, dataset, resolved_device)
+    # One batched pass produces the metrics, the per-window IoUs, and (only when
+    # requested) the label grids - so the dataset is never iterated twice.
+    metrics = evaluate_binary(
+        model, loader, resolved_device, collect_windows=True, collect_masks=save_masks
+    )
+    per_window = metrics.pop("per_window")
 
     result = {
         "experiment": config.get("experiment", "segmentation"),

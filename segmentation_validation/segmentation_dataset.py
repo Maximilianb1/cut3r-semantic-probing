@@ -42,7 +42,8 @@ class ProbeCacheDataset(Dataset):
 
     Construction only reads the lightweight cache index (the table of contents)
     and filters it by "split" / "categories" - the heavy tensors are loaded
-    lazily in '__getitem__', one window at a time.
+    lazily in '__getitem__', one window at a time. Each read pulls only that
+    window's tensors out of its shard, so I/O does not scale with shard size.
     """
 
     def __init__(
@@ -64,7 +65,6 @@ class ProbeCacheDataset(Dataset):
                 f"No probe-cache windows for split={split!r} in {self.cache_dir}"
             )
         self.rows = rows
-        self._shard_cache: dict[str, dict[str, torch.Tensor]] = {}
 
     def __len__(self) -> int:
         return len(self.rows)
