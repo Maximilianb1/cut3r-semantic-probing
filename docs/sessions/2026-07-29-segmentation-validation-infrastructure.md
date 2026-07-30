@@ -90,12 +90,13 @@ shared probe. No results yet — infrastructure only.
     no multi-view state), while CUT3R's tokens are conditioned on the preceding
     five frames. Accepted for segmentation, where the target is one frame's mask;
     revisit for classification.
-- Still open (repository layout; raised by ronbartal in PR #10, needs a team call):
-  - The reorganization moved `docs/` under `data_pipeline/`, but it holds
-    repo-wide governance (ADRs, CONTRIBUTING, session notes for every stage) and
-    `data_pipeline/README.md` likewise describes the whole project. Candidate fix:
-    move repo-wide docs back to the repository root and keep only
-    pipeline-specific material under `data_pipeline/`.
+  - Repository layout (raised by ronbartal in PR #10, now resolved): the earlier
+    reorganization had buried repo-wide material under `data_pipeline/`. `docs/`,
+    `CONTRIBUTING.md`, `PROJECT_STATUS.md`, `artifacts/`, `reports/`, and
+    `notebooks/` are back at the repository root; `data_pipeline/` now holds code
+    only (`src`, `scripts`, `configs`, `tests`, `patches`). The root README is the
+    project README again and `data_pipeline/README.md` covers only Stage 0.
+    Packaging and test discovery are unchanged because no code moved.
 - Still open (engineering; documented in the code and README, not yet implemented):
   - `head.pt` stores the **final** epoch, not the best-validation epoch.
   - **Class imbalance** is unmanaged; `pos_weight` exists but defaults to null.
