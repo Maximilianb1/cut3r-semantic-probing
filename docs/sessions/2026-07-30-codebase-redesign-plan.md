@@ -126,7 +126,7 @@ later if it grows a distinct tool policy (e.g. "may write, may not push").
 |---|---|---|---|---|---|---|
 | 3.1 | Keep `docs/` at repo root. Document intent in `docs/README.md` (missing today). | Ron | S | 1f / +40 LOC | med | Accepted |
 | 3.2 | Audit `docs/project/*` vs root `README.md` + `PROJECT_STATUS.md`. Rule: **README** = quickstart + layout + stage tables; **PROJECT_STATUS** = current phase + blockers; **docs/project/** = static runbooks and protocol specs. Remove or shrink whatever duplicates the first two. | Agent | M | 5–6f / -100 LOC | med | Accepted |
-| 3.3 | Add missing `docs/README.md` explaining the four subfolders (`decisions/`, `experiments/`, `sessions/`, `project/`) and the naming convention. | Agent | S | 1f / +30 LOC | low | Accepted |
+| 3.3 | Add missing `docs/README.md` explaining the four subfolders (`decisions/`, `experiments/`, `sessions/`, `project/`) and the naming convention. | Agent | S | 1f / +30 LOC | low | WIP (Commit 7). New `docs/README.md` created: purpose statement, layout table for the five subfolders (added `project/` as fifth) with per-folder purpose and filename convention, "where does a new document belong" cookbook, cross-links to `LLM_GUIDE.md`, `PROJECT_STATUS.md`, and ADR 0001. |
 | 3.4 | Leave `docs/decisions/`, `docs/sessions/`, `docs/experiments/` structure untouched — it works. | — | — | 0 | — | Accepted |
 
 ---
@@ -390,7 +390,8 @@ commit-readiness handoff. Uses the same Status vocabulary as §§1–9.
 | 5 | not started | §5.2 — Ron verifies install + pytest in Python 3.11+ venv on Windows and Technion VM | Windows part complete (54/55 pass; single failure is numpy-1.26.4 cp313 native crash, unrelated to flatten). Technion VM part still owed. |
 | 6 | staged | §2.1, §2.2, §2.4 — `.github/prompts/` + `fix_pr_comments.prompt.md` (§11) + CODEOWNERS refresh | Staged, awaiting Ron's `git commit`. §2.4 turned out to be a no-op today (CODEOWNERS has no path patterns); genuine ownership refresh filed as a follow-up pending GitHub handles. |
 | 7 | staged | §6.1 — `configs/README.md` rewritten with schema + env-var resolution | Staged, awaiting Ron's `git commit`. |
-| 8 | not started | §3.3, §3.2 — `docs/README.md` + docs de-dup audit | Accepted |
+| 8 | staged | §3.3 — `docs/README.md` created (subfolder index + naming conventions + where-does-it-belong cookbook) | Staged, awaiting Ron's `git commit`. §3.2 (docs de-dup audit) split out to its own commit. |
+| 9 | not started | §3.2 — docs de-dup audit across `docs/project/` vs root README + PROJECT_STATUS | Accepted |
 
 **Deferred to follow-up branch `seg-into-src` (post-merge with Aviv/Lihi):**
 §4.9, §4.10.
