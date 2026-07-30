@@ -1,0 +1,29 @@
+experiment: segmentation-dinov2
+
+# Advanced frozen baseline. The variant/dependency (torch.hub dinov2_vitb14) is an
+# OPEN decision pending a baseline ADR. dim 768 matches CUT3R for a comparable head;
+# patch 14 means its token grid differs from CUT3R's.
+backbone:
+  kind: dinov2
+  weights: trained
+  options:
+    variant: dinov2_vitb14
+    image_size: 518
+    device: cuda
+
+# Read by segmentation_validation/configs/dinov2.yaml; must match it.
+probe_cache:
+  dir: ${CUT3R_CACHE_ROOT}/probe/dinov2-vitb14
+
+data:
+  manifest_dir: ${CUT3R_ARTIFACT_ROOT}/manifests/full51-part-a-v1
+  dataset_root: ${CO3D_ROOT}
+
+extraction:
+  layout: target_only
+  device: cuda
+  mask_threshold: 0.5
+  windows_per_shard: 32
+  inspect_files: false
+  verify_source_hashes: true
+  seed: 20260729

@@ -27,6 +27,7 @@ import torch
 
 from src.backbones import BackboneConfig, build_backbone
 from src.backbones.base import (
+    TARGET_FRAME_INDEX,
     Backbone,
     BackboneFeatures,
     TrajectoryExtraction,
@@ -40,6 +41,7 @@ from src.backbones.probe_cache import (
     extract_to_cache,
     load_embedding_sample,
     load_probe_index,
+    load_target_tokens,
     verify_probe_cache,
 )
 
@@ -216,6 +218,50 @@ def _build_stage0_trajectory_cache(tmp_path):
         "sequence_id": "seq0", "split": "train",
     }
     return traj_dir, str(dataset_root), [window], frame_by_id, token_grid
+
+
+@pytest.mark.parametrize(
+    "layout,backbone", [("target_only", _TargetOnlyBackbone()), ("trajectory", _TrajectoryBackbone())]
+)
+def test_load_target_tokens_matches_whole_entry_read(tmp_path, layout, backbone) -> None:
+    """The probe read path must return exactly what the whole-entry read returns.
+
+    ``load_target_tokens`` slices the target frame out inside the shard read to
+    avoid transferring the other five states and the state latents. That is only a
+    valid optimization if the values are identical - and if it picks state 5 and no
+    other. The trajectory fixture fills every state with different random values,
+    so reading the wrong one cannot pass.
+    """
+    windows, frame_by_id = _windows_and_frames()
+    extract_to_cache(
+        backbone, layout=layout, windows=windows, frame_by_id=frame_by_id,
+        dataset_root=".", cache_dir=tmp_path, contract={}, windows_per_shard=4,
+        verify_source_hashes=False,
+    )
+    for row in load_probe_index(tmp_path):
+        whole = load_embedding_sample(tmp_path, row)
+        spatial, labels = load_target_tokens(tmp_path, row)
+        assert torch.equal(spatial, whole.target_spatial())
+        assert torch.equal(labels, whole.seg_labels)
+        assert spatial.shape == (_GRID[0] * _GRID[1], _DIM)
+        assert labels.shape == _GRID
+        if layout == "trajectory":
+            # Specifically state 5, not merely "some state".
+            matching = [t for t in range(6) if torch.equal(whole.image_tokens[t, 0], spatial)]
+            assert matching == [TARGET_FRAME_INDEX]
+
+
+def test_load_target_tokens_rejects_grid_disagreement(tmp_path) -> None:
+    """A row whose token_grid contradicts the stored tensors must fail loudly."""
+    windows, frame_by_id = _windows_and_frames()
+    extract_to_cache(
+        _TargetOnlyBackbone(), layout="target_only", windows=windows, frame_by_id=frame_by_id,
+        dataset_root=".", cache_dir=tmp_path, contract={}, windows_per_shard=4,
+        verify_source_hashes=False,
+    )
+    row = dict(load_probe_index(tmp_path)[0], token_grid=[_GRID[0] + 1, _GRID[1]])
+    with pytest.raises(ValueError, match="disagree with token_grid"):
+        load_target_tokens(tmp_path, row)
 
 
 def test_reuse_trajectory_cache_attaches_labels(tmp_path) -> None:

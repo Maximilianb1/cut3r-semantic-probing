@@ -334,6 +334,48 @@ def load_embedding_sample(cache_dir: str | Path, row: dict[str, Any]) -> Embeddi
     )
 
 
+def load_target_tokens(
+    cache_dir: str | Path, row: dict[str, Any]
+) -> tuple[torch.Tensor, torch.Tensor]:
+    """Read only what a per-token probe needs: target-frame grid tokens + labels.
+
+    Returns ``(spatial [N, C], seg_labels [grid_h, grid_w])``, both float32.
+
+    :func:`load_embedding_sample` returns a window's *whole* entry. For the
+    ``trajectory`` layout that is all six states' grid tokens ``[6,1,N,768]``
+    **and** all six persistent-state latents ``[6,1,768,768]``. At CUT3R-512 with
+    a 24x32 grid (``N`` = 768) that is 13.5 MiB in fp16, of which a segmentation
+    probe uses one grid: 1.1 MiB. Here the target frame is sliced out *inside* the
+    shard read, so the other five states and every state latent are never
+    transferred -- ``6 * (N + 768) / N`` fewer bytes per window per epoch, i.e.
+    12x at ``N`` = 768 and 12.9x at the 21x32 grid of a 3:2 frame.
+
+    Values are identical to ``load_embedding_sample(...).target_spatial()``; only
+    the amount of I/O differs. Use :func:`load_embedding_sample` when a caller
+    genuinely needs the full trajectory or the state latents.
+    """
+    directory = Path(cache_dir)
+    grid_h, grid_w = (int(value) for value in row["token_grid"])
+    with safe_open(directory / row["shard"], framework="pt", device="cpu") as handle:
+        labels = handle.get_tensor(row["seg_labels_key"]).float()
+        if row["layout"] == TRAJECTORY:
+            # get_slice reads just this sub-range of the tensor's bytes.
+            window = handle.get_slice(row["image_tokens_key"])[
+                TARGET_FRAME_INDEX : TARGET_FRAME_INDEX + 1, 0:1
+            ]
+            spatial = window.reshape(window.shape[-2], window.shape[-1]).float()
+        else:
+            # target_only already stores just the target frame; ``global`` is
+            # simply not requested.
+            spatial = handle.get_tensor(row["spatial_key"]).float()
+    if tuple(labels.shape) != (grid_h, grid_w) or spatial.shape[0] != grid_h * grid_w:
+        raise ValueError(
+            f"Cached shapes disagree with token_grid {(grid_h, grid_w)} for "
+            f"{row['window_id']}: spatial {tuple(spatial.shape)}, labels {tuple(labels.shape)}"
+        )
+    return spatial, labels
+
+
 def verify_probe_cache(cache_dir: str | Path) -> dict[str, Any]:
     directory = Path(cache_dir)
     if not (directory / "metadata.json").is_file() or not (directory / "index.parquet").is_file():
