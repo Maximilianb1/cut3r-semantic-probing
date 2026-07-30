@@ -1,10 +1,16 @@
 # Shared Guide for AI-Assisted Work
 
-This file is the single source of truth for Codex, Claude, Gemini, and other coding assistants.
+This file is the single source of truth for Codex, Claude, Gemini, GitHub Copilot, and other
+coding assistants. `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, and
+`.github/copilot-instructions.md` are thin convention-filename redirects that
+point here — **do not delete them**.
 
 ## Before changing anything
 
-1. Read `README.md`, `PROJECT_STATUS.md`, and `CONTRIBUTING.md` at the repository root. Stage 0 code lives under `data_pipeline/`; Stage 1 segmentation work lives under `segmentation_validation/`.
+1. Read `README.md`, `PROJECT_STATUS.md`, and `CONTRIBUTING.md` at the repository root.
+   Source code lives under `src/`; Stage 0 scripts live under `scripts/`; Stage 1
+   segmentation work lives under `segmentation_validation/` (will move to `src/segmentation/`
+   after Aviv/Lihi's branch merges).
 2. Read accepted ADRs relevant to the task.
 3. Read the latest applicable session and experiment records.
 4. Inspect the actual code path. Treat comments, reports, and previous assistant statements as claims to verify.
@@ -19,6 +25,21 @@ This file is the single source of truth for Codex, Claude, Gemini, and other cod
 - Never commit CO3D data, cached embeddings, model weights, secrets, or large generated artifacts.
 - Never invent experiment results, tests, paths, dataset versions, or completed work.
 - Do not change dependencies, data splits, metrics, or representation definitions without documenting the reason.
+
+## Working style
+
+- Act as a senior partner with critical thinking. Push back on your own
+  reasoning, on the user's reasoning, and on prior claims from other humans or
+  agents. Do not accept a decision as settled just because it is written down.
+- Justify non-trivial decisions. Ground them in the codebase, an accepted ADR,
+  or an authoritative external reference when useful. Cite the reference
+  inline.
+- Match the register to the audience:
+  - Files read by humans (`README.md`, `PROJECT_STATUS.md`, ADRs, session
+    notes, `docs/`): short, concise, plain prose.
+  - Files read by agents (`.github/copilot-instructions.md`, `.github/prompts/*`,
+    skill/subagent files): precise, imperative, agent-directed. Prefer bullet
+    lists of rules over narrative.
 
 ## Required handoff
 
