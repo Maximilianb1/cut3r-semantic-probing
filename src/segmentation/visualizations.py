@@ -281,27 +281,34 @@ def plot_training_curves(
 
 # ---- Fixture data ----
 
-def _get_baselines(metrics_data) -> dict[str, dict[str, float]]:
+def _get_baselines(metrics_data: dict[str, Any]) -> dict[str, dict[str, float]]:
     """Returns baseline metrics for bar charts."""
+    final_val = metrics_data.get("final_val")
+    if not isinstance(final_val, dict):
+        raise ValueError(
+            "metrics.json is missing a 'final_val' mapping; expected output from src.segmentation.train_segmentation"
+        )
+
+    missing = [k for k in METRICS if k not in final_val]
+    if missing:
+        raise KeyError(f"metrics.json final_val missing metric(s): {missing}")
+
     return {
         # Placeholder -- replace when experiment finishes.
         "CUT3R Trained": {
-            "token_accuracy":       0.92,
+            "token_accuracy": 0.92,
             "macro_foreground_iou": 0.73,
             "micro_foreground_iou": 0.76,
-            "mean_category_iou":    0.70,
+            "mean_category_iou": 0.70,
         },
         # Real data from metrics.json final_val.
-        "CUT3R Random": {
-            k: metrics_data["final_val"][k]
-            for k in METRICS
-        },
+        "CUT3R Random": {k: float(final_val[k]) for k in METRICS},
         # Placeholder -- replace when experiment finishes.
         "DINOv2": {
-            "token_accuracy":       0.86,
+            "token_accuracy": 0.86,
             "macro_foreground_iou": 0.64,
             "micro_foreground_iou": 0.67,
-            "mean_category_iou":    0.60,
+            "mean_category_iou": 0.60,
         },
     }
 
@@ -336,22 +343,37 @@ def _generate_mock_frames(*, n_samples=4, height=224, width=224, rng):
 def main() -> None:
     parser = argparse.ArgumentParser(description="Generate segmentation plots.")
     parser.add_argument("--seed", type=int, default=42, help="Random seed (default: 42).")
-    parser.add_argument("--output-dir", type=Path, default=Path("artifacts/visualizations"),
-                        help="Output directory (default: artifacts/visualizations).")
+    parser.add_argument(
+        "--metrics-json",
+        type=Path,
+        required=True,
+        help="Path to train_segmentation metrics.json (typically <output_dir>/metrics.json).",
+    )
+    parser.add_argument(
+        "--inference-json",
+        type=Path,
+        required=True,
+        help="Path to inference_segmentation inference JSON (e.g. inference-test.json).",
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=Path("artifacts/visualizations"),
+        help="Output directory for generated plots (default: artifacts/visualizations).",
+    )
     args = parser.parse_args()
 
     rng = np.random.default_rng(args.seed)
     out = Path(args.output_dir)
     out.mkdir(parents=True, exist_ok=True)
-    
-    fixtures_dir = Path(__file__).parent / "fixtures"
-    
-    with open(fixtures_dir / "metrics.json") as f:
-        metrics_data = json.load(f)
-        
-    with open(fixtures_dir / "inference-test.json") as f:
-        inference_data = json.load(f)
 
+    if not args.metrics_json.is_file():
+        raise FileNotFoundError(f"--metrics-json not found: {args.metrics_json}")
+    if not args.inference_json.is_file():
+        raise FileNotFoundError(f"--inference-json not found: {args.inference_json}")
+
+    metrics_data = json.loads(args.metrics_json.read_text(encoding="utf-8"))
+    inference_data = json.loads(args.inference_json.read_text(encoding="utf-8"))
     # 1. Qualitative grid (synthetic frames)
     frames, gt_masks, pred_masks = _generate_mock_frames(rng=rng)
     seg_path = out / "segmentation_results.png"
