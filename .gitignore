@@ -47,6 +47,12 @@ tmp/
 artifacts/*
 !artifacts/README.md
 
+# Local-only probe scratch: synthetic caches (regenerate with
+# scripts/make_synthetic_probe_cache.py) and run outputs. Promote a real result to
+# docs/experiments/ deliberately; never commit caches, heads, or raw run dirs.
+src/segmentation/dummy_embeddings/
+src/segmentation/experiments/
+
 # Notebooks and native builds
 .ipynb_checkpoints/
 build/

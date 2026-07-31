@@ -2,6 +2,8 @@ experiment: segmentation-cut3r-trained
 backbone: cut3r-trained
 
 # Written by configs/probe_features/cut3r_trained.yaml; must match it.
+# Smoke-test against the fake caches without editing this file:
+#   CUT3R_CACHE_ROOT=src/segmentation/dummy_embeddings python -m src.segmentation.train_segmentation --config <this file>
 probe_cache:
   dir: ${CUT3R_CACHE_ROOT}/probe/cut3r-trained
 
@@ -34,4 +36,4 @@ splits:
   test: test
 
 output:
-  dir: runs/segmentation-cut3r-trained
+  dir: src/segmentation/experiments/segmentation-cut3r-trained

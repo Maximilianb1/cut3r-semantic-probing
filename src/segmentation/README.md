@@ -89,9 +89,48 @@ python -m src.segmentation.train_segmentation --config src/segmentation/configs/
 python -m src.segmentation.inference_segmentation --config src/segmentation/configs/cut3r_trained.yaml --split test
 ```
 
+Outputs land in `output.dir` — `src/segmentation/experiments/<experiment>/`, holding
+`metrics.json`, `head.pt`, and (from inference) `inference-<split>.json` plus
+`masks-<split>.pt` with `--save-masks`. That directory is git-ignored: it is working
+output, not a record. Promote a result worth keeping to `docs/experiments/`.
+
 `metrics.json` records the cache's own `metadata.json` alongside the results, so
 a number is always traceable to the exact cache (and backbone provenance) it came
 from.
+
+## Smoke test without real embeddings
+
+`scripts/make_synthetic_probe_cache.py` writes a cache of **fake** embeddings and
+masks in the real format, so the pipeline can be run end to end without CO3D, CUT3R
+weights, or a GPU. **No number from such a run means anything about the research
+question** — the cache stamps `synthetic: true` into its `metadata.json`, which
+propagates into `metrics.json`.
+
+Build the three caches under a local, git-ignored directory (from the repo root):
+
+```bash
+python -m scripts.make_synthetic_probe_cache --cache-dir src/segmentation/dummy_embeddings/probe/cut3r-trained --layout trajectory --grids "8x10,6x8" --seed 1
+```
+
+```bash
+python -m scripts.make_synthetic_probe_cache --cache-dir src/segmentation/dummy_embeddings/probe/cut3r-random --grids "8x10,6x8" --noise 3.0 --seed 2
+```
+
+```bash
+python -m scripts.make_synthetic_probe_cache --cache-dir src/segmentation/dummy_embeddings/probe/dinov2-vitb14 --grids "10x13,8x11" --noise 1.2 --seed 3
+```
+
+They are named as the configs expect, so point the cache root at that directory and
+the **real configs run unchanged** — no config edit, nothing to remember to revert:
+
+```bash
+CUT3R_CACHE_ROOT=src/segmentation/dummy_embeddings python -m src.segmentation.train_segmentation --config src/segmentation/configs/cut3r_trained.yaml
+```
+
+The fixture is deliberately noisy rather than separable, so a linear probe lands
+between chance and perfect and the IoU code is exercised on real values. Delete the
+run directories before switching to real caches, so a synthetic `metrics.json` never
+sits under the name a real run will reuse.
 
 ## Open decisions
 
