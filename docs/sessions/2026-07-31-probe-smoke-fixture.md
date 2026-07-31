@@ -45,6 +45,22 @@ outputs land after the #14 redesign.
     editing the file.
   - `.gitignore`: exclude both new directories. They are local scratch, so nothing
     inside them is tracked at all.
+  - `scripts/make_synthetic_probe_cache.py`, argument handling (PR #16 review): bad
+    values used to fail far from their cause - `--windows-per-sequence 0` as a
+    ZeroDivisionError, `--windows 0` inside the cache verifier, `--grids 8-10` as an
+    int() error - and two failed silently: `--feature-dim 0` wrote a cache of
+    zero-width features, and `--categories 99` quietly used 51. A shared `_problems()`
+    now reports every unusable value at once; the CLI turns them into `parser.error`
+    (exit 2 with usage) and `build()` raises `ValueError`, so importers get the same
+    message. `--empty-fraction` was also *wrong in range*: the old "every
+    int(1/fraction)-th window" rule made 0.6 mean every window. The count is now exact
+    and evenly spread.
+  - `src/segmentation/inference_segmentation.py`: `inference-<split>.json` now records
+    the cache dir and its metadata, as `metrics.json` already did. Without it an
+    evaluation file could not be told apart from a real one - the `synthetic: true`
+    marker was absent exactly where a reader would look for it.
+  - `tests/test_synthetic_probe_cache.py` (new): 21 cases over the rejected values, the
+    grid parser, and the exact empty fraction.
   - `src/segmentation/README.md`: documents where outputs land and how to smoke-test
     against the synthetic caches. Kept in the existing README rather than in per-
     directory READMEs, so there is one discoverable place and no duplication of the
@@ -78,7 +94,10 @@ outputs land after the #14 redesign.
 | Probe learns what is learnable | At `noise=1.5` the Bayes-optimal token accuracy is `Φ(1/1.5)` = 0.7475; a linear probe reached 0.7269 |
 | Trivial baselines measured on the dummy test split | Foreground fraction 0.206; all-foreground macro IoU 0.207; all-background 0.05 |
 | `git add -A` after generating everything | Stages only `.gitignore`, the generator, three configs, the README and the session note — no cache, no run output |
-| `python -m pytest -q` | 60 passed |
+| Every rejected CLI value | Actionable `error:` message, exit code 2; all problems listed at once |
+| `--empty-fraction` accuracy | 0.0/0.05/0.25/0.6/1.0 give exactly 0/5/25/60/100 empty windows out of 100 |
+| `inference-<split>.json` provenance | Carries `synthetic: true` and the cache metadata |
+| `python -m pytest -q` | 81 passed (60 before, plus 21 generator-validation cases) |
 
 Nothing here is evidence about the research question: the embeddings are fake. The
 caches stamp `synthetic: true` in `metadata.json`, which propagates into

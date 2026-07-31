@@ -24,7 +24,12 @@ from src.backbones.probe_cache import load_probe_index
 
 from .model_segmentation import HeadConfig, build_probe
 from .dataset_segmentation import ProbeCacheDataset, collate_windows
-from .train_segmentation import _resolve_device, evaluate_binary, load_config
+from .train_segmentation import (
+    _resolve_device,
+    evaluate_binary,
+    load_config,
+    probe_cache_provenance,
+)
 
 
 def load_trained_probe(config: dict[str, Any], checkpoint_path: str | Path, device: torch.device) -> torch.nn.Module:
@@ -97,6 +102,10 @@ def run_inference(config: dict[str, Any], *, checkpoint: str | Path | None = Non
         "experiment": config.get("experiment", "segmentation"),
         "split": split,
         "checkpoint": str(checkpoint_path),
+        # Same provenance metrics.json carries, so an evaluation file also states which
+        # cache produced it - including "synthetic: true" for a smoke run, which
+        # otherwise looks identical to a real result.
+        "probe_cache": {"dir": str(cache_dir), "metadata": probe_cache_provenance(cache_dir)},
         "windows": len(dataset),
         "metrics": metrics,
         "per_window_iou": [

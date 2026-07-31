@@ -27,6 +27,7 @@ from typing import Any
 
 import torch
 
+from src.backbones.base import TARGET_FRAME_INDEX, WINDOW_LENGTH
 from src.backbones.probe_cache import (
     TARGET_ONLY,
     TRAJECTORY,
@@ -36,9 +37,6 @@ from src.backbones.probe_cache import (
     category_vocabulary,
     verify_probe_cache,
 )
-
-TARGET_FRAME_INDEX = 5
-WINDOW_LENGTH = 6
 
 
 def _blob_labels(grid: tuple[int, int], generator: torch.Generator, *, empty: bool) -> torch.Tensor:
@@ -68,16 +66,62 @@ def _parse_grids(text: str) -> list[tuple[int, int]]:
     """"8x10,6x8" -> [(8, 10), (6, 8)]. Several grids mirror CO3D's mixed aspect ratios."""
     grids = []
     for part in text.split(","):
-        height, _, width = part.strip().lower().partition("x")
+        height, separator, width = part.strip().lower().partition("x")
+        if not separator or not height.isdigit() or not width.isdigit():
+            raise ValueError(
+                f"Bad grid {part.strip()!r}: expected HxW, comma-separated (e.g. '8x10,6x8')"
+            )
         grids.append((int(height), int(width)))
     if not grids:
         raise ValueError("At least one grid is required")
     return grids
 
 
+_MIN_GRID_SIDE = 2  # _blob_labels needs room to place a blob
+
+
+def _problems(*, windows: int, grids: list[tuple[int, int]], feature_dim: int,
+              windows_per_sequence: int, categories: int, noise: float,
+              empty_fraction: float) -> list[str]:
+    """Every unusable argument, described. Empty list means the settings are sane.
+
+    Shared by :func:`build` and the CLI so both reject the same values: the CLI turns
+    these into ``parser.error`` (exit 2 with usage), an importing caller gets a
+    ``ValueError``. Without this, several values fail far from their cause -
+    ``windows_per_sequence=0`` as a ZeroDivisionError, ``feature_dim=0`` not at all
+    (it silently writes a cache of zero-width features).
+    """
+    vocabulary_size = len(category_vocabulary())
+    found = []
+    if windows < 1:
+        found.append(f"--windows must be at least 1, got {windows}")
+    if windows_per_sequence < 1:
+        found.append(f"--windows-per-sequence must be at least 1, got {windows_per_sequence}")
+    if not 1 <= categories <= vocabulary_size:
+        found.append(f"--categories must be between 1 and {vocabulary_size}, got {categories}")
+    if feature_dim < 1:
+        found.append(f"--feature-dim must be at least 1, got {feature_dim}")
+    if noise < 0:
+        found.append(f"--noise must not be negative, got {noise}")
+    if not 0.0 <= empty_fraction <= 1.0:
+        found.append(f"--empty-fraction must be between 0 and 1, got {empty_fraction}")
+    for grid in grids:
+        if min(grid) < _MIN_GRID_SIDE:
+            found.append(
+                f"grid {grid[0]}x{grid[1]} is too small; each side must be at least "
+                f"{_MIN_GRID_SIDE}"
+            )
+    return found
+
+
 def build(cache_dir: Path, *, windows: int, layout: str, grids: list[tuple[int, int]],
           feature_dim: int, windows_per_sequence: int, categories: int, noise: float,
           empty_fraction: float, seed: int) -> dict[str, Any]:
+    found = _problems(windows=windows, grids=grids, feature_dim=feature_dim,
+                      windows_per_sequence=windows_per_sequence, categories=categories,
+                      noise=noise, empty_fraction=empty_fraction)
+    if found:
+        raise ValueError("; ".join(found))
     generator = torch.Generator().manual_seed(seed)
     direction = torch.randn(feature_dim, generator=generator)
     direction = direction / direction.norm()
@@ -87,7 +131,10 @@ def build(cache_dir: Path, *, windows: int, layout: str, grids: list[tuple[int, 
     sequences = -(-windows // windows_per_sequence)  # ceil
     # Sequence-level split, like the real manifests: 60 / 20 / 20 percent.
     train_end, val_end = int(sequences * 0.6), int(sequences * 0.8)
-    empty_every = 0 if empty_fraction <= 0 else max(1, int(1 / empty_fraction))
+    # Pick the empty windows by exact count, spread evenly. An "every 1/fraction-th"
+    # rule rounds badly: int(1/0.6) is 1, which would make *every* window empty.
+    empty_count = round(windows * empty_fraction)
+    empty_indices = {round(position * windows / empty_count) for position in range(empty_count)}
 
     contract = {
         "layout": layout,
@@ -112,8 +159,7 @@ def build(cache_dir: Path, *, windows: int, layout: str, grids: list[tuple[int, 
             # depends on the frame's aspect ratio). This is what exercises the
             # variable-token-count collation.
             grid = grids[index % len(grids)]
-            labels = _blob_labels(grid, generator,
-                                  empty=bool(empty_every and index % empty_every == 0))
+            labels = _blob_labels(grid, generator, empty=index in empty_indices)
             spatial = _tokens(labels, direction, noise, generator)
             if layout == TRAJECTORY:
                 image = torch.randn(WINDOW_LENGTH, 1, grid[0] * grid[1], feature_dim,
@@ -160,9 +206,22 @@ def main() -> None:
                         help="share of foreground-free windows")
     parser.add_argument("--seed", type=int, default=20260730)
     arguments = parser.parse_args()
+    try:
+        grids = _parse_grids(arguments.grids)
+    except ValueError as error:
+        parser.error(str(error))
+    # Validate before building so misuse exits with usage, not a traceback from deep
+    # inside the generator (or, worse, a silently useless cache).
+    found = _problems(
+        windows=arguments.windows, grids=grids, feature_dim=arguments.feature_dim,
+        windows_per_sequence=arguments.windows_per_sequence, categories=arguments.categories,
+        noise=arguments.noise, empty_fraction=arguments.empty_fraction,
+    )
+    if found:
+        parser.error("; ".join(found))
     result = build(
         arguments.cache_dir, windows=arguments.windows, layout=arguments.layout,
-        grids=_parse_grids(arguments.grids), feature_dim=arguments.feature_dim,
+        grids=grids, feature_dim=arguments.feature_dim,
         windows_per_sequence=arguments.windows_per_sequence, categories=arguments.categories,
         noise=arguments.noise, empty_fraction=arguments.empty_fraction, seed=arguments.seed,
     )
