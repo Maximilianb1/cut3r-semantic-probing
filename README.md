@@ -12,14 +12,17 @@ any semantic signal we measure comes from the representation, not from the probe
 
 | Path | Purpose |
 |---|---|
-| `data_pipeline/` | Stage 0 code: CO3Dv2 preprocessing, leakage-safe manifests, deterministic six-frame windows, frozen backbones, and embedding extraction. See [data_pipeline/README.md](data_pipeline/README.md). |
-| `segmentation_validation/` | Stage 1 code: the binary segmentation probe, training, and inference. See [segmentation_validation/README.md](segmentation_validation/README.md). |
+| `src/` | Importable package. Stage 0 subpackages: `src.backbones` (frozen CUT3R and DINOv2 wrappers, probe cache), `src.data` (CO3Dv2 manifests, transforms, deterministic windows), `src.embeddings` (extraction, cache, provenance), `src.common` (IO and table helpers). Stage 1 lives under `src.segmentation` (probe head, dataset, train/inference drivers). Placeholders for Stage 2 (`src.classification`) and shared baselines. See [src/backbones/README.md](src/backbones/README.md), [src/data/README.md](src/data/README.md), [src/embeddings/README.md](src/embeddings/README.md), and [src/segmentation/README.md](src/segmentation/README.md). |
+| `scripts/` | One-off CLI utilities: manifest building, feature extraction, cache validation, CUT3R patch application. Installed as the `scripts.*` package so tests can invoke them via `python -m scripts.<name>`. See [scripts/README.md](scripts/README.md). |
+| `tests/` | Test suite. Run from the repository root with `pytest`. See [tests/README.md](tests/README.md). |
+| `configs/` | Versioned YAML configs. Stage 0 lives under `configs/stage0/`; probe-feature extraction under `configs/probe_features/`; Stage 1 probe-head configs live with the code under `src/segmentation/configs/`. |
+| `patches/` | Upstream compatibility patches applied to third-party code (currently CUT3R). |
 | `docs/` | Repository-wide records: ADRs, session notes, experiments, dataset provenance, and project protocol. |
 | `artifacts/`, `reports/`, `notebooks/` | Registries and sources for external artifacts, the final report, and exploration. |
-| `pyproject.toml` | Packaging. Installs the `data_pipeline` code as the importable `src` and `scripts` packages. |
+| `pyproject.toml` | Packaging. Installs `src.*` and `scripts.*` as top-level importable packages, and defines the pytest configuration. |
 | `LLM_GUIDE.md` | Shared guide for AI-assisted work. |
 
-Code lives in the stage directories; everything that describes the project as a
+Code lives in `src/` and `scripts/`; everything that describes the project as a
 whole lives at the repository root.
 
 ## Getting started
@@ -34,8 +37,13 @@ This exposes the pipeline as top-level `src.*` and `scripts.*` packages, so ever
 workspace imports it the same way (for example
 `from src.backbones import build_backbone`).
 
-Run pipeline scripts and any command that uses a relative `configs/...` path from
-inside `data_pipeline/`. Run the test suite from the repository root:
+On Windows with the workspace inside OneDrive, follow
+[docs/project/LOCAL_DEV_WINDOWS.md](docs/project/LOCAL_DEV_WINDOWS.md) instead
+of `pip install` from the workspace root — the venv must live outside
+OneDrive and Python 3.13 has a known numpy issue.
+
+Run scripts and any command that uses a relative `configs/…` path from the
+repository root. Run the test suite from the repository root:
 
 ```bash
 pytest

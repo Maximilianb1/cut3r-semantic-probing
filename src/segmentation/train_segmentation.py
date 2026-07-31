@@ -4,9 +4,9 @@ Train and evaluate the binary segmentation probe over cached features.
 This is the shared driver for all three backbones; only the config differs. The
 backbone is never run here, and this workspace never extracts features: the
 probe-feature cache is an **input** built ahead of time by the Stage 0 tooling
-("data_pipeline/scripts/extract_probe_features.py"), so training only fits the small MLP head.
+("scripts/extract_probe_features.py"), so training only fits the small MLP head.
 
-Run example: python train_segmentation.py --config configs/cut3r_trained.yaml
+Run example: python -m src.segmentation.train_segmentation --config src/segmentation/configs/cut3r_trained.yaml
 """
 
 from __future__ import annotations
@@ -22,8 +22,8 @@ from tqdm import tqdm
 
 from src.common.io import load_json, load_yaml
 
-from model_segmentation import build_probe
-from dataset_segmentation import ProbeCacheDataset, assert_sequence_disjoint, collate_windows
+from .model_segmentation import build_probe
+from .dataset_segmentation import ProbeCacheDataset, assert_sequence_disjoint, collate_windows
 
 
 def load_config(path: str | Path) -> dict[str, Any]:
@@ -50,7 +50,7 @@ def probe_cache_provenance(cache_dir: str | Path) -> dict[str, Any]:
     if not path.is_file():
         raise FileNotFoundError(
             f"Probe-feature cache metadata is missing: {path}. This workspace consumes "
-            "caches; build one first with data_pipeline/scripts/extract_probe_features.py"
+            "caches; build one first with scripts/extract_probe_features.py"
         )
     return load_json(path)
 

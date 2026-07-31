@@ -1,16 +1,8 @@
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import torch
 
-
-_SEGMENTATION_DIR = Path(__file__).resolve().parents[2] / "segmentation_validation"
-if str(_SEGMENTATION_DIR) not in sys.path:
-    sys.path.insert(0, str(_SEGMENTATION_DIR))
-
-from train_segmentation import BinaryMetrics
+from src.segmentation.train_segmentation import BinaryMetrics
 
 
 def _batch_stub() -> dict[str, object]:

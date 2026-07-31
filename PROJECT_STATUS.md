@@ -1,6 +1,6 @@
 # Project Status
 
-Last updated: 2026-07-20
+Last updated: 2026-07-30
 
 ## Current phase
 
@@ -42,6 +42,7 @@ Stage 0 - Full-51 frozen representation extraction.
 - Azure's `/mnt` resource disk is temporary and explicitly prohibited.
 - The meaning and implementation of the random-initialization baseline requires clarification.
 - Baseline models and comparison protocol are not yet selected.
+- The `codebaseNdatapipeline-redesign` PR is in review and consolidates the codebase into a single-package monorepo. It (a) flattens `data_pipeline/` into the repo root (configs move from `data_pipeline/configs/stage0/` to `configs/stage0/`; Stage 0 tests/scripts/patches move to repo root; imports are unchanged — already root-relative `from src.…`), and (b) moves `segmentation_validation/` into `src/segmentation/` on top of Aviv & Lihi's PR #12 (probe head, dataset, and drivers are now importable via `src.segmentation.*`; the training entry point becomes `python -m src.segmentation.train_segmentation --config src/segmentation/configs/<backbone>.yaml`). A new reusable prompt `.github/prompts/fix_pr_comments.prompt.md` is also introduced. Teammates with in-flight branches should rebase after this PR merges. Details in [docs/sessions/2026-07-30-codebase-redesign.md](docs/sessions/2026-07-30-codebase-redesign.md).
 
 ## Milestones
 

@@ -24,8 +24,9 @@ CUT3R-random, and DINOv2.
 This workspace **trains and evaluates the probe head, and nothing else**. No
 backbone is ever loaded or run here: embeddings and labels are an *input*, read
 from a probe-feature cache that already exists on disk. Producing those caches is
-the data pipeline's job and is documented there —
-[`data_pipeline/README.md`](../data_pipeline/README.md#probe-embedding-extraction).
+the data pipeline's job — see
+[`configs/probe_features/`](../../configs/probe_features/) and
+[`scripts/extract_probe_features.py`](../../scripts/extract_probe_features.py).
 
 ## How it works
 
@@ -65,7 +66,7 @@ A config here holds only what training and evaluation read: which cache to read
 names (`splits`), and where to write results (`output`). The extraction-side
 settings (backbone weights, CO3D manifests, mask threshold) live with the script
 that uses them, in
-[`data_pipeline/configs/probe_features/`](../data_pipeline/configs/probe_features/) —
+[`configs/probe_features/`](../../configs/probe_features/) —
 the two files per backbone must agree on `probe_cache.dir`.
 
 `probe_cache.dir` is written as `${CUT3R_CACHE_ROOT}/probe/<backbone>` rather
@@ -81,11 +82,11 @@ python -m pip install -e ".[dev]"          # from repo root, once
 ```
 
 ```bash
-cd segmentation_validation && python train_segmentation.py --config configs/cut3r_trained.yaml
+python -m src.segmentation.train_segmentation --config src/segmentation/configs/cut3r_trained.yaml
 ```
 
 ```bash
-cd segmentation_validation && python inference_segmentation.py --config configs/cut3r_trained.yaml --split test
+python -m src.segmentation.inference_segmentation --config src/segmentation/configs/cut3r_trained.yaml --split test
 ```
 
 `metrics.json` records the cache's own `metadata.json` alongside the results, so
@@ -97,7 +98,7 @@ from.
 The random-CUT3R baseline meaning, the DINOv2 variant/dependency, and the
 cross-backbone comparison protocol are unresolved and should be ratified by ADR
 before results are reported. See
-[../data_pipeline/src/backbones/README.md](../data_pipeline/src/backbones/README.md).
+[../backbones/README.md](../backbones/README.md).
 
 Still-open engineering choices in the training code (see `train_segmentation.py`):
 best-vs-final-epoch checkpoint selection, class-imbalance handling (`pos_weight`),
