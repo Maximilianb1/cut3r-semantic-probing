@@ -12,12 +12,11 @@ any semantic signal we measure comes from the representation, not from the probe
 
 | Path | Purpose |
 |---|---|
-| `src/` | Importable package. Stage 0 subpackages: `src.backbones` (frozen CUT3R and DINOv2 wrappers, probe cache), `src.data` (CO3Dv2 manifests, transforms, deterministic windows), `src.embeddings` (extraction, cache, provenance), `src.common` (IO and table helpers). Placeholders for Stage 1 (`src.segmentation`), Stage 2 (`src.classification`), and shared baselines. See [src/backbones/README.md](src/backbones/README.md), [src/data/README.md](src/data/README.md), and [src/embeddings/README.md](src/embeddings/README.md). |
+| `src/` | Importable package. Stage 0 subpackages: `src.backbones` (frozen CUT3R and DINOv2 wrappers, probe cache), `src.data` (CO3Dv2 manifests, transforms, deterministic windows), `src.embeddings` (extraction, cache, provenance), `src.common` (IO and table helpers). Stage 1 lives under `src.segmentation` (probe head, dataset, train/inference drivers). Placeholders for Stage 2 (`src.classification`) and shared baselines. See [src/backbones/README.md](src/backbones/README.md), [src/data/README.md](src/data/README.md), [src/embeddings/README.md](src/embeddings/README.md), and [src/segmentation/README.md](src/segmentation/README.md). |
 | `scripts/` | One-off CLI utilities: manifest building, feature extraction, cache validation, CUT3R patch application. Installed as the `scripts.*` package so tests can invoke them via `python -m scripts.<name>`. See [scripts/README.md](scripts/README.md). |
 | `tests/` | Test suite. Run from the repository root with `pytest`. See [tests/README.md](tests/README.md). |
-| `configs/` | Versioned YAML configs. Stage 0 lives under `configs/stage0/`; Stage 1 and Stage 2 configs will follow the same scheme. |
+| `configs/` | Versioned YAML configs. Stage 0 lives under `configs/stage0/`; probe-feature extraction under `configs/probe_features/`; Stage 1 probe-head configs live with the code under `src/segmentation/configs/`. |
 | `patches/` | Upstream compatibility patches applied to third-party code (currently CUT3R). |
-| `segmentation_validation/` | Stage 1 code: the binary segmentation probe, training, and inference. See [segmentation_validation/README.md](segmentation_validation/README.md). This directory will move under `src/segmentation/` in a follow-up branch after its in-flight PR merges. |
 | `docs/` | Repository-wide records: ADRs, session notes, experiments, dataset provenance, and project protocol. |
 | `artifacts/`, `reports/`, `notebooks/` | Registries and sources for external artifacts, the final report, and exploration. |
 | `pyproject.toml` | Packaging. Installs `src.*` and `scripts.*` as top-level importable packages, and defines the pytest configuration. |

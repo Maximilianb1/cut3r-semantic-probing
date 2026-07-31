@@ -22,9 +22,9 @@ from torch.utils.data import DataLoader
 
 from src.backbones.probe_cache import load_probe_index
 
-from model_segmentation import HeadConfig, build_probe
-from dataset_segmentation import ProbeCacheDataset, collate_windows
-from train_segmentation import _resolve_device, evaluate_binary, load_config
+from .model_segmentation import HeadConfig, build_probe
+from .dataset_segmentation import ProbeCacheDataset, collate_windows
+from .train_segmentation import _resolve_device, evaluate_binary, load_config
 
 
 def load_trained_probe(config: dict[str, Any], checkpoint_path: str | Path, device: torch.device) -> torch.nn.Module:

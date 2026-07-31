@@ -14,7 +14,7 @@ backbone:
     square_ok: false
     device: cuda
 
-# Read by segmentation_validation/configs/cut3r_trained.yaml; must match it.
+# Read by src/segmentation/configs/cut3r_trained.yaml; must match it.
 probe_cache:
   dir: ${CUT3R_CACHE_ROOT}/probe/cut3r-trained
 

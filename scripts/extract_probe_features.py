@@ -10,7 +10,7 @@ Layout is derived from the backbone (override with ``extraction.layout``):
 - CUT3R-random   -> ``target_only`` (grid + latent, last state)
 - DINOv2         -> ``target_only`` (grid + latent, last state)
 
-Run one config at a time (from ``data_pipeline/``)::
+Run one config at a time (from the repository root)::
 
     python -m scripts.extract_probe_features \
       --config configs/probe_features/cut3r_trained.yaml

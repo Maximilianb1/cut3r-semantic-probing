@@ -12,7 +12,7 @@ describes a **conceptual tier** (its scientific meaning) together with the
   backbone (`cut3r_random`, `cut3r_trained`, `dinov2`), consumed by
   `scripts/extract_probe_features.py`. These are extraction configs only —
   the probe head and its optimization are configured separately in
-  `segmentation_validation/configs/`, whose file of the same name must point
+  `src/segmentation/configs/`, whose file of the same name must point
   at the same `probe_cache.dir`.
 - Follow-up stages will live under sibling subdirectories
   (`configs/classification/`, etc.) once their code lands.
@@ -99,6 +99,6 @@ Common patterns:
 - Provenance and cache identity: `docs/data/stage0-full51-cache-handoff.md`.
 - Manifest and window contracts: ADRs 0002 and 0003 under `docs/decisions/`.
 - Segmentation probe-head configs (twin of `configs/probe_features/`):
-  `segmentation_validation/configs/`. The two files must agree on
+  `src/segmentation/configs/`. The two files must agree on
   `probe_cache.dir`.
 

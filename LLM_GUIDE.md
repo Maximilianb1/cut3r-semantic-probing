@@ -9,8 +9,7 @@ point here — **do not delete them**.
 
 1. Read `README.md`, `PROJECT_STATUS.md`, and `CONTRIBUTING.md` at the repository root.
    Source code lives under `src/`; Stage 0 scripts live under `scripts/`; Stage 1
-   segmentation work lives under `segmentation_validation/` (will move to `src/segmentation/`
-   after Aviv/Lihi's branch merges).
+   segmentation code lives under `src/segmentation/`.
 2. Read accepted ADRs relevant to the task.
 3. Read the latest applicable session and experiment records.
 4. Inspect the actual code path. Treat comments, reports, and previous assistant statements as claims to verify.

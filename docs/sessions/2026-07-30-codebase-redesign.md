@@ -8,7 +8,7 @@
 
 ## Objective
 
-Turn the half-migrated layout (root + `data_pipeline/` + `segmentation_validation/`) into a single-package monorepo so 6 people can collaborate on Stages 1–2 without stepping on each other. Land the change in one PR, keep it mechanical, and leave `segmentation_validation/` alone until Aviv & Lihi's in-flight work merges.
+Turn the half-migrated layout (root + `data_pipeline/` + `segmentation_validation/`) into a single-package monorepo so 6 people can collaborate on Stages 1–2 without stepping on each other. Land the change in one PR, keep it mechanical. `segmentation_validation/` was originally deferred to a follow-up branch out of respect for Aviv & Lihi's in-flight work; once their PR #12 merged onto `main` mid-branch, this branch rebased onto it and absorbed the seg rename (§4.9), the placeholder-README delete (§4.10), and the `__init__.py` add (§8.5) so the layout ships in one PR.
 
 ## Context and inputs
 
@@ -33,15 +33,17 @@ Commits landed on the branch, in order:
 | 5 | `830f13f` | Added `.github/prompts/README.md` documenting the reusable-prompt convention (Copilot auto-discovery, cross-tool invocation via `@`). Authored `.github/prompts/fix_pr_comments.prompt.md` (six-step negotiate-then-fix flow per Appendix A). Audited `.github/CODEOWNERS` — no path patterns to update at that time; refresh queued in Commit 8 once handles were known. |
 | 6 | `ffecd99` | Rewrote `configs/README.md` — env-var resolution semantics (strict-fail via `src/common/io.expand_environment`), the five Stage 0 env vars, top-level schema per section (`dataset`, `sampling`, `preprocessing`, `model`, `cache`, `output`), and rules for adding new configs. |
 | 7 | `4f38844` | Added `docs/README.md` — subfolder layout table, filename conventions, "where does a new document belong" cookbook. |
-| 8 | (this commit) | Reshaped this session note to fit `docs/sessions/template.md`; preserved the long working plan off-tree; updated `PROJECT_STATUS.md`; refreshed `.github/CODEOWNERS` to add Ron as a co-owner. |
-| 9 | not started | §3.2 docs de-dup audit across `docs/project/*.md` vs root `README.md` and `PROJECT_STATUS.md`. Judgement-heavy; will pause on individual files where intent is unclear. |
+| 8 | `060af1f` | Reshaped this session note to fit `docs/sessions/template.md`; preserved the long working plan off-tree; updated `PROJECT_STATUS.md`; refreshed `.github/CODEOWNERS` to add Ron as a co-owner. |
+| — | rebase | Rebased the branch onto Aviv & Lihi's PR #12 (`eee10c9`, "Scope segmentation_validation to probe training and evaluation"). Real conflicts in three files: `pyproject.toml` (took our `where`/`include`; kept their new `tqdm` dep; `testpaths = ["tests"]` because their PR emptied `segmentation_validation/tests/`), `data_pipeline/README.md` (took our delete), `configs/README.md` (folded their new `probe_features/` paragraph into our rewritten Directory-layout and Related sections; corrected the stale "JSON today" claim about `segmentation_validation/configs/`). Git rename detection auto-carried their `probe_cache.py` (+42) and `extract_probe_features.py` (+12) edits onto the flattened paths. Their three new `configs/probe_features/*.yaml` files and `tests/test_backbones.py` and `tests/test_segmentation_metrics.py` landed at the flattened locations; the seg-metrics test needed one path fix (`parents[2]` → `parents[1]`) folded into Commit 3 via `--fixup` + `--autosquash`. Force-pushed with `--force-with-lease`. |
+| 9 | (this commit) | Physical move `segmentation_validation/` → `src/segmentation/`: their four `*.py` drivers, three probe-head YAML configs, and 94-line README; deleted the pre-existing placeholder `src/segmentation/README.md`. Added `src/segmentation/__init__.py` so the package is importable. Converted the drivers' bare-name imports to relative package imports (`from .model_segmentation import …`). Retargeted every in-tree reference from `segmentation_validation/…` to `src/segmentation/…`: root `README.md`, `PROJECT_STATUS.md`, `LLM_GUIDE.md`, `configs/README.md`, `configs/probe_features/*.yaml` cross-link comments, `scripts/extract_probe_features.py` docstring, and the moved README's own command examples (`python -m src.segmentation.train_segmentation …`). Simplified `tests/test_segmentation_metrics.py` — the `sys.path.insert` hack is replaced by a direct `from src.segmentation.train_segmentation import BinaryMetrics`. Added `*.egg-info/` and `runs/` to `.gitignore`. |
+| 10 | not started | §3.2 docs de-dup audit across `docs/project/*.md` vs root `README.md` and `PROJECT_STATUS.md`. Judgement-heavy; will pause on individual files where intent is unclear. |
 
 What teammates will feel on rebase:
 
-- Imports do not change — every module was already using `from src.…` root-relative paths, and `src.backbones.probe_cache` still lives at the same import path.
-- Configs move from `data_pipeline/configs/stage0/` → `configs/stage0/`; JSON configs under `segmentation_validation/configs/` are untouched.
+- Imports do not change for Stage 0 code — every module was already using `from src.…` root-relative paths, and `src.backbones.probe_cache` still lives at the same import path.
+- Configs move from `data_pipeline/configs/stage0/` → `configs/stage0/`. Aviv & Lihi's new probe-feature extraction configs move from `data_pipeline/configs/probe_features/` → `configs/probe_features/`. Their probe-head configs move from `segmentation_validation/configs/` → `src/segmentation/configs/`.
 - Stage 0 tests, scripts, patches move from `data_pipeline/{tests, scripts, patches}/` → repo root.
-- `segmentation_validation/` is **not** moved on this branch. The rename to `src/segmentation/` is a follow-up branch (`seg-into-src`) after Aviv & Lihi's in-flight PR merges.
+- `segmentation_validation/` no longer exists. All four drivers and the three probe-head configs live under `src/segmentation/`. Training and inference invocation changes from `cd segmentation_validation && python train_segmentation.py …` to `python -m src.segmentation.train_segmentation --config src/segmentation/configs/<backbone>.yaml` (run from repo root). Their internal imports are now relative (`from .model_segmentation import …`).
 - One new reusable prompt is available: `.github/prompts/fix_pr_comments.prompt.md`. Copilot auto-discovers it; other tools invoke it via `@` (see `.github/prompts/README.md`).
 
 ## Decisions
@@ -53,8 +55,8 @@ Made:
 - **Add** `.github/copilot-instructions.md` — real gap since the team uses Copilot in VS Code.
 - **Prompt, not skill, for `fix_pr_comments`** — cross-tool portable; the negotiate-first flow benefits from explicit user consent, so user-triggered invocation is a feature. Revisit if the team forgets to invoke it (see Still open).
 - **Do not create `.claude/agents/`** yet. Add it when a workflow needs its own tool policy.
-- **Split the docs de-dup audit** (§3.2) off from the mechanical redesign work — it lands as its own Commit 9 so reviewers can look at judgement calls independently.
-- **Defer segmentation rename** (§4.9) and the `src/segmentation/README.md` placeholder deletion (§4.10) to a follow-up `seg-into-src` branch after Aviv & Lihi's PR merges.
+- **Split the docs de-dup audit** (§3.2) off from the mechanical redesign work — it lands as its own Commit 10 so reviewers can look at judgement calls independently.
+- **Absorb the segmentation rename** (§4.9 + §4.10 + §8.5) into this branch after Aviv & Lihi's PR #12 merged, rather than deferring to a `seg-into-src` follow-up. Justification: the follow-up would immediately conflict with itself (their probe-feature configs already reference `segmentation_validation/configs/`, the `configs/README.md` we wrote already documents that path, and the test we inherited already uses a `sys.path.insert` hack pointing at the old dir). Consolidating avoids two round-trips of cross-directory retargeting and gives teammates one atomic layout to rebase against.
 - **Preserve the long working plan off-tree** at `local/2026-07-30-codebase-redesign-plan.md` (git-ignored via new `local/` entry in `.gitignore`) rather than tracking two versions of the same document. Git history at `2698cd1` also holds the original.
 
 Still open:
@@ -63,15 +65,14 @@ Still open:
 - `.github/CODEOWNERS` path-scoped ownership for Aviv & Lihi (`segmentation_validation/` and `src/backbones/probe_cache.py`) is blocked on their handles being documented anywhere. Ron added in Commit 8; team-wide `docs/` and `configs/` scoping deferred to the follow-up refresh.
 - numpy 1.26.4 on Python 3.13 (Windows) native crash in one test (`test_cut3r_provenance::test_compatibility_patch_is_applied_and_validated`, exit `0xC0000005`). Not a flatten regression. Fix options: pin `python = ">=3.11,<3.13"` in `pyproject.toml`, or bump `numpy` to 2.x (needs a wider dep-compat check with torch/pyarrow). Track as a GitHub issue.
 - Promote `fix_pr_comments` from a prompt to a Copilot skill or Claude subagent if real usage shows the team defaults to fixing without invoking it. Revisit after two or three PRs land.
-- Aviv & Lihi own the JSON → YAML alignment for `segmentation_validation/configs/*.json`; recommended, not required.
-- `segmentation_validation/` → `src/segmentation/` rename (§4.9) after their PR merges.
 
 ## Verification
 
 | Command/check | Result |
 |---|---|
 | `pip install -e ".[dev]"` in Python 3.13 venv on Windows | Succeeds. Venv at `C:\dev\venvs\cut3r\` (moved outside OneDrive to avoid `MAX_PATH` on torch's nested license paths). |
-| `pytest tests/` on Windows, same venv | 54/55 pass. The one failure is the numpy-1.26.4-cp313 native crash noted above, unrelated to the flatten. |
+| `pytest tests/` on Windows, same venv, before rebase | 54/55 pass. The one failure is the numpy-1.26.4-cp313 native crash noted above, unrelated to the flatten. |
+| `pytest tests/` on Windows, same venv, after rebase + Commit 9 | 59 passed, 1 pre-existing failure (the same numpy crash). +5 tests are Aviv & Lihi's new `tests/test_backbones.py` and `tests/test_segmentation_metrics.py`. |
 | `pip install -e ".[dev]"` + `pytest tests/` on the Technion VM | **Not yet run.** Owed by Ron before PR merge. |
 
 ## Human review of AI-assisted work
@@ -80,9 +81,9 @@ Ron reviewed every commit before it was made and drove multiple scope collapses 
 
 ## Next step
 
-Commit 9 — §3.2 docs de-dup audit across `docs/project/*.md` (`SCOPE`, `EVALUATION_PROTOCOL`, `WORK_BREAKDOWN`, `FULL51_TWO_PART_RUNBOOK`, `TECHNION_VM_RUNBOOK`) against root `README.md` and `PROJECT_STATUS.md`. Rule of thumb: **README** = quickstart + layout + stage tables; **PROJECT_STATUS** = current phase + blockers; **docs/project/** = static runbooks and protocol specs. Remove or shrink whatever duplicates the first two. Owner: agent + Ron.
+Commit 10 — §3.2 docs de-dup audit across `docs/project/*.md` (`SCOPE`, `EVALUATION_PROTOCOL`, `WORK_BREAKDOWN`, `FULL51_TWO_PART_RUNBOOK`, `TECHNION_VM_RUNBOOK`) against root `README.md` and `PROJECT_STATUS.md`. Rule of thumb: **README** = quickstart + layout + stage tables; **PROJECT_STATUS** = current phase + blockers; **docs/project/** = static runbooks and protocol specs. Remove or shrink whatever duplicates the first two. Owner: agent + Ron.
 
-After Commit 9: Ron runs the Technion VM install + pytest sanity check, then PR opens.
+After Commit 10: Ron runs the Technion VM install + pytest sanity check, then PR opens.
 
 ---
 
@@ -121,6 +122,4 @@ Items surfaced during the redesign work that intentionally do not land in this P
 - **`.github/CODEOWNERS` path-scoped ownership.** Once Aviv & Lihi's GitHub handles are documented, add: Aviv & Lihi on `segmentation_validation/` and `src/backbones/probe_cache.py`; team-wide on `docs/` and `configs/`. Ron was added as a co-owner in Commit 8; Max remains sole reviewer for everything else until then.
 - **numpy 1.26.4 + Python 3.13 (Windows) native crash.** PyPI serves a MinGW-w64 build of `numpy` 1.26.4 for cp313 that warns "CRASHES ARE TO BE EXPECTED" and does crash inside `scripts.apply_cut3r_compatibility_patch` (exit `0xC0000005`). Fix options: (a) pin `python = ">=3.11,<3.13"` and standardize on 3.12, or (b) bump `numpy` to 2.x (needs a wider dep-compat check with torch/pyarrow). Track after this PR merges.
 - **Windows workspace inside OneDrive is hostile to venvs.** Documented in `docs/project/LOCAL_DEV_WINDOWS.md`. Long-term fix: enable Windows long-path support system-wide, or standardize on the Technion VM.
-- **`segmentation_validation/configs/*.json` → YAML.** Aviv & Lihi's call. Consistency with Stage 0 configs; enables shared env-var resolution.
-- **§4.9 `segmentation_validation/` → `src/segmentation/` rename** and §4.10 placeholder README delete. Follow-up branch `seg-into-src` after Aviv & Lihi's PR merges.
 - **CI: `.github/workflows/*.yml` running `pytest` on every PR.** Not essential to the redesign; would make "58 tests pass" machine-verified for every reviewer.

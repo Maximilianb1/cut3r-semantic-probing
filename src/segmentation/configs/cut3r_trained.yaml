@@ -1,11 +1,9 @@
-experiment: segmentation-cut3r-random
-backbone: cut3r-random
+experiment: segmentation-cut3r-trained
+backbone: cut3r-trained
 
-# Random-initialized CUT3R baseline. Its scientific meaning is an OPEN decision
-# (see ../data_pipeline/src/backbones/README.md and PROJECT_STATUS); the cache it
-# reads comes from a provisional reset_parameters init pending a baseline ADR.
+# Written by configs/probe_features/cut3r_trained.yaml; must match it.
 probe_cache:
-  dir: ${CUT3R_CACHE_ROOT}/probe/cut3r-random
+  dir: ${CUT3R_CACHE_ROOT}/probe/cut3r-trained
 
 model:
   feature_dim: 768
@@ -36,4 +34,4 @@ splits:
   test: test
 
 output:
-  dir: runs/segmentation-cut3r-random
+  dir: runs/segmentation-cut3r-trained
