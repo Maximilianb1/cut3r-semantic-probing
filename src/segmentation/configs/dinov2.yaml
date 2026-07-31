@@ -5,6 +5,8 @@ backbone: dinov2-vitb14
 # baseline ADR; feature_dim 768 matches CUT3R so the head is comparable.
 # Note its token grid is finer than CUT3R's (patch 14 vs 16), so IoU is measured
 # on a different grid - see the cross-backbone comparison ADR.
+# Smoke-test against the fake caches without editing this file:
+#   CUT3R_CACHE_ROOT=src/segmentation/dummy_embeddings python -m src.segmentation.train_segmentation --config <this file>
 probe_cache:
   dir: ${CUT3R_CACHE_ROOT}/probe/dinov2-vitb14
 
@@ -37,4 +39,4 @@ splits:
   test: test
 
 output:
-  dir: runs/segmentation-dinov2
+  dir: src/segmentation/experiments/segmentation-dinov2
