@@ -1,10 +1,11 @@
 # Project Status
 
-Last updated: 2026-07-30
+Last updated: 2026-08-01
 
 ## Current phase
 
-Stage 0 - Full-51 frozen representation extraction.
+Stage 1 - Binary segmentation probe training on frozen representations.
+Stage 0 Full-51 extraction is complete; Drive publication remains open.
 
 ## Immediate objectives
 
@@ -20,6 +21,9 @@ Stage 0 - Full-51 frozen representation extraction.
 - [x] Transfer and locally SHA-verify extracted Full-51 Part B. Owner: Max
 - [ ] Publish both immutable cache roots and provenance to Max's private Drive folder shared read-only with the team. Owner: Max
 - [ ] Approve the shared data-to-embedding interface after real GPU validation. Owner: team
+- [x] Train and evaluate the Part-A DINOv2 segmentation probe on the Technion VM. Owner: Ron
+- [x] Train and evaluate the Part-A CUT3R-random segmentation probe on the Technion VM. Owner: Ron
+- [ ] Train and evaluate the Part-A CUT3R-trained segmentation probe (blocked on a labelled probe-features-v2 cache re-share from Max). Owner: Ron / Max
 - [ ] Assign Stage 1 and Stage 2 owners after the sixth member joins.
 
 ## Blockers and open questions
@@ -42,6 +46,8 @@ Stage 0 - Full-51 frozen representation extraction.
 - Azure's `/mnt` resource disk is temporary and explicitly prohibited.
 - The meaning and implementation of the random-initialization baseline requires clarification.
 - Baseline models and comparison protocol are not yet selected.
+- Part-A frozen-representation baselines are partially in: DINOv2 ViT-B/14 test macro-IoU 0.7922, CUT3R-random test macro-IoU 0.2134 (best-val heads, seed 20260729, n=101 test split). Details in [EXP-003](docs/experiments/EXP-003-part-a-segmentation-baselines.md).
+- The CUT3R-trained artifact currently on Drive (folder `1aZ30CLLbw3Lwgs7KcLYNp4HYNi0uN2hI`) is a Stage-0 target feature cache (`cache_schema_version: stage0-target-cache-v1`), not the labelled probe cache the segmentation trainer consumes (`probe_cache_schema_version: probe-features-v2`, with `split`, `seg_labels_key`, `category`, `sequence_id` columns). Blocks the CUT3R-trained row of the three-way ADR until re-shared.
 - The `codebaseNdatapipeline-redesign` PR is in review and consolidates the codebase into a single-package monorepo. It (a) flattens `data_pipeline/` into the repo root (configs move from `data_pipeline/configs/stage0/` to `configs/stage0/`; Stage 0 tests/scripts/patches move to repo root; imports are unchanged — already root-relative `from src.…`), and (b) moves `segmentation_validation/` into `src/segmentation/` on top of Aviv & Lihi's PR #12 (probe head, dataset, and drivers are now importable via `src.segmentation.*`; the training entry point becomes `python -m src.segmentation.train_segmentation --config src/segmentation/configs/<backbone>.yaml`). A new reusable prompt `.github/prompts/fix_pr_comments.prompt.md` is also introduced. Teammates with in-flight branches should rebase after this PR merges. Details in [docs/sessions/2026-07-30-codebase-redesign.md](docs/sessions/2026-07-30-codebase-redesign.md).
 
 ## Milestones
@@ -49,7 +55,7 @@ Stage 0 - Full-51 frozen representation extraction.
 | Milestone | Exit condition | Status |
 |---|---|---|
 | M0 - Foundations | Reproducible data manifest and embedding contract approved | In progress |
-| M1 - Binary segmentation | Held-out evaluation with agreed baselines and metrics | Not started |
+| M1 - Binary segmentation | Held-out evaluation with agreed baselines and metrics | In progress (DINOv2 and CUT3R-random Part-A done; CUT3R-trained blocked) |
 | M2 - Multiclass classification | Image-level and per-pixel approaches compared | Not started |
 | M3 - Optional task | Go/no-go ADR accepted | Not started |
 | M4 - Final delivery | Plots, architecture diagram, presentation, and report complete | Not started |
@@ -58,5 +64,8 @@ Stage 0 - Full-51 frozen representation extraction.
 
 See the [current Full-51 cache handoff](docs/data/stage0-full51-cache-handoff.md),
 the [Part A exact-feature and reconstruction audit](docs/sessions/2026-07-20-stage0-part-a-window-audit.md),
-[EXP-001](docs/experiments/EXP-001-stage0-real-gpu-smoke.md), and
-[EXP-002](docs/experiments/EXP-002-stage0-complete-debug.md).
+[EXP-001](docs/experiments/EXP-001-stage0-real-gpu-smoke.md),
+[EXP-002](docs/experiments/EXP-002-stage0-complete-debug.md),
+the [Part-A DINOv2 + CUT3R-random baseline session](docs/sessions/2026-08-01-part-a-baselines.md),
+[EXP-003](docs/experiments/EXP-003-part-a-segmentation-baselines.md), and
+the [Google Drive ↔ Technion VM data-transfer runbook](docs/project/DRIVE_TO_VM_RUNBOOK.md).
