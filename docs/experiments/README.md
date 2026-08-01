@@ -8,6 +8,7 @@ Use [the template](template.md).
 
 - [EXP-001: Stage 0 real-data GPU smoke](EXP-001-stage0-real-gpu-smoke.md)
 - [EXP-002: Complete Stage 0 Debug extraction](EXP-002-stage0-complete-debug.md)
+- [EXP-003: Part-A frozen-representation segmentation baselines](EXP-003-part-a-segmentation-baselines.md)
 
 Stage 0 manifest builds and feature extraction used only for engineering
 verification belong in session notes and preflight artifacts. Create an

@@ -4,6 +4,10 @@ The course guide describes an Azure Linux VM in the DDS course subscription,
 using an NVIDIA A10 v5-class configuration. Do not copy the guide's credentials,
 example address, or other secrets into this repository.
 
+For moving large artifacts between a teammate's Google Drive and the VM
+without staging on a personal laptop, see
+[`DRIVE_TO_VM_RUNBOOK.md`](DRIVE_TO_VM_RUNBOOK.md).
+
 ## Before work
 
 Start the assigned VM in Azure, obtain its current public address, and connect
