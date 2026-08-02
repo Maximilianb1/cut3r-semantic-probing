@@ -67,3 +67,9 @@ dist/
 *.lib
 .ninja_deps
 .ninja_log
+src/classification/dummy_embeddings/
+src/classification/experiments/*
+# ...but the figures README explains what the plots mean, so it is tracked.
+!src/classification/experiments/figures/
+src/classification/experiments/figures/*
+!src/classification/experiments/figures/README.md

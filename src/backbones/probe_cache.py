@@ -376,6 +376,54 @@ def load_target_tokens(
     return spatial, labels
 
 
+def load_target_features(
+    cache_dir: str | Path, row: dict[str, Any], *, kind: str = "spatial"
+) -> torch.Tensor:
+    """One target-frame tensor, for probes that do not need the segmentation labels.
+
+    ``kind="spatial"`` returns the grid tokens ``[N, C]`` (CUT3R
+    ``image_tokens[5,0]``, DINOv2 patch tokens). ``kind="global"`` returns the latent
+    ``[M, C]`` (CUT3R ``state_tokens[5,0]``, the persistent recurrent memory, or
+    DINOv2's CLS token).
+
+    Both are sliced inside the shard read, so a classification probe reading only the
+    state latents never transfers the grid tokens, and vice versa. Which of the two a
+    classification probe should use is an **open comparison** (see
+    ``src/classification/README.md``), which is why this exposes both rather than
+    picking one.
+
+    The global latent is *not* pixel-aligned and must never be reshaped to a
+    segmentation grid (ADR 0003).
+    """
+    if kind not in ("spatial", "global"):
+        raise ValueError(f"kind must be 'spatial' or 'global', got {kind!r}")
+    directory = Path(cache_dir)
+    trajectory = row["layout"] == TRAJECTORY
+    if trajectory:
+        key = row["image_tokens_key"] if kind == "spatial" else row["state_tokens_key"]
+    else:
+        key = row["spatial_key"] if kind == "spatial" else row["global_key"]
+    with safe_open(directory / row["shard"], framework="pt", device="cpu") as handle:
+        if trajectory:
+            window = handle.get_slice(key)[TARGET_FRAME_INDEX : TARGET_FRAME_INDEX + 1, 0:1]
+            tensor = window.reshape(window.shape[-2], window.shape[-1]).float()
+        else:
+            tensor = handle.get_tensor(key).float()
+    if tensor.ndim != 2:
+        raise ValueError(
+            f"Expected a [tokens, channels] tensor for {row['window_id']} {kind}, "
+            f"got {tuple(tensor.shape)}"
+        )
+    if kind == "spatial":
+        grid_h, grid_w = (int(value) for value in row["token_grid"])
+        if tensor.shape[0] != grid_h * grid_w:
+            raise ValueError(
+                f"Cached spatial tokens disagree with token_grid {(grid_h, grid_w)} for "
+                f"{row['window_id']}: {tuple(tensor.shape)}"
+            )
+    return tensor
+
+
 def verify_probe_cache(cache_dir: str | Path) -> dict[str, Any]:
     directory = Path(cache_dir)
     if not (directory / "metadata.json").is_file() or not (directory / "index.parquet").is_file():

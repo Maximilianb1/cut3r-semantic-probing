@@ -8,6 +8,7 @@ version = "0.1.0"
 description = "Reproducible CO3Dv2 preprocessing and frozen CUT3R feature extraction"
 requires-python = ">=3.11"
 dependencies = [
+  "matplotlib>=3.8,<4",
   "numpy==1.26.4",
   "omegaconf==2.3.1",
   "Pillow>=10,<12",
