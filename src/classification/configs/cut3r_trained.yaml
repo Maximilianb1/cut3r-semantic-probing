@@ -1,0 +1,61 @@
+experiment: classification-cut3r_trained
+backbone: cut3r-trained
+
+# Written by configs/probe_features/cut3r_trained.yaml; must match it.
+# Smoke-test against the fake caches without editing this file:
+#   CUT3R_CACHE_ROOT=src/classification/dummy_embeddings python -m src.classification.train_classification --config <this file>
+probe_cache:
+  dir: ${CUT3R_CACHE_ROOT}/probe/cut3r-trained
+
+# WHICH REPRESENTATION TO CLASSIFY FROM IS AN OPEN STAGE 2 DECISION.
+# ADR 0003 and src/classification/README.md call for comparing pooled frame-6 image
+# tokens against the pooled persistent state, so there is no default: run both and
+# report both. metrics.json records whichever this file names.
+#   image_tokens -> CUT3R image_tokens[5,0] / DINOv2 patch tokens, pooled over the grid
+#   state_tokens -> CUT3R state_tokens[5,0] (recurrent memory) / DINOv2 CLS token
+features:
+  source: state_tokens
+  pooling: mean          # mean | max
+  # z-score each dimension using TRAIN-split statistics, saved into head.pt.
+  # Frozen features are unscaled, and a linear probe is sensitive to that.
+  normalize: standardize # standardize | none
+
+model:
+  feature_dim: 768
+  # num_classes is derived from the fixed CO3D vocabulary (51) - labels are indices
+  # into it, so it stays 51 even for a cache holding fewer categories. Set it only to
+  # assert that value; any other number is rejected.
+  # [] is a true linear probe; [512] is a 1-hidden-layer MLP probe.
+  # Which one Stage 2 reports is an OPEN decision.
+  hidden_dims: [512]
+  activation: gelu
+  dropout: 0.0
+
+training:
+  # adam | adamw | sgd (sgd also reads `momentum`)
+  optimizer: adam
+  epochs: 20
+  batch_size: 32
+  lr: 0.001
+  weight_decay: 0.0
+  label_smoothing: 0.0
+  # Sample training windows with probability 1/class_count, so rare categories
+  # are seen as often as common ones. Training split only; resampling, not new
+  # data, so check per_category_recall before trusting a lift.
+  balanced_sampler: false
+  top_k: 5
+  seed: 20260731
+  device: cpu
+  num_workers: 0
+  # tqdm bars; they draw only on a real terminal, never into a redirected log
+  progress: true
+
+splits:
+  train: train
+  val: val
+  test: test
+
+output:
+  # Runs land in <dir>/<features.source>/<experiment>, so the two arms
+  # never share a directory.
+  dir: src/classification/experiments

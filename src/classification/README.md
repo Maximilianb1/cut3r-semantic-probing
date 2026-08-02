@@ -1,6 +1,213 @@
 # Multiclass Classification
 
-Future home of image-level and per-pixel classification probes. Stage 0 supplies
-category labels, spatial image tokens, and persistent-state tokens but trains no
-classifier. Stage 2 will compare pooled frame-6 image tokens with pooled state
-after frame 6 and separately evaluate per-pixel background/category outputs.
+**Stage 2 — image-level object classification over the 51 CO3D categories.**
+
+## Objective
+
+Test whether frozen CUT3R representations encode **semantic object identity**, not just
+figure-ground. Three frozen backbones are compared with the **same** head:
+CUT3R-trained, CUT3R-random, and DINOv2.
+
+The prediction is **global to the target frame**: every token in the frame is pooled
+into one vector, and the head emits one distribution over the 51 categories for the
+whole frame.
+
+## Scope
+
+This package **trains and evaluates the probe head, and nothing else**. No backbone is
+loaded or run here: embeddings and labels are an *input*, read from a probe-feature
+cache that already exists on disk. Producing those caches is the data pipeline's job —
+see [`configs/probe_features/`](../../configs/probe_features/) and
+[`scripts/extract_probe_features.py`](../../scripts/extract_probe_features.py).
+
+## Which representation to classify from
+
+ADR 0003 records that image-level classification should **compare** spatially pooled
+`image_tokens[5,0]` with token-pooled `state_tokens[5,0]`:
+
+| `features.source` | What it reads | Shape before pooling | Question it answers |
+|---|---|---|---|
+| `image_tokens` | CUT3R `image_tokens[5,0]` / DINOv2 patch tokens | `[N, 768]` | does the representation of *this frame* carry object identity? |
+| `state_tokens` | CUT3R `state_tokens[5,0]` (recurrent memory) / DINOv2 CLS | `[M, 768]` | does what CUT3R *carries across frames* carry object identity? |
+
+`features.source` is **required** — there is no default — and both `metrics.json` and
+`head.pt` record which one produced a result. The state latent is not pixel-aligned and
+must never be reshaped to a grid.
+
+## How it works
+
+1. **Input** — a probe-feature cache directory, one per backbone. Each entry already
+   holds the window's `category` and `category_index`, so the **label costs no tensor
+   read**; it comes from the cache index.
+2. **`dataset_classification.py`** reads that cache, filters to one split, pools each
+   window's chosen tensor to a single `[D]` vector, and stacks batches. Only the
+   requested tensor is transferred — the grid tokens and the state latent are never
+   both read.
+3. **`train_classification.py`** trains only the MLP head with `CrossEntropyLoss`,
+   evaluating on val each epoch and saving `head.pt` + `metrics.json`.
+4. **`inference_classification.py`** reloads `head.pt` and evaluates a held-out split,
+   writing per-window predictions and a confusion matrix.
+
+Because a batch is one vector per window, there is none of the variable-token-count
+collation the segmentation dataset needs.
+
+### Labels are indices into the fixed 51-category vocabulary
+
+`category_index` is a position in the sorted 51-category CO3D vocabulary — `0 apple`,
+`1 backpack`, `2 ball`, … — **not** a position among the categories a cache happens to
+hold. A cache with only 8 categories still yields indices like 40.
+
+So the head's output dimension is **51, always**. Sizing it to the categories present
+would mean an out-of-range label the moment a subset cache contains a late-alphabet
+category. `num_classes` is therefore derived from the vocabulary rather than written in
+the config; setting it to anything but 51 is rejected:
+
+```
+model.num_classes is 8 but labels are indices into the 51-category vocabulary
+```
+
+Categories absent from a split simply never appear as targets, and the macro metrics
+skip them — they don't need their own output slot removed.
+
+### No custom collate
+
+Pooling makes every item the same shape, so PyTorch's `default_collate` stacks a batch
+on its own: `features` into `[B, D]`, `label` into `[B]`, and the two string fields into
+lists of `B`. The segmentation package needs a custom collate because its token piles are
+ragged; here there is nothing to reconcile, so there is no collate function to read.
+
+Batch keys therefore stay **singular** — `batch["label"]`, `batch["category"]` — matching
+the keys `__getitem__` returns. `default_collate` preserves order, so row `i` of every
+entry describes the same window, which is what the per-category metrics and the confusion
+matrix depend on.
+
+## Metrics
+
+| Metric | Reads |
+|---|---|
+| `accuracy` | fraction of frames whose top choice is right |
+| `macro_recall` | mean per-category recall — is every category *found*? |
+| `macro_precision` | mean per-category precision — is a category predicted only when really there? |
+| `macro_f1` | mean of the **per-category** F1s |
+| `top5_accuracy` | is the truth in the top five, out of 51? |
+| `per_category_{precision,recall,f1}` | the breakdown behind the averages |
+
+Accuracy alone misleads under class imbalance: it can look healthy while whole
+categories are never predicted, which is exactly what the macro numbers expose.
+
+Two things worth knowing when reading them. *Micro* precision, recall and F1 all equal
+accuracy in single-label multiclass, so they are not reported as separate numbers.
+`macro_f1` is the mean of the per-category F1s, **not** the F1 of `macro_precision` and
+`macro_recall` — a different and less meaningful quantity.
+
+Macro averages cover categories present in the split's targets; an absent category is
+omitted rather than scored 0, which would silently drag the mean down. A present
+category the probe never predicts still scores 0, which is the honest reading.
+
+Chance level is `1 / categories present`, so quote it next to any accuracy: 51
+categories put chance near 0.02, and a small subset puts it much higher.
+
+## Files
+
+| File | Purpose |
+|---|---|
+| `model_classification.py` | `ClassificationProbe` = pooling + trainable MLP head (`hidden_dims=[]` gives a true linear probe). The head is defined here rather than shared with `src.segmentation`: the two answer different questions, and keeping them separate means neither can be changed by an edit meant for the other. |
+| `dataset_classification.py` | `ProbeCacheClassificationDataset` over the probe-feature cache (one pooled vector + one label per window). |
+| `train_classification.py` | Config-driven training loop; cross-entropy; asserts sequence-disjoint splits; saves `head.pt`. |
+| `inference_classification.py` | Reloads `head.pt` and evaluates a chosen split (default `test`); per-window predictions + confusion matrix. |
+| `configs/*.yaml` | One config per compared backbone. Identical heads; the cache and `features.source` differ. |
+| `visualizations.py` | Figures built from the run outputs; see [Figures](#figures). |
+
+Structure deliberately mirrors [`../segmentation/`](../segmentation/README.md). The
+shared machinery (config loading, optimizer registry, progress bars, provenance) is
+currently duplicated across the two stages; factoring it into one place is the obvious
+follow-up once Stage 2 stabilises, and is not done here to avoid churning
+freshly-merged Stage 1 code.
+
+## Run the probe
+
+```bash
+python -m pip install -e ".[dev]"          # from repo root, once
+```
+
+```bash
+python -m src.classification.train_classification --config src/classification/configs/cut3r_trained.yaml
+```
+
+```bash
+python -m src.classification.inference_classification --config src/classification/configs/cut3r_trained.yaml --split test
+```
+
+Outputs land in `<output.dir>/<features.source>/<experiment>/`, holding `metrics.json`,
+`head.pt`, and `inference-<split>.json`. The feature source is part of the path rather
+than something to remember, so the two arms of the comparison cannot overwrite each
+other and a directory always says which representation produced it.
+
+That tree is git-ignored: it is working output, not a record. Promote a result worth
+keeping to `docs/experiments/`.
+
+`head.pt` records the head **and** the feature source it was trained on, so inference
+refuses to evaluate it against a different representation — otherwise a config edit
+could silently score state-token weights on pooled grid tokens.
+
+## Figures
+
+```bash
+python -m src.classification.visualizations
+```
+
+Discovers every run under `experiments/<features.source>/<experiment>/` and writes to
+`experiments/figures/`: curves per arm and merged, a summary across runs, and — per run —
+a confusion matrix, per-category bars, and the top confusions.
+
+Three conventions worth knowing before reading one:
+
+- **Colour identifies the backbone**, never a split or a metric; line style carries
+  train-vs-val (or which arm, in the merged figure).
+- **Chance is drawn on the bar charts** as `1 / categories present` — 0.125 at eight
+  categories, 0.02 across all 51 — because an accuracy means nothing without it.
+- **Synthetic runs are stamped** in the corner and the title, from the cache's own
+  metadata.
+
+Two things the figures deliberately do not claim: a single run cannot support "A beats B"
+(that needs seeds or a paired test over `per_window`), and confidence is not plotted
+because `inference-<split>.json` does not record it yet.
+
+Full details, including how to read each figure and the per-category **accuracy is
+recall** caveat, are in
+[`experiments/figures/README.md`](experiments/figures/README.md).
+
+## Smoke test without real embeddings
+
+`scripts/make_synthetic_probe_cache.py` writes a cache of **fake** embeddings and labels
+in the real format. **No number from such a run means anything about the research
+question** — the cache stamps `synthetic: true` into its `metadata.json`, which
+propagates into `metrics.json` and the inference JSON.
+
+The fixture gives each category its own direction (and puts it in the state latent as
+well as the grid tokens), so one cache exercises both stages and both feature sources.
+Build three caches under a local, git-ignored directory, from the repo root:
+
+```bash
+python -m scripts.make_synthetic_probe_cache --cache-dir src/classification/dummy_embeddings/probe/cut3r-trained --layout trajectory --grids "8x10,6x8" --categories 8 --seed 1
+```
+
+```bash
+python -m scripts.make_synthetic_probe_cache --cache-dir src/classification/dummy_embeddings/probe/cut3r-random --grids "8x10,6x8" --noise 3.0 --category-signal 0.4 --categories 8 --seed 2
+```
+
+```bash
+python -m scripts.make_synthetic_probe_cache --cache-dir src/classification/dummy_embeddings/probe/dinov2-vitb14 --grids "10x13,8x11" --noise 1.2 --category-signal 1.3 --categories 8 --seed 3
+```
+
+They are named as the configs expect, so point the cache root at that directory and the
+real configs run unchanged:
+
+```bash
+CUT3R_CACHE_ROOT=src/classification/dummy_embeddings python -m src.classification.train_classification --config src/classification/configs/cut3r_trained.yaml
+```
+
+`--category-signal` sets how separable the categories are, so the three caches produce
+deliberately different scores — useful for checking a comparison chart reacts, and
+meaningless as a result. Delete the run directories before switching to real caches, so
+a synthetic `metrics.json` never sits under the name a real run will reuse.

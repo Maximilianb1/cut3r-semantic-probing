@@ -13,6 +13,12 @@ should therefore land well above chance and well below perfect, which exercises 
 IoU code on non-degenerate values. Some windows are deliberately foreground-free,
 to exercise the empty-target IoU convention.
 
+Each category also gets its own direction, added to both the grid tokens and the state
+latent, so the SAME cache serves Stage 1 and Stage 2: segmentation reads the foreground
+direction per token, classification reads the category direction from the pooled
+window. In 768 dimensions random directions are near-orthogonal, so neither task's
+signal masks the other's.
+
 Splits are assigned at CO3D **sequence** level (as the real manifests do), so the
 leakage guards see a valid cache. Run from the repository root::
 
@@ -82,7 +88,7 @@ _MIN_GRID_SIDE = 2  # _blob_labels needs room to place a blob
 
 def _problems(*, windows: int, grids: list[tuple[int, int]], feature_dim: int,
               windows_per_sequence: int, categories: int, noise: float,
-              empty_fraction: float) -> list[str]:
+              empty_fraction: float, category_signal: float = 1.0) -> list[str]:
     """Every unusable argument, described. Empty list means the settings are sane.
 
     Shared by :func:`build` and the CLI so both reject the same values: the CLI turns
@@ -105,6 +111,8 @@ def _problems(*, windows: int, grids: list[tuple[int, int]], feature_dim: int,
         found.append(f"--noise must not be negative, got {noise}")
     if not 0.0 <= empty_fraction <= 1.0:
         found.append(f"--empty-fraction must be between 0 and 1, got {empty_fraction}")
+    if category_signal < 0:
+        found.append(f"--category-signal must not be negative, got {category_signal}")
     for grid in grids:
         if min(grid) < _MIN_GRID_SIDE:
             found.append(
@@ -114,17 +122,29 @@ def _problems(*, windows: int, grids: list[tuple[int, int]], feature_dim: int,
     return found
 
 
+def _unit_directions(count: int, feature_dim: int, generator: torch.Generator) -> torch.Tensor:
+    """``[count, feature_dim]`` unit vectors. In 768-d, random draws are near-orthogonal,
+    so a per-category direction barely interferes with the foreground direction."""
+    directions = torch.randn(count, feature_dim, generator=generator)
+    return directions / directions.norm(dim=1, keepdim=True)
+
+
 def build(cache_dir: Path, *, windows: int, layout: str, grids: list[tuple[int, int]],
           feature_dim: int, windows_per_sequence: int, categories: int, noise: float,
-          empty_fraction: float, seed: int) -> dict[str, Any]:
+          empty_fraction: float, seed: int, category_signal: float = 1.0) -> dict[str, Any]:
     found = _problems(windows=windows, grids=grids, feature_dim=feature_dim,
                       windows_per_sequence=windows_per_sequence, categories=categories,
-                      noise=noise, empty_fraction=empty_fraction)
+                      noise=noise, empty_fraction=empty_fraction,
+                      category_signal=category_signal)
     if found:
         raise ValueError("; ".join(found))
     generator = torch.Generator().manual_seed(seed)
-    direction = torch.randn(feature_dim, generator=generator)
-    direction = direction / direction.norm()
+    direction = _unit_directions(1, feature_dim, generator)[0]
+    # One direction per category, so the SAME cache trains both stages: segmentation
+    # reads the foreground direction per token, classification reads the category
+    # direction from the pooled window. They are near-orthogonal in 768-d, so neither
+    # task's signal masks the other's.
+    category_directions = _unit_directions(categories, feature_dim, generator)
     vocabulary = category_vocabulary()[:categories]
     index_of = category_index_map()
 
@@ -145,6 +165,8 @@ def build(cache_dir: Path, *, windows: int, layout: str, grids: list[tuple[int, 
         "synthetic_note": "Fake embeddings and masks for pipeline smoke tests. "
                           "No result from this cache is scientifically meaningful.",
         "synthetic_generator": {"seed": seed, "noise": noise,
+                                "category_signal": category_signal,
+                                "categories": categories,
                                 "grids": [list(g) for g in grids],
                                 "feature_dim": feature_dim},
     }
@@ -160,17 +182,24 @@ def build(cache_dir: Path, *, windows: int, layout: str, grids: list[tuple[int, 
             # variable-token-count collation.
             grid = grids[index % len(grids)]
             labels = _blob_labels(grid, generator, empty=index in empty_indices)
+            category_direction = category_directions[vocabulary.index(category)]
             spatial = _tokens(labels, direction, noise, generator)
+            spatial = spatial + category_signal * category_direction.unsqueeze(0)
+            # The latent carries the category signal too, so the open Stage 2 comparison
+            # (pooled grid tokens vs pooled state) can actually be run on this fixture.
+            latent_tokens = 16
+            latent = (category_signal * category_direction.expand(latent_tokens, feature_dim)
+                      + noise * torch.randn(latent_tokens, feature_dim, generator=generator))
             if layout == TRAJECTORY:
                 image = torch.randn(WINDOW_LENGTH, 1, grid[0] * grid[1], feature_dim,
                                     generator=generator)
                 image[TARGET_FRAME_INDEX, 0] = spatial  # only the target frame is learnable
-                extra = {"image_tokens": image,
-                         "state_tokens": torch.randn(WINDOW_LENGTH, 1, 16, feature_dim,
-                                                     generator=generator)}
+                state = torch.randn(WINDOW_LENGTH, 1, latent_tokens, feature_dim,
+                                    generator=generator)
+                state[TARGET_FRAME_INDEX, 0] = latent
+                extra = {"image_tokens": image, "state_tokens": state}
             else:
-                extra = {"spatial_tokens": spatial,
-                         "global_tokens": torch.randn(1, feature_dim, generator=generator)}
+                extra = {"spatial_tokens": spatial, "global_tokens": latent}
             writer.add(
                 EmbeddingSample(
                     window_id=f"synthetic-{index:05d}",
@@ -204,6 +233,9 @@ def main() -> None:
     parser.add_argument("--noise", type=float, default=1.5, help="higher -> harder task")
     parser.add_argument("--empty-fraction", type=float, default=0.05,
                         help="share of foreground-free windows")
+    parser.add_argument("--category-signal", type=float, default=1.0,
+                        help="strength of the per-category direction (0 disables the "
+                             "classification signal; segmentation is unaffected)")
     parser.add_argument("--seed", type=int, default=20260730)
     arguments = parser.parse_args()
     try:
@@ -216,6 +248,7 @@ def main() -> None:
         windows=arguments.windows, grids=grids, feature_dim=arguments.feature_dim,
         windows_per_sequence=arguments.windows_per_sequence, categories=arguments.categories,
         noise=arguments.noise, empty_fraction=arguments.empty_fraction,
+        category_signal=arguments.category_signal,
     )
     if found:
         parser.error("; ".join(found))
@@ -224,6 +257,7 @@ def main() -> None:
         grids=grids, feature_dim=arguments.feature_dim,
         windows_per_sequence=arguments.windows_per_sequence, categories=arguments.categories,
         noise=arguments.noise, empty_fraction=arguments.empty_fraction, seed=arguments.seed,
+        category_signal=arguments.category_signal,
     )
     print(f"written={result['written']} cache_dir={result['cache_dir']}")
     print(f"verification={result['verification']}")
