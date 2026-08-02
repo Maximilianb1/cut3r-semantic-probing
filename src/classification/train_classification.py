@@ -160,6 +160,7 @@ class MulticlassMetrics:
         self.predicted_count: dict[str, int] = {}  # times c was predicted (precision's denominator)
         self.confusion: dict[tuple[int, int], int] = {}
         self.windows: list[dict[str, Any]] = []
+        self.vocabulary = category_names()  # resolved once per pass, not once per batch
 
     def update(self, logits: torch.Tensor, labels: torch.Tensor, batch: dict[str, Any],
         *, loss: float | None = None) -> None:
@@ -175,9 +176,8 @@ class MulticlassMetrics:
         if loss is not None:
             self.loss_sum = (self.loss_sum or 0.0) + loss * labels.numel()
 
-        vocabulary = category_names()
         for position, category in enumerate(batch["category"]):
-            predicted_category = vocabulary[int(predicted[position])]
+            predicted_category = self.vocabulary[int(predicted[position])]
             self.support[category] = self.support.get(category, 0) + 1
             self.predicted_count[predicted_category] = (self.predicted_count.get(predicted_category, 0) + 1)
             if bool(hit[position]):
@@ -288,9 +288,17 @@ def train_from_config(config: dict[str, Any]) -> dict[str, Any]:
     if features["normalize"] != "none":
         # Statistics from the TRAIN split only. Computing them over train+val, or per
         # split at evaluation time, would leak the evaluated split into its own score.
+        #
+        # Deliberately NOT train_loader: with balanced_sampler that draws with
+        # replacement, so the statistics would describe the resampled distribution -
+        # rare windows counted several times, others missing - and head.pt would carry
+        # numbers that depend on the sampler rather than on the data. One sequential
+        # pass over the dataset visits each window exactly once.
+        statistics_loader = DataLoader(train_set, shuffle=False, **loader_options)
         pooled = torch.cat(
             [batch["features"] for batch in _progress(
-                train_loader, "feature statistics" if training.get("progress", True) else None,
+                statistics_loader,
+                "feature statistics" if training.get("progress", True) else None,
                 unit="batch")],
             dim=0,
         )

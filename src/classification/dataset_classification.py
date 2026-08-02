@@ -15,6 +15,7 @@ manifest's **sequence-level** assignment - this module never invents splits.
 
 from __future__ import annotations
 
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -126,6 +127,11 @@ def assert_sequence_disjoint(*datasets: ProbeCacheClassificationDataset) -> None
             seen[sequence_id] = position
 
 
-def category_names() -> list[str]:
-    """The fixed 51-category vocabulary, index-aligned with "category_index"."""
-    return category_vocabulary()
+@lru_cache(maxsize=1)
+def category_names() -> tuple[str, ...]:
+    """The fixed 51-category vocabulary, index-aligned with "category_index".
+
+    Cached because it is immutable and rebuilding it re-sorts 51 strings; a tuple rather
+    than a list so a caller cannot mutate the shared, cached value.
+    """
+    return tuple(category_vocabulary())

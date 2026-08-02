@@ -169,3 +169,34 @@ def test_sampler_is_opt_in_and_training_only(cache, tmp_path) -> None:
     assert result["training"]["balanced_sampler"] is True
     # val must keep the real distribution, so its window count is unchanged
     assert result["val_windows"] == 4
+
+
+def test_statistics_ignore_the_balanced_sampler(cache, tmp_path) -> None:
+    """The sampler draws with replacement; statistics must still describe the split.
+
+    Iterating the training loader would count rare windows several times and miss
+    others, so head.pt would carry numbers that depend on the sampler rather than on
+    the data - and two runs differing only in the sampler flag would standardize
+    differently.
+    """
+    plain = _config(cache, tmp_path / "plain")
+    train_from_config(plain)
+    without = torch.load(
+        run_directory(plain, resolve_features(plain)) / "head.pt", weights_only=True
+    )
+
+    sampled = _config(cache, tmp_path / "sampled", balanced_sampler=True)
+    train_from_config(sampled)
+    with_sampler = torch.load(
+        run_directory(sampled, resolve_features(sampled)) / "head.pt", weights_only=True
+    )
+
+    assert torch.allclose(without["feature_mean"], with_sampler["feature_mean"])
+    assert torch.allclose(without["feature_std"], with_sampler["feature_std"])
+
+    # ...and they are the statistics of the split itself, not of any resampling.
+    train_set = ProbeCacheClassificationDataset(cache, source="image_tokens", split="train")
+    pooled = torch.stack([train_set[i]["features"] for i in range(len(train_set))])
+    mean, std = feature_statistics(pooled)
+    assert torch.allclose(with_sampler["feature_mean"], mean, atol=1e-5)
+    assert torch.allclose(with_sampler["feature_std"], std, atol=1e-5)
