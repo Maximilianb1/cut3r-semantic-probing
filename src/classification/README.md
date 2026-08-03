@@ -51,23 +51,31 @@ must never be reshaped to a grid.
 Because a batch is one vector per window, there is none of the variable-token-count
 collation the segmentation dataset needs.
 
-### Labels are indices into the fixed 51-category vocabulary
+### What the head's outputs stand for: `model.label_space`
 
 `category_index` is a position in the sorted 51-category CO3D vocabulary — `0 apple`,
 `1 backpack`, `2 ball`, … — **not** a position among the categories a cache happens to
-hold. A cache with only 8 categories still yields indices like 40.
+hold. A cache with only 8 categories still yields indices like 40, so the output
+dimension cannot simply be "however many categories are here".
 
-So the head's output dimension is **51, always**. Sizing it to the categories present
-would mean an out-of-range label the moment a subset cache contains a late-alphabet
-category. `num_classes` is therefore derived from the vocabulary rather than written in
-the config; setting it to anything but 51 is rejected:
+Two label spaces are available, and `num_classes` is derived from whichever is chosen —
+writing a different value is rejected rather than silently honoured:
 
-```
-model.num_classes is 8 but labels are indices into the 51-category vocabulary
-```
+| `model.label_space` | Outputs | Use when |
+|---|---|---|
+| `vocabulary` (default) | 51 | Heads must stay comparable across caches, including a later cache that adds categories. |
+| `present` | one per category in the cache (26 for Part A) | The cache covers a subset and you want the correctly specified model. |
 
-Categories absent from a split simply never appear as targets, and the macro metrics
-skip them — they don't need their own output slot removed.
+`present` is the Part-A default in the shipped configs. It is **not** an overfitting fix:
+measured over 3 seeds it is worth about +0.006 val macro F1 and leaves the train/val gap
+unchanged, because the outputs it removes were never discriminating between the
+categories that are actually there — they only ever learned to say "not me". Its real
+cost is comparability: a `present` head's output 7 means something different from a
+`vocabulary` head's output 7, so the label space travels inside `head.pt` and inference
+refuses a checkpoint whose space disagrees with the config.
+
+Under `vocabulary`, categories absent from a split simply never appear as targets and the
+macro metrics skip them.
 
 ### No custom collate
 
@@ -89,7 +97,7 @@ matrix depend on.
 | `macro_recall` | mean per-category recall — is every category *found*? |
 | `macro_precision` | mean per-category precision — is a category predicted only when really there? |
 | `macro_f1` | mean of the **per-category** F1s |
-| `top5_accuracy` | is the truth in the top five, out of 51? |
+| `top5_accuracy` | is the truth in the top five? (out of the label space, so 26 or 51) |
 | `per_category_{precision,recall,f1}` | the breakdown behind the averages |
 
 Accuracy alone misleads under class imbalance: it can look healthy while whole
@@ -107,6 +115,29 @@ category the probe never predicts still scores 0, which is the honest reading.
 Chance level is `1 / categories present`, so quote it next to any accuracy: 51
 categories put chance near 0.02, and a small subset puts it much higher.
 
+## Part-A results
+
+Full record, with every ablation behind the shipped configuration:
+[`docs/experiments/EXP-004-part-a-classification.md`](../../docs/experiments/EXP-004-part-a-classification.md).
+Validation, 512 windows, 26 categories, chance 0.0385:
+
+| Backbone | Arm | Accuracy | Macro F1 |
+|---|---|---:|---:|
+| dinov2-vitb14 | state (CLS) | 0.9668 | 0.9663 |
+| dinov2-vitb14 | image | 0.9473 | 0.9456 |
+| cut3r-trained | state | 0.5684 | 0.5637 |
+| cut3r-trained | image | 0.5117 | 0.5106 |
+| cut3r-random | state | 0.1562 | 0.1487 |
+| cut3r-random | image | 0.1465 | 0.1412 |
+| rgb-patch-random | either | 0.0820 | 0.0608 |
+
+CUT3R's trained features are far above both null models, and the persistent state beats
+the grid tokens — the ADR 0003 comparison, answered on val. DINOv2 is far ahead of both.
+
+**One seed, and val is 512 windows from 130 sequences: differences under ~3–4 points are
+not resolvable.** Test is untouched. `head.pt` holds the final epoch, which is the wrong
+one for DINOv2 (peaks by epoch 4) and probably early for CUT3R (still improving at 30).
+
 ## Files
 
 | File | Purpose |
@@ -115,7 +146,7 @@ categories put chance near 0.02, and a small subset puts it much higher.
 | `dataset_classification.py` | `ProbeCacheClassificationDataset` over the probe-feature cache (one pooled vector + one label per window). |
 | `train_classification.py` | Config-driven training loop; cross-entropy; asserts sequence-disjoint splits; saves `head.pt`. |
 | `inference_classification.py` | Reloads `head.pt` and evaluates a chosen split (default `test`); per-window predictions + confusion matrix. |
-| `configs/*.yaml` | One config per compared backbone. Identical heads; the cache and `features.source` differ. |
+| `configs/*.yaml` | One config per backbone **and arm** (`<backbone>_{image,state}.yaml`, eight in all). Identical heads; the cache and `features.source` differ. |
 | `visualizations.py` | Figures built from the run outputs; see [Figures](#figures). |
 
 Structure deliberately mirrors [`../segmentation/`](../segmentation/README.md). The
@@ -131,12 +162,16 @@ python -m pip install -e ".[dev]"          # from repo root, once
 ```
 
 ```bash
-python -m src.classification.train_classification --config src/classification/configs/cut3r_trained.yaml
+python -m src.classification.train_classification --config src/classification/configs/cut3r_trained_state.yaml
 ```
 
 ```bash
-python -m src.classification.inference_classification --config src/classification/configs/cut3r_trained.yaml --split test
+python -m src.classification.inference_classification --config src/classification/configs/cut3r_trained_state.yaml --split val
 ```
+
+There is one config per backbone **and arm** — `<backbone>_{image,state}.yaml`, eight in
+all. The arm is the open ADR 0003 comparison, so a run states it rather than inheriting a
+default, and both arms are reported.
 
 Outputs land in `<output.dir>/<features.source>/<experiment>/`, holding `metrics.json`,
 `head.pt`, and `inference-<split>.json`. The feature source is part of the path rather
@@ -173,9 +208,9 @@ Two things the figures deliberately do not claim: a single run cannot support "A
 (that needs seeds or a paired test over `per_window`), and confidence is not plotted
 because `inference-<split>.json` does not record it yet.
 
-Full details, including how to read each figure and the per-category **accuracy is
-recall** caveat, are in
-[`experiments/figures/README.md`](experiments/figures/README.md).
+One naming caveat worth repeating: the per-category bars plot **recall**, not accuracy.
+Per-category accuracy in a multiclass setting would count true negatives too, which sits
+near 1.0 for every category and says nothing.
 
 ## Smoke test without real embeddings
 
@@ -204,7 +239,7 @@ They are named as the configs expect, so point the cache root at that directory 
 real configs run unchanged:
 
 ```bash
-CUT3R_CACHE_ROOT=src/classification/dummy_embeddings python -m src.classification.train_classification --config src/classification/configs/cut3r_trained.yaml
+CUT3R_CACHE_ROOT=src/classification/dummy_embeddings python -m src.classification.train_classification --config src/classification/configs/cut3r_trained_state.yaml
 ```
 
 `--category-signal` sets how separable the categories are, so the three caches produce

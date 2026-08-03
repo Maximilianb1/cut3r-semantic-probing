@@ -20,7 +20,11 @@ from src.backbones.probe_cache import (
     category_index_map,
     category_vocabulary,
 )
-from src.classification.dataset_classification import ProbeCacheClassificationDataset
+from src.classification.dataset_classification import (
+    ProbeCacheClassificationDataset,
+    cache_categories,
+)
+from src.classification.inference_classification import run_inference
 from src.classification.model_classification import (
     ClassificationProbe,
     HeadConfig,
@@ -91,8 +95,59 @@ def test_output_dim_follows_the_vocabulary_not_the_cache(cache, tmp_path) -> Non
 def test_a_wrong_output_dim_is_rejected(cache, tmp_path) -> None:
     config = _config(cache, tmp_path)
     config["model"]["num_classes"] = 2  # the categories present, not the vocabulary
-    with pytest.raises(ValueError, match="indices into the 51-category vocabulary"):
+    with pytest.raises(ValueError, match="a 51-category label space"):
         train_from_config(config)
+
+
+def test_label_space_present_narrows_the_head_to_the_cache(cache, tmp_path) -> None:
+    """``present`` sizes the head to the categories the cache holds, not all 51."""
+    config = _config(cache, tmp_path)
+    config["model"]["label_space"] = "present"
+    result = train_from_config(config)
+    assert result["model"]["num_classes"] == 2  # this cache holds apple and ball
+    assert result["label_space"] == ["apple", "ball"]
+    assert "label_space" not in result["model"], "selects the space; not a head hyperparameter"
+
+    checkpoint = torch.load(run_directory(config, resolve_features(config)) / "head.pt",
+                            weights_only=True)
+    assert checkpoint["label_space"] == ["apple", "ball"]
+    assert checkpoint["head_state_dict"]["net.0.weight"].shape == (2, _DIM)
+
+
+def test_label_space_defaults_to_the_full_vocabulary(cache, tmp_path) -> None:
+    result = train_from_config(_config(cache, tmp_path))
+    assert result["model"]["num_classes"] == 51
+    assert result["label_space"] == list(category_vocabulary())
+
+
+def test_an_unknown_label_space_is_rejected(cache, tmp_path) -> None:
+    config = _config(cache, tmp_path)
+    config["model"]["label_space"] = "present_in_train"
+    with pytest.raises(ValueError, match="Unknown model.label_space"):
+        train_from_config(config)
+
+
+def test_present_labels_are_contiguous_not_vocabulary_indices(cache) -> None:
+    """apple is 0 and ball is 2 in the vocabulary; under ``present`` they are 0 and 1."""
+    present = ProbeCacheClassificationDataset(
+        cache, source="image_tokens", split="train", label_space=cache_categories(cache)
+    )
+    assert sorted({int(present[i]["label"]) for i in range(len(present))}) == [0, 1]
+
+    full = ProbeCacheClassificationDataset(cache, source="image_tokens", split="train")
+    assert sorted({int(full[i]["label"]) for i in range(len(full))}) == [0, 2]
+
+
+def test_inference_refuses_a_head_from_a_different_label_space(cache, tmp_path) -> None:
+    """A 2-way head read as 51-way would name every prediction wrongly."""
+    trained = _config(cache, tmp_path)
+    trained["model"]["label_space"] = "present"
+    train_from_config(trained)
+    checkpoint = run_directory(trained, resolve_features(trained)) / "head.pt"
+
+    evaluated = _config(cache, tmp_path)  # defaults back to the 51-category vocabulary
+    with pytest.raises(ValueError, match="label space"):
+        run_inference(evaluated, checkpoint=checkpoint, split="val")
 
 
 def test_statistics_are_saved_with_the_checkpoint(cache, tmp_path) -> None:
