@@ -47,9 +47,9 @@ class ProbeCacheClassificationDataset(Dataset):
         Select the cache rows for one split (and optionally some categories).
 
         "label_space" names the categories the labels index into. ``None`` means the
-        fixed 51-category vocabulary, so a label is the cache's own "category_index".
-        Passing the categories a cache actually holds instead yields contiguous labels
-        over just those - see :func:`cache_categories`.
+        fixed 51-category vocabulary, so labels are vocabulary indices (and the cache's
+        "category_index" is cross-checked for consistency). Passing the categories a cache
+        actually holds instead yields contiguous labels over just those - see :func:`cache_categories`.
         """
         self.cache_dir = Path(cache_dir)
         self.label_space = tuple(label_space) if label_space is not None else category_names()
@@ -79,7 +79,7 @@ class ProbeCacheClassificationDataset(Dataset):
                 f"Categories {missing} are in the cache but not in the label space "
                 f"{list(self.label_space)[:5]}...; a window would have no label"
             )
-        if label_space is None:
+        if self.label_space == category_names():
             # Labels are looked up by name, so the cache's own category_index must agree
             # with this repo's vocabulary or every label would be silently off.
             disagreeing = {

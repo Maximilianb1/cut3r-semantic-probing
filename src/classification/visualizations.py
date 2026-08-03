@@ -292,8 +292,9 @@ def plot_curves_train_val(runs: Sequence[Run], arm: str, *,
             for run in selected:
                 epochs, values = run.history(side, metric)
                 if epochs:
+                    style = _TRAIN_STYLE if side == "train" else _VAL_STYLE
                     panel.plot(epochs, values, color=colour[run.backbone],
-                               markevery=_markevery(len(epochs)), **_LINE, **_VAL_STYLE)
+                               markevery=_markevery(len(epochs)), **_LINE, **style)
             _finish_panel(panel, pretty, metric)
             # The row already names the metric; the panel title names the split.
             panel.set_title("Train" if side == "train" else "Validation",
