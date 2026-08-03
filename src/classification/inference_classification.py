@@ -6,7 +6,7 @@ rebuilds the: class:`ClassificationProbe`, and evaluates it on a chosen
 split of the probe-feature cache -- reporting the same accuracy, macro recall and
 macro F1, plus per-window predictions and a confusion matrix.
 
-Run example: python -m src.classification.inference_classification --config src/classification/configs/cut3r_trained.yaml --split test
+Run example: python -m src.classification.inference_classification --config src/classification/configs/cut3r_trained_state.yaml --split val
 """
 
 from __future__ import annotations
@@ -28,24 +28,33 @@ from .train_classification import (
     evaluate_multiclass,
     load_config,
     probe_cache_provenance,
+    resolve_label_space,
     resolve_model_config,
     run_directory,
 )
 
 
-def load_trained_probe(config: dict[str, Any], checkpoint_path: str | Path, device: torch.device) -> tuple[torch.nn.Module, FeatureSpec]:
+def load_trained_probe(config: dict[str, Any], checkpoint_path: str | Path, device: torch.device) -> tuple[torch.nn.Module, FeatureSpec, tuple[str, ...]]:
     """
     Rebuild the probe and load the trained head from ``head.pt``.
 
-    The **checkpoint** defines both the architecture and the representation it was trained on;
-    the config is only cross-checked against it.
+    The **checkpoint** defines the architecture, the representation it was trained on and
+    what its outputs mean; the config is only cross-checked against it.
 
-    Returns (model, features) where "features" is the recorded {"source", "pooling"}.
+    Returns (model, features, label_space).
     """
     checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=True)
     model_cfg = checkpoint["model_config"]
+    label_space = checkpoint.get("label_space")
+    if label_space is None:  # checkpoint from before the label space was recorded
+        raise ValueError(
+            f"{checkpoint_path} does not record its label space, so its outputs cannot "
+            "be named; retrain so it is saved with the head"
+        )
+    label_space = tuple(label_space)
     # Same derivation training used, so a config that omits num_classes still compares.
-    config_model = resolve_model_config(config) if config.get("model") is not None else None
+    config_model = (resolve_model_config(config, label_space)
+                    if config.get("model") is not None else None)
     if config_model is not None and HeadConfig.from_dict(config_model) != HeadConfig.from_dict(model_cfg):
         raise ValueError(
             f"Config model block {config_model} disagrees with the head saved in "
@@ -77,7 +86,7 @@ def load_trained_probe(config: dict[str, Any], checkpoint_path: str | Path, devi
             )
         model.set_feature_statistics(checkpoint["feature_mean"], checkpoint["feature_std"])
     model.to(device).eval()
-    return model, features
+    return model, features, label_space
 
 
 def assert_not_trained_on(cache_dir: str | Path, config: dict[str, Any], dataset: ProbeCacheClassificationDataset,
@@ -111,12 +120,21 @@ def run_inference(config: dict[str, Any], *, checkpoint: str | Path | None = Non
     checkpoint_path = Path(checkpoint) if checkpoint else (run_dir or Path()) / "head.pt"
     if not Path(checkpoint_path).is_file():
         raise FileNotFoundError(f"Trained head not found at {checkpoint_path}; run train_classification.py first")
-    model, features = load_trained_probe(config, checkpoint_path, resolved_device)
+    model, features, label_space = load_trained_probe(config, checkpoint_path, resolved_device)
 
     cache_dir = config["probe_cache"]["dir"]
+    # The checkpoint's label space, not the config's: output i means label_space[i] for
+    # this head, whatever the config now says.
+    requested_space = resolve_label_space(config, cache_dir)
+    if tuple(requested_space) != label_space:
+        raise ValueError(
+            f"Config resolves to a {len(requested_space)}-category label space but "
+            f"{checkpoint_path} was trained on {len(label_space)}; the head's outputs "
+            "would be read as the wrong categories"
+        )
     dataset = ProbeCacheClassificationDataset(
         cache_dir, source=features["source"], pooling=features["pooling"], split=split,
-        categories=config.get("categories"),
+        categories=config.get("categories"), label_space=label_space,
     )
     assert_not_trained_on(cache_dir, config, dataset, split)
     loader = DataLoader(dataset, batch_size=int(training.get("batch_size", 32)), shuffle=False)
@@ -124,6 +142,7 @@ def run_inference(config: dict[str, Any], *, checkpoint: str | Path | None = Non
         model, loader, resolved_device, top_k=int(training.get("top_k", 5)),
         collect_windows=True,
         desc=f"inference {split}" if training.get("progress", True) else None,
+        vocabulary=label_space,
     )
     per_window = metrics.pop("per_window")
     confusion = metrics.pop("confusion")
@@ -136,6 +155,7 @@ def run_inference(config: dict[str, Any], *, checkpoint: str | Path | None = Non
         # cache and which representation produced it.
         "probe_cache": {"dir": str(cache_dir), "metadata": probe_cache_provenance(cache_dir)},
         "features": features,
+        "label_space": list(label_space),
         "windows": len(dataset),
         "class_counts": dataset.class_counts(),
         "metrics": metrics,

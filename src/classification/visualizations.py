@@ -213,7 +213,15 @@ def plot_confusion_matrix(run: Run, *, normalize: bool = False,
 
 
 def _vocabulary(run: Run) -> list[str]:
-    """Category names by index, from the cache the run used."""
+    """Category names by output index, as the run's own head numbered them.
+
+    The run's ``label_space`` first: a head trained with ``label_space: present`` emits
+    indices into just the categories its cache holds, so reading them against the full
+    51-category vocabulary would name every prediction wrongly.
+    """
+    names = run.metrics.get("label_space")
+    if names:
+        return list(names)
     metadata = (run.metrics.get("probe_cache") or {}).get("metadata") or {}
     names = metadata.get("category_vocabulary")
     if names:
@@ -255,6 +263,53 @@ def plot_curves_by_arm(runs: Sequence[Run], arm: str, *,
     figure.suptitle(f"Training curves - {arm}", fontsize=11, fontweight="bold")
     _stamp_synthetic(figure, selected)
     figure.tight_layout(rect=(0, 0.04, 1, 1))
+    _save(figure, save_path)
+    return figure
+
+
+def plot_curves_train_val(runs: Sequence[Run], arm: str, *,
+                          save_path: str | Path | None = None) -> plt.Figure:
+    """One arm's curves with train and val in adjacent columns, one row per metric.
+
+    The overlaid version in :func:`plot_curves_by_arm` distinguishes the two splits by
+    opacity, which is hard to read where several backbones sit at similar values.
+    Here each row shares a y-axis, so a backbone's train and val points are directly
+    comparable across the pair and the generalization gap is the horizontal offset
+    between the same colour in the two columns.
+    """
+    _apply_rc()
+    selected = [run for run in runs if run.source == arm]
+    if not selected:
+        raise ValueError(f"No runs with features.source={arm!r}")
+    backbones = sorted({run.backbone for run in selected})
+    colour = {name: _PALETTE[index % len(_PALETTE)] for index, name in enumerate(backbones)}
+
+    figure, axes = plt.subplots(len(_CURVE_METRICS), 2, figsize=(9.0, 11.0),
+                                sharex=True, sharey="row")
+    for row, (metric, pretty) in enumerate(_CURVE_METRICS):
+        for column, side in enumerate(("train", "val")):
+            panel = axes[row][column]
+            for run in selected:
+                epochs, values = run.history(side, metric)
+                if epochs:
+                    style = _TRAIN_STYLE if side == "train" else _VAL_STYLE
+                    panel.plot(epochs, values, color=colour[run.backbone],
+                               markevery=_markevery(len(epochs)), **_LINE, **style)
+            _finish_panel(panel, pretty, metric)
+            # The row already names the metric; the panel title names the split.
+            panel.set_title("Train" if side == "train" else "Validation",
+                            fontweight="bold", fontsize=9)
+            if column:
+                panel.set_ylabel("")
+
+    figure.legend(handles=[mpl.lines.Line2D([], [], color=value, marker="o", label=name,
+                                            **_LINE)
+                           for name, value in colour.items()],
+                  loc="lower center", ncol=len(colour), frameon=False,
+                  bbox_to_anchor=(0.5, -0.01))
+    figure.suptitle(f"Train vs validation - {arm}", fontsize=11, fontweight="bold")
+    _stamp_synthetic(figure, selected)
+    figure.tight_layout(rect=(0, 0.03, 1, 1))
     _save(figure, save_path)
     return figure
 
@@ -507,6 +562,8 @@ def main() -> None:
     for arm in sorted({run.source for run in runs}):
         plot_curves_by_arm(runs, arm, save_path=out / f"curves-{arm}.png")
         print(f"  curves {arm}")
+        plot_curves_train_val(runs, arm, save_path=out / f"curves-train-val-{arm}.png")
+        print(f"  curves train/val {arm}")
     plot_curves_merged(runs, save_path=out / "curves-merged.png")
     print("  curves merged")
 

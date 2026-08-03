@@ -82,9 +82,14 @@ class MLPHead(nn.Module):
         self.config = config
         activation = _ACTIVATIONS[config.activation]
 
-        # Build MLP layers
+        # Build MLP layers. Dropout always sits immediately before the classifier:
+        # after the last activation when there are hidden layers, and on the input
+        # itself when there are none - otherwise `dropout` would be silently ignored
+        # for a linear probe, which is the one head with no other regularizer.
         layers: list[nn.Module] = []
         in_dim = config.feature_dim
+        if not config.hidden_dims and config.dropout > 0.0:
+            layers.append(nn.Dropout(config.dropout))
         for hidden in config.hidden_dims:
             layers.append(nn.Linear(in_dim, hidden))
             layers.append(activation())

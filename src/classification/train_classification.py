@@ -6,7 +6,10 @@ backbone is never run here, and this package never extracts features: the
 probe-feature cache is an **input** built ahead of time by the Stage 0 tooling
 ("scripts/extract_probe_features.py"), so training only fits the small MLP head.
 
-Run example: python -m src.classification.train_classification --config src/classification/configs/cut3r_trained.yaml
+There is one config per backbone **and arm** - the arm is the open ADR 0003 comparison,
+so a run has to name it.
+
+Run example: python -m src.classification.train_classification --config src/classification/configs/cut3r_trained_state.yaml
 """
 
 from __future__ import annotations
@@ -14,7 +17,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, Sequence
 
 import torch
 from torch.utils.data import DataLoader, WeightedRandomSampler
@@ -31,6 +34,7 @@ from .model_classification import (
 from .dataset_classification import (
     ProbeCacheClassificationDataset,
     assert_sequence_disjoint,
+    cache_categories,
     category_names,
 )
 
@@ -102,19 +106,44 @@ def run_directory(config: dict[str, Any], features: FeatureSpec) -> Path | None:
     return Path(base) / features["source"] / str(config.get("experiment", "classification"))
 
 
-def resolve_model_config(config: dict[str, Any]) -> dict[str, Any]:
+def resolve_label_space(config: dict[str, Any], cache_dir: str | Path) -> tuple[str, ...]:
+    """The categories the head's outputs stand for, named by ``model.label_space``.
+
+    - ``vocabulary`` (default): all 51 CO3D categories. Labels are vocabulary indices, so
+      a head trained on one cache is directly comparable to a head trained on another -
+      including a later cache that adds categories.
+    - ``present``: only the categories this cache holds, relabelled contiguously. The
+      correctly specified model when a cache covers a subset, at the cost of that
+      comparability, so it is opt-in rather than the default.
+
+    Measured on the Part-A cache (26 of 51 categories), ``present`` is worth roughly
+    +0.006 val macro F1 and leaves the train/val gap unchanged: the outputs it removes
+    were never discriminating between the categories that are there.
     """
-    The model block with num_classes filled in from the category vocabulary.
+    mode = str((config.get("model") or {}).get("label_space", "vocabulary"))
+    if mode == "vocabulary":
+        return category_names()
+    if mode == "present":
+        return cache_categories(cache_dir)
+    raise ValueError(
+        f"Unknown model.label_space {mode!r}; supported: 'vocabulary' (all 51) or "
+        "'present' (the categories this cache holds)"
+    )
+
+
+def resolve_model_config(config: dict[str, Any], label_space: Sequence[str]) -> dict[str, Any]:
+    """
+    The model block with num_classes filled in from the label space.
     Shared by training and inference, so both build the same head from the same config.
     """
     model_cfg = dict(config["model"])
-    vocabulary_size = len(category_names())
-    model_cfg.setdefault("num_classes", vocabulary_size)
-    if int(model_cfg["num_classes"]) != vocabulary_size:
+    model_cfg.pop("label_space", None)  # selects the space; not a head hyperparameter
+    size = len(label_space)
+    model_cfg.setdefault("num_classes", size)
+    if int(model_cfg["num_classes"]) != size:
         raise ValueError(
             f"model.num_classes is {model_cfg['num_classes']} but labels are indices into "
-            f"the {vocabulary_size}-category vocabulary; leave it unset or set it to "
-            f"{vocabulary_size}"
+            f"a {size}-category label space; leave it unset or set it to {size}"
         )
     return model_cfg
 
@@ -149,7 +178,8 @@ class MulticlassMetrics:
     - per_category_{precision,recall,f1}: the breakdown behind the averages.
     """
 
-    def __init__(self, *, top_k: int = 5, collect_windows: bool = False) -> None:
+    def __init__(self, *, top_k: int = 5, collect_windows: bool = False,
+                 vocabulary: Sequence[str] | None = None) -> None:
         self.top_k = top_k
         self.collect_windows = collect_windows # Keep window-level metrics
         self.correct = self.total = 0
@@ -160,7 +190,9 @@ class MulticlassMetrics:
         self.predicted_count: dict[str, int] = {}  # times c was predicted (precision's denominator)
         self.confusion: dict[tuple[int, int], int] = {}
         self.windows: list[dict[str, Any]] = []
-        self.vocabulary = category_names()  # resolved once per pass, not once per batch
+        # Resolved once per pass, not once per batch. Names the head's outputs, so it
+        # must be the label space training used - not always the full vocabulary.
+        self.vocabulary = tuple(vocabulary) if vocabulary is not None else category_names()
 
     def update(self, logits: torch.Tensor, labels: torch.Tensor, batch: dict[str, Any],
         *, loss: float | None = None) -> None:
@@ -235,12 +267,13 @@ class MulticlassMetrics:
 @torch.no_grad()
 def evaluate_multiclass(model: torch.nn.Module, loader: DataLoader, device: torch.device, *,
     loss_fn: torch.nn.Module | None = None, top_k: int = 5, collect_windows: bool = False,
-    desc: str | None = None) -> dict[str, Any]:
+    desc: str | None = None, vocabulary: Sequence[str] | None = None) -> dict[str, Any]:
     """
     Evaluate a classification probe over "loader": the same metrics the training pass reports.
     """
     model.eval()
-    metrics = MulticlassMetrics(top_k=top_k, collect_windows=collect_windows)
+    metrics = MulticlassMetrics(top_k=top_k, collect_windows=collect_windows,
+                                vocabulary=vocabulary)
     for batch in _progress(loader, desc, unit="batch"):
         pooled = batch["features"].to(device)
         labels = batch["label"].to(device)
@@ -256,7 +289,6 @@ def train_from_config(config: dict[str, Any]) -> dict[str, Any]:
     """
     training = config.get("training", {})
     splits = config.get("splits", {"train": "train", "val": "val"})
-    model_cfg = resolve_model_config(config)
     features = resolve_features(config)
     source, pooling = features["source"], features["pooling"]
     device = _resolve_device(str(training.get("device", "cpu")))
@@ -268,7 +300,10 @@ def train_from_config(config: dict[str, Any]) -> dict[str, Any]:
     # Read up front, so a cache without provenance fails now rather than after every
     # epoch has already run.
     cache_metadata = probe_cache_provenance(cache_dir)
-    dataset_options = {"source": source, "pooling": pooling, "categories": categories}
+    label_space = resolve_label_space(config, cache_dir)
+    model_cfg = resolve_model_config(config, label_space)
+    dataset_options = {"source": source, "pooling": pooling, "categories": categories,
+                       "label_space": label_space}
     train_set = ProbeCacheClassificationDataset(cache_dir, split=splits["train"], **dataset_options)
     val_set = ProbeCacheClassificationDataset(cache_dir, split=splits["val"], **dataset_options)
     assert_sequence_disjoint(train_set, val_set)
@@ -317,7 +352,7 @@ def train_from_config(config: dict[str, Any]) -> dict[str, Any]:
     progress = bool(training.get("progress", True))
     for epoch in _progress(range(1, epochs + 1), "epochs" if progress else None, unit="epoch"):
         model.train()
-        train_metrics = MulticlassMetrics(top_k=top_k)
+        train_metrics = MulticlassMetrics(top_k=top_k, vocabulary=label_space)
         batch_bar = _progress(
             train_loader, f"epoch {epoch}/{epochs} train" if progress else None, unit="batch"
         )
@@ -340,6 +375,7 @@ def train_from_config(config: dict[str, Any]) -> dict[str, Any]:
         val = evaluate_multiclass(
             model, val_loader, device, loss_fn=loss_fn, top_k=top_k,
             desc=f"epoch {epoch}/{epochs} val" if progress else None,
+            vocabulary=label_space,
         )
         history.append({"epoch": epoch, "train": train, "val": val})
         # tqdm.write, not print, so the summary does not land on top of a live bar.
@@ -358,6 +394,8 @@ def train_from_config(config: dict[str, Any]) -> dict[str, Any]:
         # is recorded rather than assumed.
         "features": dict(features),
         "model": model_cfg,
+        # What each output stands for. Without it a 26-way head's logits are unreadable.
+        "label_space": list(label_space),
         "is_linear_probe": model.head.is_linear,
         "training": dict(training),
         "seed": seed,
@@ -378,6 +416,9 @@ def train_from_config(config: dict[str, Any]) -> dict[str, Any]:
                 "head_state_dict": model.head.state_dict(),
                 "model_config": model_cfg,
                 "features": dict(features),
+                # Travels with the weights: output i means label_space[i], and inference
+                # cannot name a prediction without it.
+                "label_space": list(label_space),
                 # The normalization travels with the weights, so evaluation applies the
                 # same transform instead of recomputing it from the evaluated split.
                 "feature_mean": model.feature_mean.detach().cpu(),

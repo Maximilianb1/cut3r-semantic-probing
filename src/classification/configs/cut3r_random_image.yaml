@@ -1,0 +1,63 @@
+# Stage 2 classification probe - cut3r-random, image_tokens arm.
+# state_tokens is CUT3R's persistent recurrent memory after frame 6.
+#
+# Part-A final configuration; results in docs/experiments/EXP-004-part-a-classification.md.
+# A linear head over pooled, standardized frozen features. Every value here was either
+# measured or is recorded as an open choice - see the experiment record before changing one.
+
+experiment: classification-cut3r-random-image
+backbone: cut3r-random
+
+probe_cache:
+  dir: ${CUT3R_CACHE_ROOT}/probe/cut3r-random
+
+# WHICH REPRESENTATION TO CLASSIFY FROM IS THE OPEN ADR 0003 COMPARISON, so there is no
+# default: both arms are run and both are reported.
+features:
+  source: image_tokens
+  pooling: mean          # mean | max
+  # z-score each dimension using TRAIN-split statistics, saved into head.pt.
+  # Measured: worth +0.24 val accuracy on CUT3R image tokens, ~0 on DINOv2.
+  normalize: standardize # standardize | none
+
+model:
+  feature_dim: 768
+  # [] is a true linear probe; [512] would be a 1-hidden-layer MLP probe. The reported
+  # results are the linear head - the MLP scored within 0.024 of it and memorized the
+  # training split completely.
+  hidden_dims: []
+  activation: gelu
+  dropout: 0.0           # measured: no value helped; 0.7 cost 0.11 val accuracy
+  # present    -> one output per category the cache holds (26 for Part A)
+  # vocabulary -> all 51, so heads from different caches stay comparable
+  label_space: present
+
+training:
+  optimizer: adam        # adam | adamw | sgd (sgd also reads `momentum`)
+  # 30, not 10: CUT3R was still improving at 10 and gained +0.084 val accuracy by 30.
+  epochs: 30
+  batch_size: 32
+  lr: 0.001
+  # Swept [1e-4 .. 1.0]: nothing beat 0.0 by more than the val split can resolve, and
+  # everything from 1e-2 up was clearly worse on CUT3R.
+  weight_decay: 0.0
+  label_smoothing: 0.0
+  # Part A is balanced (133-145 windows per category), so resampling would add noise
+  # without correcting anything.
+  balanced_sampler: false
+  top_k: 5
+  seed: 20260731
+  device: cuda           # set to cpu to run without a GPU
+  num_workers: 8
+  progress: true
+
+splits:
+  train: train
+  val: val
+  # Held out. The reported numbers are val; test is 101 windows (2-5 per category) and
+  # is spent once, at the end.
+  test: test
+
+output:
+  # Runs land in <dir>/<features.source>/<experiment>, so the arms never collide.
+  dir: src/classification/experiments
