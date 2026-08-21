@@ -55,8 +55,10 @@ per-category) plus token accuracy — all at **token / patch-grid resolution**
 |---|---|
 | `model_segmentation.py` | `SegmentationProbe` = trainable per-token MLP head over cached features (`hidden_dims=[]` gives a true linear probe). |
 | `dataset_segmentation.py` | `ProbeCacheDataset` over the probe-feature cache (target-frame tokens + mask only) + collation for variable-size token grids, keeping per-window grouping. |
-| `train_segmentation.py` | Config-driven training loop; foreground IoU + token accuracy; asserts sequence-disjoint splits; saves `head.pt`. |
+| `train_segmentation.py` | Config-driven training loop; foreground IoU + token accuracy; asserts sequence-disjoint splits; saves `head.pt` (the **final** epoch's head, not best-val). |
+| `train_best_val.py` | Same training loop, reusing `train_segmentation.py`'s building blocks unchanged, but checkpoints whenever validation macro-IoU improves. Saves `head.pt` (best-val) and `head-last.pt` (final epoch) side by side. See [EXP-005](../../docs/experiments/EXP-005-part-a-cut3r-trained-unblocked.md). |
 | `inference_segmentation.py` | Reloads `head.pt` and evaluates a chosen split (default `test`); optional per-window masks. |
+| `build_qualitative_plots.py` | Picks the worst-5/best-5 test windows by IoU from an `inference-<split>.json`, fetches just their real CO3D photos (via `scripts/download_co3d_targeted.py`), and renders `visualizations.plot_segmentation_results` grids per backbone. |
 | `configs/*.yaml` | One config per compared backbone: `cut3r_trained`, `cut3r_random`, `dinov2`. Identical heads; only the cache differs. |
 
 ## Configs
@@ -87,6 +89,17 @@ python -m src.segmentation.train_segmentation --config src/segmentation/configs/
 
 ```bash
 python -m src.segmentation.inference_segmentation --config src/segmentation/configs/cut3r_trained.yaml --split test
+```
+
+To select the best-validation checkpoint instead of the final epoch (see
+[EXP-005](../../docs/experiments/EXP-005-part-a-cut3r-trained-unblocked.md)):
+
+```bash
+python -m src.segmentation.train_best_val --config src/segmentation/configs/cut3r_trained.yaml \
+  --output-dir src/segmentation/experiments/segmentation-cut3r-trained-bestval
+python -m src.segmentation.inference_segmentation --config src/segmentation/configs/cut3r_trained.yaml \
+  --checkpoint src/segmentation/experiments/segmentation-cut3r-trained-bestval/head.pt --split test \
+  --save-dir src/segmentation/experiments/segmentation-cut3r-trained-bestval --save-masks
 ```
 
 Outputs land in `output.dir` — `src/segmentation/experiments/<experiment>/`, holding
