@@ -3,8 +3,8 @@
 - Date: 2026-08-22
 - Owner: Yam Ben-Tov with Claude Code
 - Status: Completed
-- Related issue/PR: none; no PR opened this session
-- Code commit: `1ac6f75` (base); this session's code/config/doc changes are uncommitted as of writing
+- Related issue/PR: none
+- Code commit: `6a0f33b` on branch `seg/21-expand-part-a-data`
 
 ## Hypothesis
 
@@ -126,55 +126,84 @@ volume, as its limiting factor. Regenerate this table, the qualitative
 worst/best-5 grids, and the per-category bar charts via `analysis/build_curves_and_iou.py`
 / `analysis/build_qualitative_plots.py` if the underlying runs ever change.
 
-### Statistical check: is the DINOv2 lead over CUT3R-trained real?
+### Statistical significance (paired bootstrap CI)
 
-Run `python -m src.segmentation.analysis.build_bootstrap_ci --experiments-root
+Run `python -m src.segmentation.analysis.build_score_comparison --experiments-root
 src/segmentation/experiments --backbones cut3r_trained cut3r_random dinov2
 --run-suffix=-expanded-bestval` for precision/recall, a bootstrap 95% CI on
 macro-IoU, and a paired per-window comparison (all three backbones share the
 identical 101 test windows, so their scores aren't independent samples).
 
-![Test macro-IoU with 95% bootstrap CI per backbone](assets/exp-006/macro-iou-ci.png)
+The CUT3R-trained-vs-DINOv2 paired delta's 95% CI includes zero — not
+significant, despite the 0.029 point-estimate gap and DINOv2 winning more
+individual windows (61 vs 40). Both backbones beating CUT3R-random is
+unambiguous (CIs exclude zero by a wide margin).
 
-**Key finding:** the CUT3R-trained-vs-DINOv2 paired delta's 95% CI includes
-zero (not significant, despite the 0.029 point-estimate gap and DINOv2
-winning more individual windows, 61 vs 40) — visible above as the
-overlapping DINOv2/CUT3R-trained error bars. Both backbones beating
-CUT3R-random is unambiguous (CIs exclude zero by a wide margin). Also:
+### Precision / recall
+
 CUT3R-trained over-guesses foreground (recall 0.941 vs precision 0.786);
-DINOv2 is balanced (0.891/0.894); CUT3R-random is weak on both.
+DINOv2 is balanced (0.891/0.894); CUT3R-random is weak on both (0.40/0.34) —
+it isn't just imprecise, it isn't finding the object either.
 
-### Further analysis (run these to regenerate; figures below are the last run)
+### Macro vs. micro IoU
 
-**Per-window, side-by-side predictions on the largest deltas:**
-`python -m src.segmentation.analysis.build_delta_comparison_plot --backbone-a
-cut3r_trained --backbone-b dinov2 --run-suffix=-expanded-bestval` — both
-backbones' actual predictions on the windows where they disagree most.
+Macro and micro IoU are close for DINOv2 (0.806/0.805) and CUT3R-trained
+(0.777/0.749) — no size bias — but diverge more for CUT3R-random
+(0.277/0.223), meaning it does even worse on large-foreground windows than
+its macro score alone suggests.
 
-![Largest CUT3R-trained vs DINOv2 deltas -- favors CUT3R-trained](assets/exp-006/delta-favors-cut3r_trained-test.png)
+### Training curves
 
-![Largest CUT3R-trained vs DINOv2 deltas -- favors DINOv2](assets/exp-006/delta-favors-dinov2-test.png)
+DINOv2's val IoU plateaus by epoch 3 (hence best-val epoch 3) while train
+loss keeps dropping for the full 20 — mild overfitting past that point that
+best-val selection already avoids. CUT3R-trained's val curve is fairly flat
+from ~epoch 10 on, so its best-val checkpoint (epoch 17) is a late, marginal
+pick off a near-plateau. CUT3R-random's train and val IoU are both still
+rising at epoch 20 — unconverged, so its real ceiling is unknown until it's
+trained longer (open question, see Interpretation below).
 
-Finding: every window CUT3R-trained loses badly, it loses the same way (a
-diffuse blob spilling into background clutter — see the "favors DINOv2"
-grid); DINOv2's worst losses are not one thing (outright mislocation on
-apple, under-coverage on microwave/bench, its own scattered noise on both
-baseballbat windows). "DINOv2 is the clean backbone" holds only on average.
+### Per-category ranking (sorted, not the alphabetical table above)
 
-**Does per-category training-data volume explain per-category difficulty?**
-`python -m src.segmentation.analysis.build_category_representation_check --config
-src/segmentation/configs/cut3r_trained_expanded.yaml`.
+CUT3R-trained's and DINOv2's rankings have the same shape — umbrella/
+teddybear/plant on top, parkingmeter/toilet on bottom. CUT3R-random's
+ranking looks almost inverted: its best category (ball, 0.65) is only
+middling for the other two, while categories both trained backbones score
+highest on (microwave, bowl, wineglass) are its near-total failures
+(≤0.03) — consistent with it not learning category semantics at all, but
+picking up something else in the token statistics.
 
-![Per-category test IoU vs. training-data representation](assets/exp-006/category-representation-check.png)
+### Failure modes: CUT3R-trained vs. DINOv2
 
-Finding: no — 25 of 26 categories sit in a narrow ~370-400-window band
-(cap100 nearly equalized them; the broken axis on the left shows the one
-exception, parkingmeter at ~181), yet test IoU still spans nearly the full
-0-1 range within that band (Spearman r only +0.10 to +0.33, vs. inflated
-Pearson r of +0.53 to +0.63 driven by the single low-count outlier). Per-category
-difficulty is about the category's visual properties, not how much training
-data it got — so `pos_weight` (loss-side) is a more promising next lever
-than more data collection for still-weak categories.
+Side-by-side predictions on the windows where the two backbones disagree
+most (`python -m src.segmentation.analysis.build_delta_comparison_plot
+--backbone-a cut3r_trained --backbone-b dinov2 --run-suffix=-expanded-bestval`)
+show every window CUT3R-trained loses badly, it loses the same way: a
+diffuse blob spilling into background clutter. DINOv2's worst losses are
+not one thing — outright mislocation on apple, under-coverage on
+microwave/bench, its own scattered noise on both baseballbat windows.
+"DINOv2 is the clean backbone" holds only on average. Consistent with this:
+CUT3R-trained's and DINOv2's best-5 test windows overlap heavily (4 of 5
+are the same windows) — the windows that are easy are easy for any
+competent backbone, and the two backbones only diverge on hard cases.
+
+### CUT3R-random qualitative results
+
+Its best-5 test windows are still only coarse, blocky localizations, never
+boundary-accurate; its worst-5 are near-total misses — predictions reduce
+to a few scattered pixels or nothing, uncorrelated with the true object.
+
+### Category dataset size vs. difficulty
+
+`python -m src.segmentation.analysis.build_category_representation_check
+--config src/segmentation/configs/cut3r_trained_expanded.yaml` — 25 of 26
+categories sit in a narrow ~370-400-window band (cap100 nearly equalized
+them; parkingmeter alone sits apart at ~181), yet test IoU still spans
+nearly the full 0-1 range within that band (Spearman r only +0.10 to +0.33,
+vs. inflated Pearson r of +0.53 to +0.63 driven by the single low-count
+outlier). Per-category difficulty is about the category's visual
+properties, not how much training data it got — so `pos_weight` (loss-side)
+is a more promising next lever than more data collection for still-weak
+categories.
 
 ## Interpretation
 
@@ -207,13 +236,13 @@ Not supported / still open:
 
 ## Problems and deviations
 
-- `analysis/build_qualitative_plots.py`/`analysis/build_curves_and_iou.py`/`analysis/build_bootstrap_ci.py`/
+- `analysis/build_qualitative_plots.py`/`analysis/build_curves_and_iou.py`/`analysis/build_score_comparison.py`/
   `analysis/build_delta_comparison_plot.py` all need `--run-suffix=-expanded-bestval`
   (equals-sign form) — space-separated fails argparse when the value starts
   with `-`.
-- `num_workers` was raised `0`->`8` mid-session after the first
-  (successful but slow) attempt; the whole 3-backbone pipeline was restarted
-  so all three runs here share identical infra settings.
+- `num_workers` was raised `0`->`8` after an initial slow attempt; the whole
+  3-backbone pipeline was restarted so all three runs here share identical
+  infra settings.
 
 ## Next action
 

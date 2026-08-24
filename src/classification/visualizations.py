@@ -21,7 +21,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 
-# LaTeX-ready defaults, matching src/segmentation/visualizations.py.
+# LaTeX-ready defaults, matching src/segmentation/analysis/figures.py.
 _RC_PARAMS: dict[str, Any] = {
     "font.family": "serif",
     "font.serif": ["Times New Roman", "DejaVu Serif"],
@@ -37,8 +37,7 @@ _RC_PARAMS: dict[str, Any] = {
     "savefig.pad_inches": 0.05,
 }
 
-# The same palette src/segmentation/visualizations.py uses, so Stage 1 and Stage 2
-# figures sit together in one report. Assigned in fixed order, never cycled per figure.
+# Assigned in fixed order, never cycled per figure.
 _PALETTE = ("#6BAED6", "#FDAE6B", "#74C476", "#FC9999", "#B5A8D4")
 
 # Marker + line style carry the second dimension (train vs val, or which arm), so

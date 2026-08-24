@@ -3,7 +3,7 @@
 - Date: 2026-08-20
 - Owner: Yam Ben-Tov with Claude Code
 - Status: Completed
-- Related issue/PR: Pillar A of the segmentation-probe redesign plan; no PR opened this session
+- Related issue/PR: Pillar A of the segmentation-probe redesign plan
 - Code commit: `be792c7` on branch `seg/21-expand-part-a-data`
 
 ## Hypothesis
@@ -48,9 +48,9 @@ Three backbones, identical head geometry and training recipe (unchanged from EXP
 The three probe-feature caches and the manifest already exist on the team
 Drive; fetch them per
 [`DRIVE_TO_VM_RUNBOOK.md`](../project/DRIVE_TO_VM_RUNBOOK.md) before running
-anything below. That runbook's `cache/${BACKBONE}` path assumption did not
-match two of the three real folder layouts this session (see the fix noted
-in that file); list the folder first if a copy comes back empty.
+anything below. That runbook's `cache/${BACKBONE}` path assumption does not
+match two of the three real folder layouts (see the fix noted in that file);
+list the folder first if a copy comes back empty.
 
 ## Configuration
 
@@ -58,11 +58,8 @@ in that file); list the folder first if a copy comes back empty.
 - Optimiser: Adam, `lr 1e-3`, `weight_decay 0`, `batch_size 16`, 20 epochs, seed `20260729`.
 - Hardware: CPU-only (`device: cpu`, per the tracked configs).
 - Two checkpoint-selection modes, same data/seed, both against
-  [`src/segmentation/train_segmentation.py`](../../src/segmentation/train_segmentation.py)/`inference_segmentation.py`
-  (at the time this ran, best-val was a separate `train_best_val.py` sibling
-  driver reusing the stock trainer's building blocks unchanged; it has since
-  been merged into `train_segmentation.py` as a `checkpoint_selection` option
-  — same behavior, one script):
+  [`src/segmentation/train_segmentation.py`](../../src/segmentation/train_segmentation.py)/`inference_segmentation.py`,
+  controlled by `training.checkpoint_selection`:
   1. **Last-epoch** — the default (`checkpoint_selection: last`); `head.pt` is
      "the final epoch's head, not the best-val one".
   2. **Best-val** — `checkpoint_selection: best_val`. Checkpoints whenever
@@ -234,7 +231,7 @@ built from.
 
 - Pillar B (data expansion: 30→100 sequences, leftover windows) can likely
   proceed the same way this record did — cap100/leftover probe-feature
-  caches for all three backbones were found already present on Drive during
-  this session (unverified schema-wise; check each `metadata.json` first).
+  caches for all three backbones are already present on Drive (unverified
+  schema-wise; check each `metadata.json` first).
 - Independent follow-up carried over from EXP-003, still open: run
   CUT3R-random for 40–60 epochs to lock down its true random-init plateau.

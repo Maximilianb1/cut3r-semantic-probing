@@ -15,16 +15,10 @@ for each backbone):
 from __future__ import annotations
 
 import argparse
-import json
 from pathlib import Path
 
 from .figures import plot_per_category_iou, plot_training_curves
-
-_DISPLAY_NAME = {
-    "cut3r_trained": "CUT3R Trained",
-    "cut3r_random": "CUT3R Random",
-    "dinov2": "DINOv2",
-}
+from .runs import DISPLAY_NAME, load_inference, load_metrics, resolve_run_dir
 
 
 def main() -> None:
@@ -36,10 +30,10 @@ def main() -> None:
     args = parser.parse_args()
 
     for backbone in args.backbones:
-        exp_dir = args.experiments_root / f"segmentation-{backbone}{args.run_suffix}"
-        metrics = json.loads((exp_dir / "metrics.json").read_text(encoding="utf-8"))
-        inference = json.loads((exp_dir / f"inference-{args.split}.json").read_text(encoding="utf-8"))
-        name = _DISPLAY_NAME.get(backbone, backbone)
+        exp_dir = resolve_run_dir(args.experiments_root, backbone, args.run_suffix)
+        metrics = load_metrics(exp_dir)
+        inference = load_inference(exp_dir, args.split)
+        name = DISPLAY_NAME.get(backbone, backbone)
 
         curves_path = exp_dir / "training-curves.png"
         plot_training_curves(metrics["history"], title=f"{name} -- Training Curves", save_path=curves_path)

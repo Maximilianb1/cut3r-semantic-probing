@@ -23,12 +23,10 @@ Run example:
 from __future__ import annotations
 
 import argparse
-import json
 from collections import defaultdict
 from pathlib import Path
 
 import numpy as np
-import torch
 from PIL import Image
 
 from src.common.tables import read_parquet
@@ -42,11 +40,11 @@ from src.data.co3d_selective import (
 )
 
 from .figures import plot_segmentation_results
+from .runs import load_inference, load_masks, resolve_run_dir
 
 
-def pick_extremes(inference_json: Path, k: int = 5) -> tuple[list[dict], list[dict]]:
-    data = json.loads(inference_json.read_text(encoding="utf-8"))
-    rows = sorted(data["per_window_iou"], key=lambda r: r["foreground_iou"])
+def pick_extremes(run_dir: Path, split: str, k: int = 5) -> tuple[list[dict], list[dict]]:
+    rows = sorted(load_inference(run_dir, split)["per_window_iou"], key=lambda r: r["foreground_iou"])
     return rows[:k], rows[-k:]
 
 
@@ -70,8 +68,8 @@ def main() -> None:
     window_to_relpath: dict[str, str] = {}
 
     for backbone in args.backbones:
-        exp_dir = args.experiments_root / f"segmentation-{backbone}{args.run_suffix}"
-        worst, best = pick_extremes(exp_dir / f"inference-{args.split}.json", args.k)
+        exp_dir = resolve_run_dir(args.experiments_root, backbone, args.run_suffix)
+        worst, best = pick_extremes(exp_dir, args.split, args.k)
         per_backbone_selection[backbone] = {"worst": worst, "best": best}
         for row in worst + best:
             window = windows[row["window_id"]]
@@ -101,8 +99,8 @@ def main() -> None:
                                       progress=lambda m: print(f"  {m}", flush=True))
 
     for backbone in args.backbones:
-        exp_dir = args.experiments_root / f"segmentation-{backbone}{args.run_suffix}"
-        masks = torch.load(exp_dir / f"masks-{args.split}.pt", weights_only=False)
+        exp_dir = resolve_run_dir(args.experiments_root, backbone, args.run_suffix)
+        masks = load_masks(exp_dir, args.split)
         for label, rows in per_backbone_selection[backbone].items():
             frame_imgs, gts, preds, captions = [], [], [], []
             for row in rows:

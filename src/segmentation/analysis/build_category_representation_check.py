@@ -19,7 +19,6 @@ Run example (on the VM, where the probe caches live):
 from __future__ import annotations
 
 import argparse
-import json
 from collections import Counter
 from pathlib import Path
 
@@ -29,14 +28,9 @@ import numpy as np
 from src.backbones.probe_cache import load_probe_index
 
 from ..train_segmentation import load_config
+from .runs import BACKBONE_COLOR, DISPLAY_NAME, load_inference, resolve_run_dir
 
-_DISPLAY_NAME = {
-    "cut3r_trained": "CUT3R-trained",
-    "cut3r_random": "CUT3R-random",
-    "dinov2": "DINOv2",
-}
 _MARKERS = {"cut3r_trained": "o", "cut3r_random": "^", "dinov2": "s"}
-_COLORS = {"cut3r_trained": "#74C476", "cut3r_random": "#FC9999", "dinov2": "#6BAED6"}
 
 
 def train_window_counts(train_dirs: list[str]) -> dict[str, int]:
@@ -85,8 +79,8 @@ def main() -> None:
 
     per_backbone_iou = {}
     for b in args.backbones:
-        run_dir = args.experiments_root / f"segmentation-{b}{args.run_suffix}"
-        data = json.loads((run_dir / f"inference-{args.split}.json").read_text(encoding="utf-8"))
+        exp_dir = resolve_run_dir(args.experiments_root, b, args.run_suffix)
+        data = load_inference(exp_dir, args.split)
         per_backbone_iou[b] = data["metrics"]["per_category_iou"]
 
     x = np.array([counts[c] for c in categories], dtype=float)
@@ -96,7 +90,7 @@ def main() -> None:
         y = np.array([per_backbone_iou[b][c] for c in categories], dtype=float)
         r_pearson, r_spearman = pearson(x, y), spearman(x, y)
         correlations[b] = (r_pearson, r_spearman)
-        print(f"  {_DISPLAY_NAME.get(b, b):15s} pearson={r_pearson:+.3f}  spearman={r_spearman:+.3f}")
+        print(f"  {DISPLAY_NAME.get(b, b):15s} pearson={r_pearson:+.3f}  spearman={r_spearman:+.3f}")
 
     # Linear, not log: the real range is ~181-400 (under 2.5x), too narrow to
     # need log scale. A small horizontal jitter (fixed seed) separates
@@ -116,8 +110,8 @@ def main() -> None:
     )
     for b in args.backbones:
         y = np.array([per_backbone_iou[b][c] for c in categories], dtype=float)
-        label = _DISPLAY_NAME.get(b, b)
-        style = dict(color=_COLORS.get(b, "#888"), marker=_MARKERS.get(b, "o"),
+        label = DISPLAY_NAME.get(b, b)
+        style = dict(color=BACKBONE_COLOR.get(b, "#888"), marker=_MARKERS.get(b, "o"),
                      s=28, alpha=0.75, edgecolor="white", linewidth=0.5)
         ax_low.scatter(x_jittered[x < low_cutoff], y[x < low_cutoff], **style)
         ax_high.scatter(x_jittered[x >= low_cutoff], y[x >= low_cutoff], label=label, **style)

@@ -1,6 +1,6 @@
 # Project Status
 
-Last updated: 2026-08-22
+Last updated: 2026-08-25
 
 ## Current phase
 
@@ -46,8 +46,7 @@ Stage 0 Full-51 extraction is complete; Drive publication remains open.
 - Azure's `/mnt` resource disk is temporary and explicitly prohibited.
 - The meaning and implementation of the random-initialization baseline requires clarification.
 - Baseline models and comparison protocol are not yet selected.
-- Part-A frozen-representation baselines are partially in: DINOv2 ViT-B/14 test macro-IoU 0.7922, CUT3R-random test macro-IoU 0.2134 (best-val heads, seed 20260729, n=101 test split). Details in [EXP-003](docs/experiments/EXP-003-part-a-segmentation-baselines.md).
-- Resolved 2026-08-20: the CUT3R-trained artifact on Drive (folder `1aZ30CLLbw3Lwgs7KcLYNp4HYNi0uN2hI`) is now a correctly labelled `probe-features-v2` cache (re-shared between 2026-08-01 and 2026-08-11, by whoever re-shared it). Part-A frozen-representation baselines are now complete for all three backbones: DINOv2 test macro-IoU 0.7922, CUT3R-trained test macro-IoU 0.7402, CUT3R-random test macro-IoU 0.2298 (best-val heads, seed 20260729, n=101 test split). Details in [EXP-005](docs/experiments/EXP-005-part-a-seg-cut3r-unblocked.md).
+- Resolved 2026-08-20: the CUT3R-trained artifact on Drive (folder `1aZ30CLLbw3Lwgs7KcLYNp4HYNi0uN2hI`) is now a correctly labelled `probe-features-v2` cache. Part-A frozen-representation baselines are now complete for all three backbones: DINOv2 test macro-IoU 0.7922, CUT3R-trained test macro-IoU 0.7402, CUT3R-random test macro-IoU 0.2298 (best-val heads, seed 20260729, n=101 test split). Details in [EXP-005](docs/experiments/EXP-005-part-a-seg-cut3r-unblocked.md).
 - Resolved 2026-08-22: expanded training (leftover + cap100-new-train batches added to the training set, ~3.3x more train windows, val/test held fixed) complete for all three backbones. All three improved: DINOv2 0.7922 -> 0.8063, CUT3R-trained 0.7402 -> 0.7772, CUT3R-random 0.2298 -> 0.2772 (test macro-IoU, best-val). CUT3R-random's worst-5 qualitative failures are unchanged (still complete 0.000-IoU misses) despite the extra data, pointing at the representation itself rather than data volume as its limiting factor. Details in [EXP-006](docs/experiments/EXP-006-part-a-seg-expanded-training.md).
 - The `codebaseNdatapipeline-redesign` PR is in review and consolidates the codebase into a single-package monorepo. It (a) flattens `data_pipeline/` into the repo root (configs move from `data_pipeline/configs/stage0/` to `configs/stage0/`; Stage 0 tests/scripts/patches move to repo root; imports are unchanged — already root-relative `from src.…`), and (b) moves `segmentation_validation/` into `src/segmentation/` on top of Aviv & Lihi's PR #12 (probe head, dataset, and drivers are now importable via `src.segmentation.*`; the training entry point becomes `python -m src.segmentation.train_segmentation --config src/segmentation/configs/<backbone>.yaml`). A new reusable prompt `.github/prompts/fix_pr_comments.prompt.md` is also introduced. Teammates with in-flight branches should rebase after this PR merges. Details in [docs/sessions/2026-07-30-codebase-redesign.md](docs/sessions/2026-07-30-codebase-redesign.md).
 

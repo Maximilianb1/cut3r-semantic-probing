@@ -1,6 +1,6 @@
 """Build a side-by-side qualitative grid (Input | GT | A Pred | B Pred) for the
 windows where two backbones' foreground IoU differs the most -- the actual
-photos behind build_bootstrap_ci.py's paired per-window comparison.
+photos behind build_score_comparison.py's paired per-window comparison.
 
 1. Joins both backbones' inference-<split>.json on window_id, ranks by
    foreground-IoU delta (A minus B).
@@ -24,12 +24,10 @@ Run example:
 from __future__ import annotations
 
 import argparse
-import json
 from collections import defaultdict
 from pathlib import Path
 
 import numpy as np
-import torch
 from PIL import Image
 
 from src.common.tables import read_parquet
@@ -43,17 +41,7 @@ from src.data.co3d_selective import (
 )
 
 from .figures import plot_backbone_comparison_grid
-
-_DISPLAY_NAME = {
-    "cut3r_trained": "CUT3R-trained",
-    "cut3r_random": "CUT3R-random",
-    "dinov2": "DINOv2",
-}
-
-
-def load_per_window_iou(run_dir: Path, split: str) -> dict[str, dict]:
-    data = json.loads((run_dir / f"inference-{split}.json").read_text(encoding="utf-8"))
-    return {row["window_id"]: row for row in data["per_window_iou"]}
+from .runs import DISPLAY_NAME, load_masks, load_per_window_iou, resolve_run_dir
 
 
 def main() -> None:
@@ -71,10 +59,10 @@ def main() -> None:
                          help="default: <experiments-root>/..")
     args = parser.parse_args()
 
-    name_a = _DISPLAY_NAME.get(args.backbone_a, args.backbone_a)
-    name_b = _DISPLAY_NAME.get(args.backbone_b, args.backbone_b)
-    dir_a = args.experiments_root / f"segmentation-{args.backbone_a}{args.run_suffix}"
-    dir_b = args.experiments_root / f"segmentation-{args.backbone_b}{args.run_suffix}"
+    name_a = DISPLAY_NAME.get(args.backbone_a, args.backbone_a)
+    name_b = DISPLAY_NAME.get(args.backbone_b, args.backbone_b)
+    dir_a = resolve_run_dir(args.experiments_root, args.backbone_a, args.run_suffix)
+    dir_b = resolve_run_dir(args.experiments_root, args.backbone_b, args.run_suffix)
 
     rows_a = load_per_window_iou(dir_a, args.split)
     rows_b = load_per_window_iou(dir_b, args.split)
@@ -121,8 +109,8 @@ def main() -> None:
         materialize_required_members(sources, dataset_root=args.dataset_root, archive_opener=opener,
                                       progress=lambda m: print(f"  {m}", flush=True))
 
-    masks_a = torch.load(dir_a / f"masks-{args.split}.pt", weights_only=False)
-    masks_b = torch.load(dir_b / f"masks-{args.split}.pt", weights_only=False)
+    masks_a = load_masks(dir_a, args.split)
+    masks_b = load_masks(dir_b, args.split)
 
     output_dir = args.output_dir or args.experiments_root.parent
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -145,7 +133,7 @@ def main() -> None:
         plot_backbone_comparison_grid(
             np.stack(frame_imgs), np.stack(gts), np.stack(preds_a), np.stack(preds_b), captions,
             name_a=name_a, name_b=name_b, max_rows=args.k,
-            title=f"Largest {name_a} vs {name_b} deltas -- favors {_DISPLAY_NAME.get(label, label)}",
+            title=f"Largest {name_a} vs {name_b} deltas -- favors {DISPLAY_NAME.get(label, label)}",
             save_path=save_path,
         )
         print(f"Saved -> {save_path}", flush=True)

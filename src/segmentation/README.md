@@ -68,7 +68,7 @@ per-category) plus token accuracy — all at **token / patch-grid resolution**
 | `build_qualitative_plots.py` | Worst-5/best-5 test windows by IoU from an `inference-<split>.json`, fetches just their real CO3D photos (via `scripts/download_co3d_targeted.py`), and renders `figures.plot_segmentation_results` grids per backbone. |
 | `build_delta_comparison_plot.py` | Paired two-backbone grid on the windows where their per-window IoU differs the most (via `figures.plot_backbone_comparison_grid`). |
 | `build_curves_and_iou.py` | Per-backbone training-curve and per-category IoU bar plots (via `figures.plot_training_curves`/`plot_per_category_iou`). |
-| `build_bootstrap_ci.py` | Precision/recall, a bootstrap 95% CI on macro-IoU, and a paired per-window significance test across backbones (plots directly, not via `figures.py`). |
+| `build_score_comparison.py` | Compares backbones on already-computed scores: a bootstrap 95% CI on macro-IoU and a paired per-window significance test, plus deterministic macro/micro-IoU and precision/recall comparisons (three figures; plots directly, not via `figures.py`). |
 | `build_category_representation_check.py` | Correlates per-category training-window counts against per-category test IoU, to check whether representation (not just visual difficulty) drives per-category performance (plots directly, not via `figures.py`). |
 
 ## Configs
