@@ -57,17 +57,19 @@ in that file); list the folder first if a copy comes back empty.
 - Tracked configs (unchanged): `cut3r_trained.yaml`, `cut3r_random.yaml`, `dinov2.yaml`.
 - Optimiser: Adam, `lr 1e-3`, `weight_decay 0`, `batch_size 16`, 20 epochs, seed `20260729`.
 - Hardware: CPU-only (`device: cpu`, per the tracked configs).
-- Two checkpoint-selection modes, same data/seed, both against the
-  unmodified `train_segmentation.py`/`inference_segmentation.py`:
-  1. **Last-epoch** — the stock trainer (`head.pt` is documented there as
-     "the final epoch's head, not the best-val one").
-  2. **Best-val** — a new sibling driver,
-     [`src/segmentation/train_best_val.py`](../../src/segmentation/train_best_val.py),
-     reusing `train_segmentation.py`'s building blocks unchanged. Checkpoints
-     whenever validation macro-IoU improves; also keeps the final-epoch head
-     as `head-last.pt`.
+- Two checkpoint-selection modes, same data/seed, both against
+  [`src/segmentation/train_segmentation.py`](../../src/segmentation/train_segmentation.py)/`inference_segmentation.py`
+  (at the time this ran, best-val was a separate `train_best_val.py` sibling
+  driver reusing the stock trainer's building blocks unchanged; it has since
+  been merged into `train_segmentation.py` as a `checkpoint_selection` option
+  — same behavior, one script):
+  1. **Last-epoch** — the default (`checkpoint_selection: last`); `head.pt` is
+     "the final epoch's head, not the best-val one".
+  2. **Best-val** — `checkpoint_selection: best_val`. Checkpoints whenever
+     validation macro-IoU improves; also keeps the final-epoch head as
+     `head-last.pt`.
 - Qualitative figures use
-  [`src/segmentation/build_qualitative_plots.py`](../../src/segmentation/build_qualitative_plots.py)
+  [`src/segmentation/analysis/build_qualitative_plots.py`](../../src/segmentation/analysis/build_qualitative_plots.py)
   and [`scripts/download_co3d_targeted.py`](../../scripts/download_co3d_targeted.py)
   (fetches only the exact images named by the manifest — see "Notes").
 - Exact commands:
@@ -78,14 +80,14 @@ in that file); list the folder first if a copy comes back empty.
   python -m src.segmentation.inference_segmentation --config src/segmentation/configs/<backbone>.yaml --split test
 
   # Best-val
-  python -m src.segmentation.train_best_val --config src/segmentation/configs/<backbone>.yaml \
-    --output-dir src/segmentation/experiments/segmentation-<backbone>-bestval
+  python -m src.segmentation.train_segmentation --config src/segmentation/configs/<backbone>.yaml \
+    --checkpoint-selection best_val --output-dir src/segmentation/experiments/segmentation-<backbone>-bestval
   python -m src.segmentation.inference_segmentation --config src/segmentation/configs/<backbone>.yaml \
     --checkpoint src/segmentation/experiments/segmentation-<backbone>-bestval/head.pt \
     --split test --save-dir src/segmentation/experiments/segmentation-<backbone>-bestval --save-masks
 
   # Qualitative worst-5/best-5 figures (after the best-val runs above)
-  python -m src.segmentation.build_qualitative_plots \
+  python -m src.segmentation.analysis.build_qualitative_plots \
     --manifest-dir ${CUT3R_ARTIFACT_ROOT}/manifests/full51-part-a-v1 \
     --dataset-root ${CO3D_ROOT} --experiments-root src/segmentation/experiments \
     --backbones cut3r_trained cut3r_random dinov2 --run-suffix -bestval

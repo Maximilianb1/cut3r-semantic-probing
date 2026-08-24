@@ -53,17 +53,25 @@ def load_trained_probe(config: dict[str, Any], checkpoint_path: str | Path, devi
 def assert_not_trained_on(cache_dir: str | Path, config: dict[str, Any], dataset: ProbeCacheDataset, split: str) -> None:
     """
     Fail loudly if the evaluated split shares CO3D sequences with the train split.
+
+    Checks ``probe_cache.train_dirs`` when set (an expanded combined training set:
+    original + leftover + cap100-new-train), not just ``cache_dir``, so evaluating
+    against a combined-data run is checked against everything it actually trained
+    on, not only the single val/test cache.
     """
     train_split = (config.get("splits") or {}).get("train", "train")
     if train_split == split:
         return
     categories = config.get("categories")
     allowed = None if categories is None else set(categories)
-    trained_sequences = {
-        row["sequence_id"]
-        for row in load_probe_index(Path(cache_dir))
-        if row["split"] == train_split and (allowed is None or row["category"] in allowed)
-    }
+    train_dirs = (config.get("probe_cache") or {}).get("train_dirs") or [cache_dir]
+    trained_sequences: set[str] = set()
+    for train_dir in train_dirs:
+        trained_sequences |= {
+            row["sequence_id"]
+            for row in load_probe_index(Path(train_dir))
+            if row["split"] == train_split and (allowed is None or row["category"] in allowed)
+        }
     overlap = sorted(trained_sequences & dataset.sequence_ids())
     if overlap:
         raise ValueError(

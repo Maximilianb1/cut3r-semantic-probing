@@ -13,7 +13,7 @@ for each backbone's test-split inference output.
 5. Calls the existing plot_segmentation_results (this module) unchanged.
 
 Run example:
-    python -m src.segmentation.build_qualitative_plots \
+    python -m src.segmentation.analysis.build_qualitative_plots \
         --manifest-dir ${CUT3R_ARTIFACT_ROOT}/manifests/full51-part-a-v1 \
         --dataset-root ${CO3D_ROOT} \
         --experiments-root src/segmentation/experiments \
@@ -41,7 +41,7 @@ from src.data.co3d_selective import (
     materialize_required_members,
 )
 
-from .visualizations import plot_segmentation_results
+from .figures import plot_segmentation_results
 
 
 def pick_extremes(inference_json: Path, k: int = 5) -> tuple[list[dict], list[dict]]:

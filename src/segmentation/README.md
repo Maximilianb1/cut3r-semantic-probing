@@ -55,11 +55,21 @@ per-category) plus token accuracy — all at **token / patch-grid resolution**
 |---|---|
 | `model_segmentation.py` | `SegmentationProbe` = trainable per-token MLP head over cached features (`hidden_dims=[]` gives a true linear probe). |
 | `dataset_segmentation.py` | `ProbeCacheDataset` over the probe-feature cache (target-frame tokens + mask only) + collation for variable-size token grids, keeping per-window grouping. |
-| `train_segmentation.py` | Config-driven training loop; foreground IoU + token accuracy; asserts sequence-disjoint splits; saves `head.pt` (the **final** epoch's head, not best-val). |
-| `train_best_val.py` | Same training loop, reusing `train_segmentation.py`'s building blocks unchanged, but checkpoints whenever validation macro-IoU improves. Saves `head.pt` (best-val) and `head-last.pt` (final epoch) side by side. See [EXP-005](../../docs/experiments/EXP-005-part-a-cut3r-trained-unblocked.md). |
+| `train_segmentation.py` | Config-driven training loop; foreground IoU + token accuracy; asserts sequence-disjoint splits. `training.checkpoint_selection` (or `--checkpoint-selection`) picks what `head.pt` holds: `last` (default) is the final epoch's head; `best_val` tracks validation macro-IoU across training and also keeps the final epoch as `head-last.pt`. See [EXP-005](../../docs/experiments/EXP-005-part-a-seg-cut3r-unblocked.md). |
 | `inference_segmentation.py` | Reloads `head.pt` and evaluates a chosen split (default `test`); optional per-window masks. |
-| `build_qualitative_plots.py` | Picks the worst-5/best-5 test windows by IoU from an `inference-<split>.json`, fetches just their real CO3D photos (via `scripts/download_co3d_targeted.py`), and renders `visualizations.plot_segmentation_results` grids per backbone. |
-| `configs/*.yaml` | One config per compared backbone: `cut3r_trained`, `cut3r_random`, `dinov2`. Identical heads; only the cache differs. |
+| `configs/*.yaml` | One config per compared backbone: `cut3r_trained`, `cut3r_random`, `dinov2` (plus `*_expanded` variants). Identical heads; only the cache differs. |
+| `analysis/` | Post-hoc scripts that turn already-computed `metrics.json`/`inference-<split>.json` into plots and reports — never re-train or re-run inference. See below. |
+
+### `analysis/`
+
+| File | Purpose |
+|---|---|
+| `figures.py` | Shared `plot_*` figure-rendering functions (image grids, bar charts, training curves) called by the scripts below. |
+| `build_qualitative_plots.py` | Worst-5/best-5 test windows by IoU from an `inference-<split>.json`, fetches just their real CO3D photos (via `scripts/download_co3d_targeted.py`), and renders `figures.plot_segmentation_results` grids per backbone. |
+| `build_delta_comparison_plot.py` | Paired two-backbone grid on the windows where their per-window IoU differs the most (via `figures.plot_backbone_comparison_grid`). |
+| `build_curves_and_iou.py` | Per-backbone training-curve and per-category IoU bar plots (via `figures.plot_training_curves`/`plot_per_category_iou`). |
+| `build_bootstrap_ci.py` | Precision/recall, a bootstrap 95% CI on macro-IoU, and a paired per-window significance test across backbones (plots directly, not via `figures.py`). |
+| `build_category_representation_check.py` | Correlates per-category training-window counts against per-category test IoU, to check whether representation (not just visual difficulty) drives per-category performance (plots directly, not via `figures.py`). |
 
 ## Configs
 
@@ -92,11 +102,11 @@ python -m src.segmentation.inference_segmentation --config src/segmentation/conf
 ```
 
 To select the best-validation checkpoint instead of the final epoch (see
-[EXP-005](../../docs/experiments/EXP-005-part-a-cut3r-trained-unblocked.md)):
+[EXP-005](../../docs/experiments/EXP-005-part-a-seg-cut3r-unblocked.md)):
 
 ```bash
-python -m src.segmentation.train_best_val --config src/segmentation/configs/cut3r_trained.yaml \
-  --output-dir src/segmentation/experiments/segmentation-cut3r-trained-bestval
+python -m src.segmentation.train_segmentation --config src/segmentation/configs/cut3r_trained.yaml \
+  --checkpoint-selection best_val --output-dir src/segmentation/experiments/segmentation-cut3r-trained-bestval
 python -m src.segmentation.inference_segmentation --config src/segmentation/configs/cut3r_trained.yaml \
   --checkpoint src/segmentation/experiments/segmentation-cut3r-trained-bestval/head.pt --split test \
   --save-dir src/segmentation/experiments/segmentation-cut3r-trained-bestval --save-masks
@@ -153,5 +163,5 @@ before results are reported. See
 [../backbones/README.md](../backbones/README.md).
 
 Still-open engineering choices in the training code (see `train_segmentation.py`):
-best-vs-final-epoch checkpoint selection, class-imbalance handling (`pos_weight`),
+which `checkpoint_selection` mode to report, class-imbalance handling (`pos_weight`),
 and the empty-target IoU convention (a foreground-free window currently scores 1.0).

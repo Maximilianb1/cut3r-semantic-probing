@@ -6,12 +6,21 @@ backbone is never run here, and this workspace never extracts features: the
 probe-feature cache is an **input** built ahead of time by the Stage 0 tooling
 ("scripts/extract_probe_features.py"), so training only fits the small MLP head.
 
+Checkpoint selection is controlled by "training.checkpoint_selection" in the
+config (or "--checkpoint-selection" to override it): "last" (default) saves the
+final epoch's head as head.pt. "best_val" tracks validation macro-IoU across
+training and saves the best epoch as head.pt, plus the final epoch as
+head-last.pt for reference.
+
 Run example: python -m src.segmentation.train_segmentation --config src/segmentation/configs/cut3r_trained.yaml
+Best-val example: python -m src.segmentation.train_segmentation --config src/segmentation/configs/cut3r_trained.yaml \
+    --checkpoint-selection best_val --output-dir src/segmentation/experiments/segmentation-cut3r-trained-bestval
 """
 
 from __future__ import annotations
 
 import argparse
+import copy
 import json
 from pathlib import Path
 from typing import Any
@@ -23,7 +32,12 @@ from tqdm import tqdm
 from src.common.io import load_json, load_yaml
 
 from .model_segmentation import build_probe
-from .dataset_segmentation import ProbeCacheDataset, assert_sequence_disjoint, collate_windows
+from .dataset_segmentation import (
+    CombinedProbeCacheDataset,
+    ProbeCacheDataset,
+    assert_sequence_disjoint,
+    collate_windows,
+)
 
 
 def load_config(path: str | Path) -> dict[str, Any]:
@@ -53,6 +67,49 @@ def probe_cache_provenance(cache_dir: str | Path) -> dict[str, Any]:
             "caches; build one first with scripts/extract_probe_features.py"
         )
     return load_json(path)
+
+
+def build_datasets(
+    config: dict[str, Any],
+) -> tuple[ProbeCacheDataset | CombinedProbeCacheDataset, ProbeCacheDataset, dict[str, Any]]:
+    """
+    Build the train/val probe-cache datasets and their provenance record.
+
+    Reads ``probe_cache.dir`` for val (always a single cache). Train reads the
+    same ``dir`` too, unless ``probe_cache.train_dirs`` (a list) is set, in which
+    case train is the union of those caches' train rows instead (expanded training:
+    original + leftover + cap100-new-train) - val/test stay on ``dir`` alone, so
+    the score stays comparable to a single-cache baseline. Asserts train/val stay
+    sequence-disjoint either way.
+
+    Returns ``(train_set, val_set, probe_cache_record)``. When ``train_dirs`` is
+    absent, ``probe_cache_record`` is exactly ``{"dir": ..., "metadata": ...}``,
+    unchanged from before this existed. When present, it is
+    ``{"val_dir": {...}, "train_dirs": [{...}, ...]}``.
+    """
+    splits = config.get("splits", {"train": "train", "val": "val"})
+    categories = config.get("categories")
+    probe_cache_cfg = config["probe_cache"]
+    cache_dir = probe_cache_cfg["dir"]
+    train_dirs = probe_cache_cfg.get("train_dirs")
+
+    val_set = ProbeCacheDataset(cache_dir, split=splits["val"], categories=categories)
+    val_record = {"dir": str(cache_dir), "metadata": probe_cache_provenance(cache_dir)}
+
+    if train_dirs:
+        train_set = CombinedProbeCacheDataset(train_dirs, split=splits["train"], categories=categories)
+        probe_cache_record = {
+            "val_dir": val_record,
+            "train_dirs": [
+                {"dir": str(d), "metadata": probe_cache_provenance(d)} for d in train_dirs
+            ],
+        }
+    else:
+        train_set = ProbeCacheDataset(cache_dir, split=splits["train"], categories=categories)
+        probe_cache_record = val_record
+
+    assert_sequence_disjoint(train_set, val_set)
+    return train_set, val_set, probe_cache_record
 
 
 def _resolve_device(name: str) -> torch.device:
@@ -121,7 +178,7 @@ class BinaryMetrics:
     def update(self, logits: torch.Tensor, labels: torch.Tensor, batch: dict[str, Any],
         *, loss: float | None = None) -> None:
         """Fold one batch in. "loss" is that batch's mean loss, if it was computed."""
-        prediction = (logits > 0.0).to(torch.float32) # TODO: finetune threshold
+        prediction = (logits > 0.0).to(torch.float32)  # fixed 0.5 across backbones, by design: no per-backbone tuning
 
         # Accuracy
         self.correct += float((prediction == labels).sum().item())
@@ -204,14 +261,18 @@ def train_from_config(config: dict[str, Any]) -> dict[str, Any]:
     Builds the probe-cache datasets, trains only the MLP head with per-token BCE
     while the backbone stays frozen/precomputed.
     Returns the run record incl. per-epoch history.
-    Note: "head.pt" is the **final** epoch's head, not the best-val one.
+
+    "training.checkpoint_selection" picks what "head.pt" holds: "last" (default)
+    is the final epoch's head. "best_val" instead tracks validation macro-IoU
+    across training and saves the best epoch as "head.pt", plus the final epoch
+    as "head-last.pt" for reference; the run record then also carries
+    "best_val_epoch"/"best_val_macro_iou"/"checkpoint_selection".
 
     Each history entry is {"epoch", "train", "val"} and both sides carry the same
     keys - loss, token_accuracy, macro/micro/mean-category IoU - so the gap between
     them is readable per epoch.
     """
     training = config.get("training", {})
-    splits = config.get("splits", {"train": "train", "val": "val"})
     model_cfg = dict(config["model"])
     device = _resolve_device(str(training.get("device", "cpu")))
     seed = int(training.get("seed", 0))
@@ -220,13 +281,13 @@ def train_from_config(config: dict[str, Any]) -> dict[str, Any]:
     if int(model_cfg.get("num_classes", 1)) != 1:
         raise NotImplementedError("train_segmentation currently implements the binary (num_classes=1) probe")
 
-    cache_dir = config["probe_cache"]["dir"]
-    categories = config.get("categories")
+    checkpoint_selection = str(training.get("checkpoint_selection", "last")).lower()
+    if checkpoint_selection not in ("last", "best_val"):
+        raise ValueError(
+            f"Unknown training.checkpoint_selection {checkpoint_selection!r}; expected 'last' or 'best_val'"
+        )
 
-    cache_metadata = probe_cache_provenance(cache_dir)
-    train_set = ProbeCacheDataset(cache_dir, split=splits["train"], categories=categories)
-    val_set = ProbeCacheDataset(cache_dir, split=splits["val"], categories=categories)
-    assert_sequence_disjoint(train_set, val_set)
+    train_set, val_set, probe_cache_record = build_datasets(config)
 
     train_loader = DataLoader(
         train_set,
@@ -253,6 +314,10 @@ def train_from_config(config: dict[str, Any]) -> dict[str, Any]:
     history: list[dict[str, Any]] = []
     epochs = int(training.get("epochs", 10))
     progress = bool(training.get("progress", True))
+    best_val_macro_iou = -1.0
+    best_val_epoch: int | None = None
+    best_state_dict = None
+
     epoch_bar = _progress(range(1, epochs + 1), "epochs" if progress else None, unit="epoch")
     for epoch in epoch_bar:
         model.train()
@@ -281,17 +346,23 @@ def train_from_config(config: dict[str, Any]) -> dict[str, Any]:
             desc=f"epoch {epoch}/{epochs} val" if progress else None,
         )
         history.append({"epoch": epoch, "train": train, "val": val})
+        is_new_best = val["macro_foreground_iou"] > best_val_macro_iou
         # tqdm.write, not print, so the summary does not land on top of a live bar.
         tqdm.write(
             f"epoch {epoch:3d}  loss {train['loss']:.4f}/{val['loss']:.4f}  "
             f"macro_IoU {train['macro_foreground_iou']:.4f}/{val['macro_foreground_iou']:.4f}  "
             f"acc {train['token_accuracy']:.4f}/{val['token_accuracy']:.4f}  [train/val]"
+            + ("  *new best val*" if checkpoint_selection == "best_val" and is_new_best else "")
         )
+        if checkpoint_selection == "best_val" and is_new_best:
+            best_val_macro_iou = val["macro_foreground_iou"]
+            best_val_epoch = epoch
+            best_state_dict = copy.deepcopy(model.head.state_dict())
 
     result = {
         "experiment": config.get("experiment", "segmentation"),
         "backbone": config.get("backbone"),
-        "probe_cache": {"dir": str(cache_dir), "metadata": cache_metadata},
+        "probe_cache": probe_cache_record,
         "model": model_cfg,
         "is_linear_probe": model.head.is_linear,
         # The full training block, so metrics.json records the optimizer, lr,
@@ -304,13 +375,24 @@ def train_from_config(config: dict[str, Any]) -> dict[str, Any]:
         "final_train": history[-1]["train"] if history else None,
         "final_val": history[-1]["val"] if history else None,
     }
+    if checkpoint_selection == "best_val":
+        result["best_val_epoch"] = best_val_epoch
+        result["best_val_macro_iou"] = best_val_macro_iou
+        result["checkpoint_selection"] = "best_val"
+
     output_dir = config.get("output", {}).get("dir")
     if output_dir:
         path = Path(output_dir)
         path.mkdir(parents=True, exist_ok=True)
         (path / "metrics.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
         # Save the trained head so inference_segmentation.py can reload the probe.
-        torch.save({"head_state_dict": model.head.state_dict(), "model_config": model_cfg}, path / "head.pt")
+        if checkpoint_selection == "best_val":
+            torch.save({"head_state_dict": best_state_dict, "model_config": model_cfg}, path / "head.pt")
+            torch.save(
+                {"head_state_dict": model.head.state_dict(), "model_config": model_cfg}, path / "head-last.pt"
+            )
+        else:
+            torch.save({"head_state_dict": model.head.state_dict(), "model_config": model_cfg}, path / "head.pt")
         result["checkpoint"] = str(path / "head.pt")
     return result
 
@@ -318,8 +400,25 @@ def train_from_config(config: dict[str, Any]) -> dict[str, Any]:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", required=True, type=Path, help="Path to a YAML config (.yaml/.yml)")
+    parser.add_argument(
+        "--checkpoint-selection", choices=["last", "best_val"], default=None,
+        help="Override the config's training.checkpoint_selection (default: last).",
+    )
+    parser.add_argument(
+        "--output-dir", type=Path, default=None, help="Override the config's output.dir."
+    )
     arguments = parser.parse_args()
-    train_from_config(load_config(arguments.config))
+    config = load_config(arguments.config)
+    if arguments.checkpoint_selection is not None:
+        config.setdefault("training", {})["checkpoint_selection"] = arguments.checkpoint_selection
+    if arguments.output_dir is not None:
+        config.setdefault("output", {})["dir"] = str(arguments.output_dir)
+    result = train_from_config(config)
+    if result.get("checkpoint_selection") == "best_val":
+        print(
+            f"[{result['experiment']}] best_val_epoch={result['best_val_epoch']} "
+            f"best_val_macro_iou={result['best_val_macro_iou']:.4f}"
+        )
 
 
 if __name__ == "__main__":

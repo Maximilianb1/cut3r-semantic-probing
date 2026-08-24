@@ -36,7 +36,7 @@ already exists (a `frames.parquet`), it downloads exactly the
 per-file CRC/checksum verification, and nothing else. Use it instead of
 `download_co3d_selective` when a trusted manifest already exists and a
 `sampling`-based re-derivation is not guaranteed to reproduce it exactly
-(see [EXP-005](../docs/experiments/EXP-005-part-a-cut3r-trained-unblocked.md)
+(see [EXP-005](../docs/experiments/EXP-005-part-a-seg-cut3r-unblocked.md)
 for a case where it did not).
 
 The cache override enables genuinely independent reproducibility runs. Reusable
