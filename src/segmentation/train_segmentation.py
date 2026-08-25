@@ -92,11 +92,15 @@ def build_datasets(
     probe_cache_cfg = config["probe_cache"]
     cache_dir = probe_cache_cfg["dir"]
     train_dirs = probe_cache_cfg.get("train_dirs")
+    if train_dirs is not None and not isinstance(train_dirs, (list, tuple)):
+        raise TypeError(
+            f"probe_cache.train_dirs must be a list/tuple of cache dirs, got {type(train_dirs).__name__}"
+        )
 
     val_set = ProbeCacheDataset(cache_dir, split=splits["val"], categories=categories)
     val_record = {"dir": str(cache_dir), "metadata": probe_cache_provenance(cache_dir)}
 
-    if train_dirs:
+    if train_dirs is not None:
         train_set = CombinedProbeCacheDataset(train_dirs, split=splits["train"], categories=categories)
         probe_cache_record = {
             "val_dir": val_record,

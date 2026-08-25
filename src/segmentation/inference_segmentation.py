@@ -64,7 +64,12 @@ def assert_not_trained_on(cache_dir: str | Path, config: dict[str, Any], dataset
         return
     categories = config.get("categories")
     allowed = None if categories is None else set(categories)
-    train_dirs = (config.get("probe_cache") or {}).get("train_dirs") or [cache_dir]
+    probe_cache = config.get("probe_cache") or {}
+    train_dirs = probe_cache.get("train_dirs")
+    if train_dirs is None:
+        train_dirs = [cache_dir]
+    elif not isinstance(train_dirs, (list, tuple)) or len(train_dirs) == 0:
+        raise ValueError("probe_cache.train_dirs must be a non-empty list when provided")
     trained_sequences: set[str] = set()
     for train_dir in train_dirs:
         trained_sequences |= {
