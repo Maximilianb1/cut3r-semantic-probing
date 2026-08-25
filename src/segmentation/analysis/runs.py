@@ -43,4 +43,4 @@ def load_per_window_iou(run_dir: Path, split: str) -> dict[str, dict[str, Any]]:
 
 
 def load_masks(run_dir: Path, split: str = "test") -> dict[str, Any]:
-    return torch.load(run_dir / f"masks-{split}.pt", weights_only=False)
+    return torch.load(run_dir / f"masks-{split}.pt", weights_only=True)

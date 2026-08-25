@@ -47,11 +47,23 @@ def pearson(x: np.ndarray, y: np.ndarray) -> float:
     return float(np.corrcoef(x, y)[0, 1])
 
 
+def _rankdata_average(x: np.ndarray) -> np.ndarray:
+    """Ranks with ties assigned their average rank (matches scipy's rankdata(method="average"))."""
+    sorter = np.argsort(x, kind="mergesort")
+    inv = np.empty_like(sorter)
+    inv[sorter] = np.arange(len(x))
+    x_sorted = x[sorter]
+    is_new_group = np.r_[True, x_sorted[1:] != x_sorted[:-1]]
+    group_id = np.cumsum(is_new_group) - 1
+    group_sizes = np.bincount(group_id)
+    group_start = np.r_[0, np.cumsum(group_sizes)[:-1]]
+    avg_rank_per_group = group_start + (group_sizes + 1) / 2.0
+    return avg_rank_per_group[group_id][inv]
+
+
 def spearman(x: np.ndarray, y: np.ndarray) -> float:
-    """Rank correlation, computed by hand to avoid a scipy dependency."""
-    rank_x = np.argsort(np.argsort(x)).astype(float)
-    rank_y = np.argsort(np.argsort(y)).astype(float)
-    return pearson(rank_x, rank_y)
+    """Rank correlation, computed by hand (tie-averaged ranks) to avoid a scipy dependency."""
+    return pearson(_rankdata_average(x), _rankdata_average(y))
 
 
 def main() -> None:

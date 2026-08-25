@@ -104,6 +104,11 @@ def main() -> None:
     per_window_rows = {b: load_per_window_iou(run_dirs[b], args.split) for b in args.backbones}
     per_window = {b: {w: row["foreground_iou"] for w, row in rows.items()} for b, rows in per_window_rows.items()}
     window_ids = sorted(set.intersection(*(set(d.keys()) for d in per_window.values())))
+    if not window_ids:
+        raise ValueError(
+            f"No common {args.split} windows across backbones {args.backbones}; "
+            "check that the run manifests/run_suffix line up"
+        )
     print(f"Common {args.split} windows across all backbones: {len(window_ids)}")
 
     print("\n=== Precision / recall (global, all tokens) ===")
