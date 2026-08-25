@@ -1,6 +1,11 @@
-experiment: segmentation-cut3r-random
+experiment: segmentation-cut3r-random-partial-mlp
 backbone: cut3r-random
 
+# Original scale (3,054 train windows, pre-EXP-006), [512] MLP head -- the
+# smaller of the two data-scale variants; see cut3r_random_expanded_mlp.yaml
+# for the larger one and cut3r_random_expanded_linear.yaml for the
+# linear-probe capacity ablation.
+#
 # Random-initialized CUT3R baseline. Its scientific meaning is an OPEN decision
 # (see ../../backbones/README.md and PROJECT_STATUS); the cache it
 # reads comes from a provisional reset_parameters init pending a baseline ADR.
@@ -38,4 +43,4 @@ splits:
   test: test
 
 output:
-  dir: src/segmentation/experiments/segmentation-cut3r-random
+  dir: src/segmentation/experiments/segmentation-cut3r-random-partial-mlp

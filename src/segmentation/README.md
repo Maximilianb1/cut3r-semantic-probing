@@ -57,7 +57,7 @@ per-category) plus token accuracy — all at **token / patch-grid resolution**
 | `dataset_segmentation.py` | `ProbeCacheDataset` over the probe-feature cache (target-frame tokens + mask only) + collation for variable-size token grids, keeping per-window grouping. |
 | `train_segmentation.py` | Config-driven training loop; foreground IoU + token accuracy; asserts sequence-disjoint splits. `training.checkpoint_selection` (or `--checkpoint-selection`) picks what `head.pt` holds: `last` (default) is the final epoch's head; `best_val` tracks validation macro-IoU across training and also keeps the final epoch as `head-last.pt`. See [EXP-005](../../docs/experiments/EXP-005-part-a-seg-cut3r-unblocked.md). |
 | `inference_segmentation.py` | Reloads `head.pt` and evaluates a chosen split (default `test`); optional per-window masks. |
-| `configs/*.yaml` | One config per compared backbone: `cut3r_trained`, `cut3r_random`, `dinov2` (plus `*_expanded` variants). Identical heads; only the cache differs. |
+| `configs/*.yaml` | One config per `<backbone>_<data>_<capacity>.yaml`: backbone (`cut3r_trained`, `cut3r_random`, `dinov2`) x data scale (`partial` = original 3,054-window train set, `expanded` = +leftover +cap100-new-train, ~10k windows) x head capacity (`mlp` = `[512]` hidden layer, `linear` = `hidden_dims: []`, true linear probe). Only `probe_cache`/`model.hidden_dims`/`output.dir` differ between them. |
 | `analysis/` | Post-hoc scripts that turn already-computed `metrics.json`/`inference-<split>.json` into plots and reports — never re-train or re-run inference. See below. |
 
 ### `analysis/`
@@ -70,6 +70,7 @@ per-category) plus token accuracy — all at **token / patch-grid resolution**
 | `build_curves_and_iou.py` | Per-backbone training-curve and per-category IoU bar plots (via `figures.plot_training_curves`/`plot_per_category_iou`). |
 | `build_score_comparison.py` | Compares backbones on already-computed scores: a bootstrap 95% CI on macro-IoU and a paired per-window significance test, plus deterministic macro/micro-IoU and precision/recall comparisons (three figures; plots directly, not via `figures.py`). |
 | `build_category_representation_check.py` | Correlates per-category training-window counts against per-category test IoU, to check whether representation (not just visual difficulty) drives per-category performance (plots directly, not via `figures.py`). |
+| `build_probe_capacity_comparison.py` | Compares the `mlp` (`[512]`) vs. `linear` (`[]`) head on identical data per backbone: paired per-window bootstrap CI on the delta, a combined bar figure, and a per-category MLP-vs-linear scatter (one panel per backbone) to check whether the gap is spread evenly across categories or concentrated in a few (plots directly, not via `figures.py`). |
 
 ## Configs
 
@@ -94,23 +95,26 @@ python -m pip install -e ".[dev]"          # from repo root, once
 ```
 
 ```bash
-python -m src.segmentation.train_segmentation --config src/segmentation/configs/cut3r_trained.yaml
+python -m src.segmentation.train_segmentation --config src/segmentation/configs/cut3r_trained_partial_mlp.yaml
 ```
 
 ```bash
-python -m src.segmentation.inference_segmentation --config src/segmentation/configs/cut3r_trained.yaml --split test
+python -m src.segmentation.inference_segmentation --config src/segmentation/configs/cut3r_trained_partial_mlp.yaml --split test
 ```
 
 To select the best-validation checkpoint instead of the final epoch (see
 [EXP-005](../../docs/experiments/EXP-005-part-a-seg-cut3r-unblocked.md)):
 
 ```bash
-python -m src.segmentation.train_segmentation --config src/segmentation/configs/cut3r_trained.yaml \
+python -m src.segmentation.train_segmentation --config src/segmentation/configs/cut3r_trained_partial_mlp.yaml \
   --checkpoint-selection best_val --output-dir src/segmentation/experiments/segmentation-cut3r-trained-bestval
-python -m src.segmentation.inference_segmentation --config src/segmentation/configs/cut3r_trained.yaml \
+python -m src.segmentation.inference_segmentation --config src/segmentation/configs/cut3r_trained_partial_mlp.yaml \
   --checkpoint src/segmentation/experiments/segmentation-cut3r-trained-bestval/head.pt --split test \
   --save-dir src/segmentation/experiments/segmentation-cut3r-trained-bestval --save-masks
 ```
+
+Swap in any other `<backbone>_<data>_<capacity>.yaml` for the same two commands
+to run a different backbone, data scale, or head capacity.
 
 Outputs land in `output.dir` — `src/segmentation/experiments/<experiment>/`, holding
 `metrics.json`, `head.pt`, and (from inference) `inference-<split>.json` plus
@@ -147,8 +151,12 @@ They are named as the configs expect, so point the cache root at that directory 
 the **real configs run unchanged** — no config edit, nothing to remember to revert:
 
 ```bash
-CUT3R_CACHE_ROOT=src/segmentation/dummy_embeddings python -m src.segmentation.train_segmentation --config src/segmentation/configs/cut3r_trained.yaml
+CUT3R_CACHE_ROOT=src/segmentation/dummy_embeddings python -m src.segmentation.train_segmentation --config src/segmentation/configs/cut3r_trained_partial_mlp.yaml
 ```
+
+Only the `partial` configs are smoke-testable this way -- `make_synthetic_probe_cache.py`
+writes one cache dir, and `expanded` configs read three via `probe_cache.train_dirs`
+(see `tests/test_segmentation_dataset.py` for that coverage instead).
 
 The fixture is deliberately noisy rather than separable, so a linear probe lands
 between chance and perfect and the IoU code is exercised on real values. Delete the

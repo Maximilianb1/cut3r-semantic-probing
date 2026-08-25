@@ -1,11 +1,11 @@
-experiment: segmentation-cut3r-random-expanded
+experiment: segmentation-cut3r-random-expanded-linear
 backbone: cut3r-random
 
-# Expanded training (docs/data/part-a-cache-layout.md "Safe Use"): same head/recipe
-# as cut3r_random.yaml, but train_dirs unions the original+leftover+cap100-new-train
-# caches' train rows; val/test stay on `dir` alone for a comparable score. All three
-# paths must exist first. Not smoke-testable via make_synthetic_probe_cache.py as-is
-# (see tests/test_segmentation_dataset.py for that coverage instead).
+# The linear-probe capacity ablation: identical data/recipe to
+# cut3r_random_expanded_mlp.yaml, hidden_dims: [] instead of [512]. Answers
+# the OPEN decision flagged there -- is this backbone's segmentation signal
+# (near-)linearly decodable, or does it need the extra MLP capacity? Compare
+# against that [512] run via analysis/build_probe_capacity_comparison.py.
 #
 # Random-initialized CUT3R baseline. Its scientific meaning is an OPEN decision
 # (see ../../backbones/README.md and PROJECT_STATUS); the cache it
@@ -20,9 +20,8 @@ probe_cache:
 model:
   feature_dim: 768
   num_classes: 1
-  # [] is a true linear probe; [512] is a 1-hidden-layer MLP probe.
-  # Which one Stage 1 reports is an OPEN decision.
-  hidden_dims: [512]
+  # True linear probe -- the other side of the capacity ablation vs. [512].
+  hidden_dims: []
   activation: gelu
   dropout: 0.0
 
@@ -48,4 +47,4 @@ splits:
   test: test
 
 output:
-  dir: src/segmentation/experiments/segmentation-cut3r-random-expanded
+  dir: src/segmentation/experiments/segmentation-cut3r-random-expanded-linear

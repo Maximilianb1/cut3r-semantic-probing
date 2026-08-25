@@ -12,6 +12,7 @@ Use [the template](template.md).
 - [EXP-004: Part-A image-level classification probes](EXP-004-part-a-classification.md)
 - [EXP-005: Part-A three-way segmentation comparison (CUT3R-trained unblocked)](EXP-005-part-a-seg-cut3r-unblocked.md)
 - [EXP-006: Part-A segmentation expanded-training results](EXP-006-part-a-seg-expanded-training.md)
+- [EXP-007: Part-A segmentation probe-capacity ablation (linear vs. MLP head)](EXP-007-part-a-seg-probe-capacity-ablation.md)
 
 Stage 0 manifest builds and feature extraction used only for engineering
 verification belong in session notes and preflight artifacts. Create an

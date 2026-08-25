@@ -12,8 +12,8 @@ final epoch's head as head.pt. "best_val" tracks validation macro-IoU across
 training and saves the best epoch as head.pt, plus the final epoch as
 head-last.pt for reference.
 
-Run example: python -m src.segmentation.train_segmentation --config src/segmentation/configs/cut3r_trained.yaml
-Best-val example: python -m src.segmentation.train_segmentation --config src/segmentation/configs/cut3r_trained.yaml \
+Run example: python -m src.segmentation.train_segmentation --config src/segmentation/configs/cut3r_trained_partial_mlp.yaml
+Best-val example: python -m src.segmentation.train_segmentation --config src/segmentation/configs/cut3r_trained_partial_mlp.yaml \
     --checkpoint-selection best_val --output-dir src/segmentation/experiments/segmentation-cut3r-trained-bestval
 """
 

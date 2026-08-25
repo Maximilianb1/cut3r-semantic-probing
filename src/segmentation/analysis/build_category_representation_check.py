@@ -11,7 +11,7 @@ visual properties, not how much of them the head happened to train on.
 
 Run example (on the VM, where the probe caches live):
     python -m src.segmentation.analysis.build_category_representation_check \
-        --config src/segmentation/configs/cut3r_trained_expanded.yaml \
+        --config src/segmentation/configs/cut3r_trained_expanded_mlp.yaml \
         --experiments-root src/segmentation/experiments \
         --backbones cut3r_trained cut3r_random dinov2 --run-suffix=-expanded-bestval --split test
 """
@@ -69,7 +69,7 @@ def spearman(x: np.ndarray, y: np.ndarray) -> float:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", required=True, type=Path,
-                         help="one backbone's *_expanded.yaml, read only for probe_cache.train_dirs/dir")
+                         help="one backbone's *_expanded_mlp.yaml (or *_expanded_linear.yaml), read only for probe_cache.train_dirs/dir")
     parser.add_argument("--experiments-root", required=True, type=Path)
     parser.add_argument("--backbones", nargs="+", required=True)
     parser.add_argument("--run-suffix", default="")

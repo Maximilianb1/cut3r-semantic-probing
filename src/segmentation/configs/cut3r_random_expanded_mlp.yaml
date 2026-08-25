@@ -1,0 +1,53 @@
+experiment: segmentation-cut3r-random-expanded-mlp
+backbone: cut3r-random
+
+# Expanded training (docs/data/part-a-cache-layout.md "Safe Use"): same head/recipe
+# as cut3r_random_partial_mlp.yaml, but train_dirs unions the original+leftover+
+# cap100-new-train caches' train rows; val/test stay on `dir` alone for a comparable
+# score. All three paths must exist first. Not smoke-testable via
+# make_synthetic_probe_cache.py as-is (see tests/test_segmentation_dataset.py for
+# that coverage instead). See cut3r_random_expanded_linear.yaml for the same data
+# with a linear (hidden_dims: []) head instead.
+#
+# Random-initialized CUT3R baseline. Its scientific meaning is an OPEN decision
+# (see ../../backbones/README.md and PROJECT_STATUS); the cache it
+# reads comes from a provisional reset_parameters init pending a baseline ADR.
+probe_cache:
+  dir: ${CUT3R_CACHE_ROOT}/probe/cut3r-random
+  train_dirs:
+    - ${CUT3R_CACHE_ROOT}/probe/cut3r-random
+    - ${CUT3R_CACHE_ROOT}/probe/cut3r-random-leftover
+    - ${CUT3R_CACHE_ROOT}/probe/cut3r-random-cap100-new-train
+
+model:
+  feature_dim: 768
+  num_classes: 1
+  # [] is a true linear probe; [512] is a 1-hidden-layer MLP probe.
+  # Which one Stage 1 reports is an OPEN decision.
+  hidden_dims: [512]
+  activation: gelu
+  dropout: 0.0
+
+training:
+  # adam | adamw | sgd (sgd also reads `momentum`)
+  optimizer: adam
+  epochs: 20
+  batch_size: 16
+  lr: 0.001
+  weight_decay: 0.0
+  pos_weight: null
+  seed: 20260729
+  device: cpu
+  # 8, not 0: 3x more windows makes single-threaded reads the bottleneck, not compute.
+  # Doesn't change results (shuffle order is seed-fixed, no per-item randomness).
+  num_workers: 8
+  # tqdm bars; they draw only on a real terminal, never into a redirected log
+  progress: true
+
+splits:
+  train: train
+  val: val
+  test: test
+
+output:
+  dir: src/segmentation/experiments/segmentation-cut3r-random-expanded-mlp

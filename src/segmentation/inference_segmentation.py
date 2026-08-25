@@ -7,7 +7,7 @@ it on a chosen split of the probe-feature cache -- reporting the same token
 accuracy and foreground IoU (macro / micro / per-category), plus optional
 per-window predictions and grid-resolution predicted masks.
 
-Run example: python inference_segmentation.py --config configs/cut3r_trained.yaml --split test
+Run example: python inference_segmentation.py --config configs/cut3r_trained_partial_mlp.yaml --split test
 """
 
 from __future__ import annotations
