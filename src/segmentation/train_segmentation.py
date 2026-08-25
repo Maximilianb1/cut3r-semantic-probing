@@ -376,6 +376,12 @@ def train_from_config(config: dict[str, Any]) -> dict[str, Any]:
         "final_val": history[-1]["val"] if history else None,
     }
     if checkpoint_selection == "best_val":
+        if best_state_dict is None:
+            raise RuntimeError(
+                "checkpoint_selection='best_val' but no epoch produced a valid checkpoint "
+                "(best_val_macro_iou stayed at its -1.0 initial value); check training.epochs "
+                "and val metrics for NaN or a zero-epoch run"
+            )
         result["best_val_epoch"] = best_val_epoch
         result["best_val_macro_iou"] = best_val_macro_iou
         result["checkpoint_selection"] = "best_val"
