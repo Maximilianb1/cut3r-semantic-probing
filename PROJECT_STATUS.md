@@ -75,5 +75,7 @@ baselines complete),
 [EXP-006](docs/experiments/EXP-006-part-a-seg-expanded-training.md) (expanded-training
 results for all three backbones),
 [EXP-007](docs/experiments/EXP-007-part-a-seg-probe-capacity-ablation.md) (linear-vs-MLP
-probe-capacity ablation, `results/pillar-c/`), and
+probe-capacity ablation, `results/pillar-c/`),
+[reports/segmentation/](reports/segmentation/README.md) (committed, slide-ready
+figures and metrics for EXP-005/006/007), and
 the [Google Drive ↔ Technion VM data-transfer runbook](docs/project/DRIVE_TO_VM_RUNBOOK.md).
