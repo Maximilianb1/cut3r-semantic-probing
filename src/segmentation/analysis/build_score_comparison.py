@@ -19,7 +19,7 @@ Saves three figures, grouped by what's meaningful to read together:
 - precision-recall.png: precision + recall, the "prediction bias" pair --
   diagnoses over- vs under-prediction, a different question from "how good."
 Token accuracy is deliberately never plotted here: its ~0.78 always-background
-baseline and tendency to move opposite real IoU (see EXP-005) make it
+baseline and tendency to move opposite real IoU make it
 misleading next to overlap metrics.
 
 Run example (after train_segmentation.py --checkpoint-selection best_val +

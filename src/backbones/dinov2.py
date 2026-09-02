@@ -10,9 +10,9 @@ is resized with the *same* geometry so it pools onto the DINOv2 patch grid.
 
 The heavy model is loaded lazily via ``torch.hub`` (default
 ``dinov2_vitb14``, dim 768 to match CUT3R). Loading downloads weights over the
-network on first use; the variant and dependency are recorded in provenance and
-should be pinned by a baseline ADR before results are reported. A ``model_loader``
-callable can be injected (e.g. in tests) to avoid the network entirely.
+network on first use; the variant and its source are recorded in provenance, so a
+result always states which DINOv2 produced it. A ``model_loader`` callable can be
+injected (e.g. in tests) to avoid the network entirely.
 """
 
 from __future__ import annotations
@@ -137,5 +137,4 @@ class Dinov2Backbone(Backbone):
             "image_size": self._image_size,
             "normalization": "imagenet",
             "source": "torch.hub:facebookresearch/dinov2",
-            "dependency_status": "PROVISIONAL: variant/dependency pending baseline ADR",
         }

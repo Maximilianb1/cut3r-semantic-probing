@@ -1,14 +1,14 @@
 experiment: segmentation-cut3r-random-partial-mlp
 backbone: cut3r-random
 
-# Original scale (3,054 train windows, pre-EXP-006), [512] MLP head -- the
+# Original scale (3,054 train windows), [512] MLP head -- the
 # smaller of the two data-scale variants; see cut3r_random_expanded_mlp.yaml
 # for the larger one and cut3r_random_expanded_linear.yaml for the
 # linear-probe capacity ablation.
 #
-# Random-initialized CUT3R baseline. Its scientific meaning is an OPEN decision
-# (see ../../backbones/README.md); the cache it
-# reads comes from a provisional reset_parameters init pending a baseline ADR.
+# Random-initialized CUT3R baseline: the same architecture with every module
+# that exposes reset_parameters re-initialized under a fixed seed. See
+# ../../backbones/README.md for what this control does and does not isolate.
 # Smoke-test against the fake caches without editing this file:
 #   CUT3R_CACHE_ROOT=src/segmentation/dummy_embeddings python -m src.segmentation.train_segmentation --config <this file>
 probe_cache:
@@ -17,8 +17,8 @@ probe_cache:
 model:
   feature_dim: 768
   num_classes: 1
-  # [] is a true linear probe; [512] is a 1-hidden-layer MLP probe.
-  # Which one Stage 1 reports is an OPEN decision.
+  # [] is a true linear probe; [512] is a 1-hidden-layer MLP probe. Both are
+  # run and reported; see reports/segmentation/probe-capacity-ablation/.
   hidden_dims: [512]
   activation: gelu
   dropout: 0.0

@@ -164,7 +164,5 @@ occupying 42.768 and 40.285 GiB respectively. Both were transferred off the VM
 and independently SHA-verified against the checksum list written beside each
 cache root.
 
-Probe overfitting and scientific metrics begin in Stages 1 and 2, not Stage 0.
-
-The first real GPU smoke result and its limitations are recorded in
-[EXP-001](../experiments/EXP-001-stage0-real-gpu-smoke.md).
+Probe training and scientific metrics belong to Stages 1 and 2; Stage 0 only
+produces the cache they read.

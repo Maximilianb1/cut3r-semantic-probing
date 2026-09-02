@@ -6,8 +6,8 @@ backbone is never run here, and this package never extracts features: the
 probe-feature cache is an **input** built ahead of time by the Stage 0 tooling
 ("scripts/extract_probe_features.py"), so training only fits the small MLP head.
 
-There is one config per backbone **and arm** - the arm is the open ADR 0003 comparison,
-so a run has to name it.
+There is one config per backbone **and arm** - the arm is the ADR 0003 comparison,
+so a run has to name it rather than inherit a default.
 
 Run example: python -m src.classification.train_classification --config src/classification/configs/cut3r_trained_state.yaml
 """
@@ -443,8 +443,8 @@ def train_from_config(config: dict[str, Any]) -> dict[str, Any]:
         "experiment": config.get("experiment", "classification"),
         "backbone": config.get("backbone"),
         "probe_cache": {"dir": str(cache_dir), "metadata": cache_metadata},
-        # The representation this result came from - the open Stage 2 comparison, so it
-        # is recorded rather than assumed.
+        # The representation this result came from - a compared variable, so it is
+        # recorded rather than assumed.
         "features": dict(features),
         "model": model_cfg,
         # What each output stands for. Without it a 26-way head's logits are unreadable.

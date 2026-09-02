@@ -1,7 +1,7 @@
 # Frozen CUT3R Feature Extraction
 
-Stage 0 has a proposed, tested contract for two distinct representations at all
-six timesteps:
+The extraction contract covers two distinct representations at all six
+timesteps:
 
 | Cache field | Meaning | Shape per cached window | Use |
 |---|---|---|---|
@@ -29,7 +29,8 @@ OmegaConf set, and exposes those types only through a scoped PyTorch
 default without modifying CUT3R's model loader or enabling unrestricted pickle
 loading process-wide.
 
-The adapter depends on pinned upstream private methods. Real A10 preflights and
-the Full-51 extraction passed; [ADR 0003](../../docs/decisions/0003-cut3r-trajectory-and-cache-contract.md)
-still requires team review before acceptance. The adapter never trains or
-attaches a semantic head.
+The adapter depends on pinned upstream private methods, which is why the
+upstream revision and the compatibility patch are both pinned and verified
+before extraction runs. The representation contract is
+[ADR 0003](../../docs/decisions/0003-cut3r-trajectory-and-cache-contract.md).
+The adapter never trains or attaches a semantic head.

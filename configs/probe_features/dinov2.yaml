@@ -1,8 +1,7 @@
 experiment: segmentation-dinov2
 
-# Advanced frozen baseline. The variant/dependency (torch.hub dinov2_vitb14) is an
-# OPEN decision pending a baseline ADR. dim 768 matches CUT3R for a comparable head;
-# patch 14 means its token grid differs from CUT3R's.
+# Advanced frozen baseline: torch.hub dinov2_vitb14. dim 768 matches CUT3R for a
+# comparable head; patch 14 means its token grid differs from CUT3R's.
 backbone:
   kind: dinov2
   weights: trained
@@ -11,7 +10,8 @@ backbone:
     image_size: 518
     device: cuda
 
-# Read by src/segmentation/configs/dinov2.yaml; must match it.
+# Read by src/segmentation/configs/dinov2_*.yaml; the probe-head configs
+# must point at the same probe_cache.dir.
 probe_cache:
   dir: ${CUT3R_CACHE_ROOT}/probe/dinov2-vitb14
 

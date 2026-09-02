@@ -78,9 +78,6 @@ Keep the exact key names below to avoid confusing typos:
 - `cache` — writer configuration: `directory`, `windows_per_shard`.
 - `output` — manifest and report locations: `manifest_dir`.
 
-A helper `src/common/io.reject_unknown_keys` exists but is not yet wired into
-any config-loading path. Wiring it in is a small hardening follow-up.
-
 ## Adding or changing a config
 
 Scientific changes require a **new versioned config file** and a documented

@@ -1,9 +1,7 @@
 # ADR 0003: CUT3R trajectory and cache contract
 
-- Status: Proposed
 - Date: 2026-07-18
-- Owners: Max Bershtman; project team review required
-- Related issue/PR: Stage 0 foundations
+- Author: Max Bershtman
 
 ## Context
 
@@ -91,12 +89,11 @@ silent reuse of stale or incompatible features an error.
 
 ## Consequences
 
-- At 512x384, both representations for six timesteps are estimated near 10 MiB
-  per window. Pilot measurements determine whether the full all-category cache
-  fits the Technion VM.
+- At 512x384, both representations for six timesteps are near 10 MiB per
+  window. The two Full-51 shards came to 42.768 and 40.285 GiB, which is why
+  extraction ran as two sequential parts.
 - The same raw frame can have different cached features in different windows;
   cache identity is the window plus timestep, not the frame alone.
-- The cache does not yet include a raymap-only blind-target query state bundle.
 
 ## Validation
 

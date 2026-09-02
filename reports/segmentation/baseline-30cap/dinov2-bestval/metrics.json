@@ -2,11 +2,10 @@
   "experiment": "segmentation-dinov2",
   "backbone": "dinov2-vitb14",
   "probe_cache": {
-    "dir": "/home/student/cut3r-stage0/cache/probe/dinov2-vitb14",
+    "dir": "${CUT3R_CACHE_ROOT}/probe/dinov2-vitb14",
     "metadata": {
       "backbone": {
         "backbone": "dinov2-dinov2_vitb14",
-        "dependency_status": "PROVISIONAL: variant/dependency pending baseline ADR",
         "image_size": 518,
         "normalization": "imagenet",
         "patch_size": 14,

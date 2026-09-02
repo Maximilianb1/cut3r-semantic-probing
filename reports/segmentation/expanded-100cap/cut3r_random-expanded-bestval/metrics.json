@@ -3,7 +3,7 @@
   "backbone": "cut3r-random",
   "probe_cache": {
     "val_dir": {
-      "dir": "/home/student/cut3r-stage0/cache/probe/cut3r-random",
+      "dir": "${CUT3R_CACHE_ROOT}/probe/cut3r-random",
       "metadata": {
         "backbone": {
           "backbone": "cut3r-random",
@@ -29,7 +29,6 @@
             "seed": 20260729,
             "strategy": "reset_parameters"
           },
-          "random_init_status": "PROVISIONAL: pending baseline ADR",
           "square_ok": false,
           "weights": "random"
         },
@@ -105,7 +104,7 @@
     },
     "train_dirs": [
       {
-        "dir": "/home/student/cut3r-stage0/cache/probe/cut3r-random",
+        "dir": "${CUT3R_CACHE_ROOT}/probe/cut3r-random",
         "metadata": {
           "backbone": {
             "backbone": "cut3r-random",
@@ -131,7 +130,6 @@
               "seed": 20260729,
               "strategy": "reset_parameters"
             },
-            "random_init_status": "PROVISIONAL: pending baseline ADR",
             "square_ok": false,
             "weights": "random"
           },
@@ -206,7 +204,7 @@
         }
       },
       {
-        "dir": "/home/student/cut3r-stage0/cache/probe/cut3r-random-leftover",
+        "dir": "${CUT3R_CACHE_ROOT}/probe/cut3r-random-leftover",
         "metadata": {
           "backbone": {
             "backbone": "cut3r-random",
@@ -232,7 +230,6 @@
               "seed": 20260729,
               "strategy": "reset_parameters"
             },
-            "random_init_status": "PROVISIONAL: pending baseline ADR",
             "square_ok": false,
             "weights": "random"
           },
@@ -307,7 +304,7 @@
         }
       },
       {
-        "dir": "/home/student/cut3r-stage0/cache/probe/cut3r-random-cap100-new-train",
+        "dir": "${CUT3R_CACHE_ROOT}/probe/cut3r-random-cap100-new-train",
         "metadata": {
           "backbone": {
             "backbone": "cut3r-random",
@@ -333,7 +330,6 @@
               "seed": 20260729,
               "strategy": "reset_parameters"
             },
-            "random_init_status": "PROVISIONAL: pending baseline ADR",
             "square_ok": false,
             "weights": "random"
           },

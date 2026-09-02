@@ -1,9 +1,10 @@
 # Stage 2 classification probe - rgb-patch-random, state_tokens arm.
 # This backbone has no recurrent state; its global tensor is the CLS-style vector, so the state_tokens arm reads that.
 #
-# Part-A final configuration; results in docs/experiments/EXP-004-part-a-classification.md.
-# A linear head over pooled, standardized frozen features. Every value here was either
-# measured or is recorded as an open choice - see the experiment record before changing one.
+# First-pass Part-A configuration, evaluated on the validation split. The reported
+# runs are src/classification/configs/fullunion-resplit/.
+# A linear head over pooled, standardized frozen features. Every value here was
+# chosen by measurement on the validation split, not by default.
 
 experiment: classification-rgb-patch-random-state
 backbone: rgb-patch-random
@@ -11,8 +12,8 @@ backbone: rgb-patch-random
 probe_cache:
   dir: ${CUT3R_CACHE_ROOT}/probe/rgb-patch-random
 
-# WHICH REPRESENTATION TO CLASSIFY FROM IS THE OPEN ADR 0003 COMPARISON, so there is no
-# default: both arms are run and both are reported.
+# Which representation to classify from is a compared variable (ADR 0003), so there
+# is no default: both arms are run and both are reported.
 features:
   source: state_tokens
   pooling: mean          # mean | max

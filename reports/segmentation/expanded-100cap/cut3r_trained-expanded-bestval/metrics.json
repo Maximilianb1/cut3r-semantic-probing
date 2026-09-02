@@ -3,7 +3,7 @@
   "backbone": "cut3r-trained",
   "probe_cache": {
     "val_dir": {
-      "dir": "/home/student/cut3r-stage0/cache/probe/cut3r-trained",
+      "dir": "${CUT3R_CACHE_ROOT}/probe/cut3r-trained",
       "metadata": {
         "backbone": {
           "backbone": "cut3r-trained",
@@ -82,7 +82,7 @@
     },
     "train_dirs": [
       {
-        "dir": "/home/student/cut3r-stage0/cache/probe/cut3r-trained",
+        "dir": "${CUT3R_CACHE_ROOT}/probe/cut3r-trained",
         "metadata": {
           "backbone": {
             "backbone": "cut3r-trained",
@@ -160,7 +160,7 @@
         }
       },
       {
-        "dir": "/home/student/cut3r-stage0/cache/probe/cut3r-trained-leftover",
+        "dir": "${CUT3R_CACHE_ROOT}/probe/cut3r-trained-leftover",
         "metadata": {
           "backbone": {
             "backbone": "cut3r-trained",
@@ -256,7 +256,7 @@
         }
       },
       {
-        "dir": "/home/student/cut3r-stage0/cache/probe/cut3r-trained-cap100-new-train",
+        "dir": "${CUT3R_CACHE_ROOT}/probe/cut3r-trained-cap100-new-train",
         "metadata": {
           "backbone": {
             "backbone": "cut3r-trained",

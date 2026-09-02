@@ -55,7 +55,7 @@ per-category) plus token accuracy — all at **token / patch-grid resolution**
 |---|---|
 | `model_segmentation.py` | `SegmentationProbe` = trainable per-token MLP head over cached features (`hidden_dims=[]` gives a true linear probe). |
 | `dataset_segmentation.py` | `ProbeCacheDataset` over the probe-feature cache (target-frame tokens + mask only) + collation for variable-size token grids, keeping per-window grouping. |
-| `train_segmentation.py` | Config-driven training loop; foreground IoU + token accuracy; asserts sequence-disjoint splits. `training.checkpoint_selection` (or `--checkpoint-selection`) picks what `head.pt` holds: `last` (default) is the final epoch's head; `best_val` tracks validation macro-IoU across training and also keeps the final epoch as `head-last.pt`. See [EXP-005](../../docs/experiments/EXP-005-part-a-seg-cut3r-unblocked.md). |
+| `train_segmentation.py` | Config-driven training loop; foreground IoU + token accuracy; asserts sequence-disjoint splits. `training.checkpoint_selection` (or `--checkpoint-selection`) picks what `head.pt` holds: `last` (default) is the final epoch's head; `best_val` tracks validation macro-IoU across training and also keeps the final epoch as `head-last.pt`. |
 | `inference_segmentation.py` | Reloads `head.pt` and evaluates a chosen split (default `test`); optional per-window masks. |
 | `configs/*.yaml` | One config per `<backbone>_<data>_<capacity>.yaml`: backbone (`cut3r_trained`, `cut3r_random`, `dinov2`) x data scale (`partial` = original 3,054-window train set, `expanded` = +leftover +cap100-new-train, ~10k windows) x head capacity (`mlp` = `[512]` hidden layer, `linear` = `hidden_dims: []`, true linear probe). Only `probe_cache`/`model.hidden_dims`/`output.dir` differ between them. |
 | `analysis/` | Post-hoc scripts that turn already-computed `metrics.json`/`inference-<split>.json` into plots and reports — never re-train or re-run inference. See below. |
@@ -102,8 +102,7 @@ python -m src.segmentation.train_segmentation --config src/segmentation/configs/
 python -m src.segmentation.inference_segmentation --config src/segmentation/configs/cut3r_trained_partial_mlp.yaml --split test
 ```
 
-To select the best-validation checkpoint instead of the final epoch (see
-[EXP-005](../../docs/experiments/EXP-005-part-a-seg-cut3r-unblocked.md)):
+To select the best-validation checkpoint instead of the final epoch:
 
 ```bash
 python -m src.segmentation.train_segmentation --config src/segmentation/configs/cut3r_trained_partial_mlp.yaml \
@@ -119,7 +118,7 @@ to run a different backbone, data scale, or head capacity.
 Outputs land in `output.dir` — `src/segmentation/experiments/<experiment>/`, holding
 `metrics.json`, `head.pt`, and (from inference) `inference-<split>.json` plus
 `masks-<split>.pt` with `--save-masks`. That directory is git-ignored: it is working
-output, not a record. Promote a result worth keeping to `docs/experiments/`.
+output, not a record. Promote a result worth keeping to `reports/`.
 
 `metrics.json` records the cache's own `metadata.json` alongside the results, so
 a number is always traceable to the exact cache (and backbone provenance) it came
@@ -163,28 +162,13 @@ between chance and perfect and the IoU code is exercised on real values. Delete 
 run directories before switching to real caches, so a synthetic `metrics.json` never
 sits under the name a real run will reuse.
 
-## Results and caveats
+## Results
 
-Reported results are [EXP-006](../../docs/experiments/EXP-006-part-a-seg-expanded-training.md)
-(expanded training, MLP head) and
-[EXP-007](../../docs/experiments/EXP-007-part-a-seg-probe-capacity-ablation.md)
-(the same runs with a linear head). Figures and metrics are in
+Reported results are the expanded-training runs (MLP head) and the same runs
+with a linear head. Figures and metrics:
 [reports/segmentation](../../reports/segmentation/README.md).
 
-What the reported runs settled, and what they did not:
-
-- `checkpoint_selection: best_val` is what every reported run uses, so a result is
-  never whichever epoch training happened to stop on.
-- The CUT3R-random cache uses `layout: target_only` while CUT3R-trained uses
-  `layout: trajectory`. The control therefore isolates weights *and* layout, not
-  weights alone — noted as a limitation rather than fixed, because it would have
-  to close a ~0.5 IoU gap to matter.
-- Class imbalance is untouched: no `pos_weight`, no resampling. The same head and
-  the same loss are used for all three backbones, which is what makes them
-  comparable.
-- A foreground-free window scores IoU 1.0 under the current empty/empty
-  convention. Such windows are rare in CO3D's object-centric sequences, but the
-  convention is a choice, not a fact.
-
-See [../backbones/README.md](../backbones/README.md) for what the random-weight
-baseline does and does not establish.
+Every reported run uses `checkpoint_selection: best_val`, so a result is never
+whichever epoch training happened to stop on. The same head, loss, and
+optimisation settings are used for all three backbones, which is what makes
+them comparable.

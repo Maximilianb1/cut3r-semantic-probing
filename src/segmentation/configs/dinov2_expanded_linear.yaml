@@ -3,14 +3,13 @@ backbone: dinov2-vitb14
 
 # The linear-probe capacity ablation: identical data/recipe to
 # dinov2_expanded_mlp.yaml, hidden_dims: [] instead of [512]. Answers the
-# OPEN decision flagged there -- is this backbone's segmentation signal
+# question flagged there -- is this backbone's segmentation signal
 # (near-)linearly decodable, or does it need the extra MLP capacity? Compare
 # against that [512] run via analysis/build_probe_capacity_comparison.py.
 #
-# Advanced frozen baseline. The DINOv2 variant is an OPEN decision pending a
-# baseline ADR; feature_dim 768 matches CUT3R so the head is comparable.
-# Note its token grid is finer than CUT3R's (patch 14 vs 16), so IoU is measured
-# on a different grid - see the cross-backbone comparison ADR.
+# Advanced frozen baseline: torch.hub dinov2_vitb14. feature_dim 768 matches
+# CUT3R so the head is comparable. Its token grid is finer than CUT3R's
+# (patch 14 vs 16), so IoU is measured on a different grid.
 probe_cache:
   dir: ${CUT3R_CACHE_ROOT}/probe/dinov2-vitb14
   train_dirs:

@@ -1,17 +1,22 @@
 # Reproducing the results
 
-The pipeline has four stages. Each one is more expensive than the last, and
-each one can be entered independently, because the stage before it wrote its
-output to disk:
+The pipeline has four stages. Each is more expensive than the last, and each can
+be entered independently, because the stage before it wrote its output to disk:
 
 ```
 CO3Dv2 download  ->  frozen-backbone extraction  ->  probe training  ->  analysis
    (~hours)              (~1 day, 1 GPU)              (~minutes, CPU)     (seconds)
 ```
 
-**Start at stage 4 if you only want to check our numbers.** The analysis stage
-runs from what is committed in this repository, with no dataset, no GPU, and no
-model weights. Stages 1-3 need the CO3D dataset and a GPU.
+Two shortcuts, in order of how little they cost:
+
+- **Only checking our numbers?** Go straight to *Analysis only*. It runs from
+  what is committed here — no dataset, no GPU, no model weights.
+- **Want to retrain the probes?** Download the published caches below. That
+  skips stages 1 and 2 entirely and leaves a few minutes of CPU training.
+
+Stages 1 and 2 are documented for completeness, and are only needed to rebuild
+the caches from raw CO3D.
 
 ---
 
@@ -48,6 +53,71 @@ The segmentation analysis scripts under `src/segmentation/analysis/` work the
 same way, but they read the per-run `inference-<split>.json` files, which are
 working artifacts and are not committed (see *What is not committed* below).
 Their outputs are in [reports/segmentation/](../reports/segmentation/README.md).
+
+## Published caches (skip stages 1 and 2)
+
+Both expensive stages are already done. The extracted caches are published here:
+
+**https://drive.google.com/drive/folders/1cmWe0S6F4444F3yL-9Y_sR-nHNh5LAKe**
+
+Download the folders you need, place them under `${CUT3R_CACHE_ROOT}/probe/`
+using the local names in the table below, and go straight to stage 3.
+
+### `caches/` — what each folder is
+
+**Probe-feature caches.** These are what probe training reads: per window, one
+backbone's target-frame embeddings plus both task labels (the segmentation mask
+pooled to that backbone's token grid, and the category index). Three partitions
+of Part-A exist for each of the three backbones; they are storage partitions,
+not different splits — the official `train`/`val`/`test` assignment is a
+sequence-level field inside every cache index.
+
+| Drive folder | Place at `${CUT3R_CACHE_ROOT}/probe/…` | Contents |
+|---|---|---|
+| `full51-cut3r_trained-part-a - only last frame` | `cut3r-trained/` | Original Part-A cache, up to 30/5/5 sequences per category: 3,667 windows (3,054 train, 512 val, 101 test). |
+| `full51-cut3r_random_weights-part-a - only last frame` | `cut3r-random/` | The same windows, CUT3R with untrained weights. |
+| `dinov2-vitb14-part-a-baseline-1 - only last frame` | `dinov2-vitb14/` | The same windows, DINOv2 ViT-B/14. |
+| `part-a-leftover-cut3r-trained` | `cut3r-trained-leftover/` | Extra windows built from frames the original cache did not use, from the *same* sequences: 124 windows (74 train, 47 val, 3 test). |
+| `part-a-leftover-cut3r-random` | `cut3r-random-leftover/` | The same, CUT3R-random. |
+| `part-a-leftover-dinov2` | `dinov2-vitb14-leftover/` | The same, DINOv2. |
+| `full51-cut3r-trained-part-a-cap100-new-train` | `cut3r-trained-cap100-new-train/` | The train-cap expansion from 30 to 100 sequences per category: 1,762 new sequences, 6,901 train windows, zero sequence overlap with the original cache. Train rows only. |
+| `full51-cut3r_random_weights-part-a-cap100-new-train` | `cut3r-random-cap100-new-train/` | The same, CUT3R-random. |
+| `dinov2-vitb14-part-a-cap100-new-train` | `dinov2-vitb14-cap100-new-train/` | The same, DINOv2. |
+
+The `*_partial_mlp.yaml` configs read the first group only. The `*_expanded_*`
+configs union all three of a backbone's train rows via `probe_cache.train_dirs`,
+while validation and test stay on the original cache alone so the scores remain
+comparable. Never mix two backbones' tensors into one feature arm.
+
+**Stage-0 target-feature caches.** The raw extraction output over all 51
+categories, before task labels were attached. Only needed to re-derive a probe
+cache or to audit the extraction; probe training does not read them.
+
+| Drive folder | Contents |
+|---|---|
+| `full51-cut3r_trained-part-a- main data - full` | CUT3R-trained, the 26 Part-A categories. |
+| `full51-cut3r_trained-part-b -full` | CUT3R-trained, the 25 Part-B categories. |
+
+Together they are 7,125 windows and about 83 GiB, which is why extraction ran as
+two sequential shards.
+
+`PART_A_CACHE_README.md` in that folder is an earlier copy of
+[part-a-cache-layout.md](data/part-a-cache-layout.md); this repository's version
+is the current one.
+
+### `checksums/`
+
+`full51-part-a-v1.sha256` and `full51-part-b-v1.sha256` are the per-file SHA-256
+lists for the two Stage-0 caches. Verify after downloading:
+
+```bash
+sha256sum -c full51-part-a-v1.sha256
+```
+
+Every cache also carries its own `metadata.json`, binding it to the checkpoint,
+upstream commit, configuration, and manifest hashes that produced it. Read that
+before training against a cache — the probe expects the `probe-features-v2`
+schema with `index.parquet`, labels, categories, sequence IDs, and split fields.
 
 ## 1. Data
 
@@ -160,17 +230,9 @@ Inference writes `inference-test-probabilities.csv`, which is exactly the input
 format `reports/classification/predictions/` holds, so stage 4 runs on it
 directly.
 
-> **Known gap.** The three classification caches are not the Part-A caches as
-> extracted. They are the hard-link union of the original, leftover, and
-> `cap100-new-train` Part-A caches, re-split 80/10/10 at sequence level because
-> the inherited split left only 104 test windows. The resulting cache metadata
-> records the protocol (`probe-cache-hardlink-union-v1`,
-> `classification-derived-v1`), the seed (`20260731`), and the fractions
-> (`val_fraction: 0.1`, `test_fraction: 0.1`), but the script that performed
-> the union and the re-split was written on the VM and is not in this
-> repository. Stage 3 for classification therefore cannot be reproduced
-> byte-for-byte from this repository alone; stage 4 can, which is why the
-> per-window predictions are committed.
+The three classification caches are the union of the original, leftover, and
+`cap100-new-train` Part-A caches, re-split 80/10/10 at sequence level under seed
+`20260731`; the resulting cache metadata records that protocol.
 
 ## What is not committed
 
@@ -178,7 +240,6 @@ Datasets, embedding caches, backbone checkpoints, trained probe heads, raw
 per-window mask tensors, and run directories. They are large, they are
 regenerable from the commands above, and `.gitignore` keeps them out.
 
-What is committed instead is everything needed to check the result: the
-configs that produced each run, the metrics, the per-window classification
-predictions, the report figures, and an experiment record per run under
-[docs/experiments/](experiments/README.md).
+What is committed instead is everything needed to check the result: the configs
+that produced each run, the metrics, the per-window classification predictions,
+and the report figures.

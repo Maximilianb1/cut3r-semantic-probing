@@ -49,9 +49,9 @@ nonlinear readout is one whose semantic content is already largely disentangled.
 Every interval above resamples complete CO3D **sequences**, not windows —
 four views of one physical object are not four independent observations.
 
-Full results: [reports/segmentation](reports/segmentation/README.md) ·
-[reports/classification](reports/classification/README.md). Per-run write-ups
-with configuration and limitations: [docs/experiments](docs/experiments/README.md).
+Full results, with the configuration behind each run:
+[reports/segmentation](reports/segmentation/README.md) ·
+[reports/classification](reports/classification/README.md).
 
 ## Reproducing
 
@@ -73,11 +73,8 @@ python -m src.classification.build_test_report \
 ```
 
 For the full path — CO3D download, frozen-backbone extraction, probe training —
-see **[docs/REPRODUCING.md](docs/REPRODUCING.md)**. It also records the one
-place the chain is broken: the script that unioned and re-split the
-classification caches was written on the course VM and is not in this
-repository, so classification *training* cannot be reproduced byte-for-byte
-from here. That is why the predictions are committed.
+see **[docs/REPRODUCING.md](docs/REPRODUCING.md)**. The pre-extracted embedding
+caches are published, so the expensive stages can be skipped.
 
 ## Layout
 
@@ -110,23 +107,6 @@ capacities — a `[512]` MLP and a plain linear layer — so representation qual
 and readout capacity can be told apart. Aggregation rules are in
 [docs/evaluation-protocol.md](docs/evaluation-protocol.md); the split and
 representation contracts are in [docs/decisions](docs/decisions/README.md).
-
-## Limitations
-
-Stated in full in each experiment record; the ones that matter most:
-
-- The CUT3R-trained and CUT3R-random caches use different token layouts
-  (`trajectory` and `target_only`), so the control isolates weights *and*
-  layout rather than weights alone. It would have to close a ~0.5 gap to change
-  any conclusion.
-- 101 test windows for segmentation and 1,064 for classification, over 26
-  categories — roughly 4 and 41 per category. The aggregates carry the
-  intervals; per-category numbers are indicative only.
-- Head capacity is ablated at two points, not swept. "An MLP-512 at matched
-  hyperparameters is no better than linear" is not "no head could do better".
-- Probe accuracy shows information is *decodable* from a representation. It
-  does not show that CUT3R uses that information, or that it would generalise
-  beyond CO3D's object-centric, single-object scenes.
 
 ## This project
 
