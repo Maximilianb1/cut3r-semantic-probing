@@ -1,0 +1,28 @@
+experiment: classification-cut3r-random-fullunion-resplit80-10-10-mlp512-dropout05-ls01-wd1e3
+backbone: cut3r-random
+probe_cache:
+  dir: ${CUT3R_RANDOM_RESPLIT_CACHE}
+features: {source: state_tokens, pooling: mean, normalize: standardize}
+model:
+  feature_dim: 768
+  hidden_dims: [512]
+  activation: gelu
+  dropout: 0.5
+  label_space: present
+training:
+  optimizer: adamw
+  epochs: 100
+  batch_size: 64
+  lr: 0.001
+  weight_decay: 0.001
+  label_smoothing: 0.1
+  balanced_sampler: false
+  checkpoint_selection: best_val_macro_f1
+  top_k: 5
+  seed: 20260731
+  device: cpu
+  num_workers: 0
+  preload_features: true
+  progress: false
+splits: {train: train, val: val, test: test}
+output: {dir: src/classification/experiments/fullunion-resplit_cut3r-random}

@@ -12,6 +12,7 @@ Run example: python -m src.classification.inference_classification --config src/
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 from pathlib import Path
 from typing import Any
@@ -32,6 +33,39 @@ from .train_classification import (
     resolve_model_config,
     run_directory,
 )
+
+
+def save_inference_result(result: dict[str, Any], save_dir: str | Path) -> None:
+    """Save the complete inference record plus one analysis-friendly probability CSV."""
+    path = Path(save_dir)
+    path.mkdir(parents=True, exist_ok=True)
+    split = result["split"]
+    (path / f"inference-{split}.json").write_text(
+        json.dumps(result, indent=2), encoding="utf-8"
+    )
+
+    probability_columns = [f"probability_{name}" for name in result["label_space"]]
+    fieldnames = [
+        "window_id",
+        "sequence_id",
+        "category",
+        "predicted_category",
+        "predicted_probability",
+        "correct",
+        *probability_columns,
+    ]
+    with (path / f"inference-{split}-probabilities.csv").open(
+        "w", encoding="utf-8", newline=""
+    ) as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        for window in result["per_window"]:
+            row = {key: window[key] for key in fieldnames[:6]}
+            row.update({
+                f"probability_{name}": window["class_probabilities"][name]
+                for name in result["label_space"]
+            })
+            writer.writerow(row)
 
 
 def load_trained_probe(config: dict[str, Any], checkpoint_path: str | Path, device: torch.device) -> tuple[torch.nn.Module, FeatureSpec, tuple[str, ...]]:
@@ -163,11 +197,7 @@ def run_inference(config: dict[str, Any], *, checkpoint: str | Path | None = Non
         "per_window": per_window,
     }
     if save_dir:
-        path = Path(save_dir)
-        path.mkdir(parents=True, exist_ok=True)
-        (path / f"inference-{split}.json").write_text(
-            json.dumps(result, indent=2), encoding="utf-8"
-        )
+        save_inference_result(result, save_dir)
     return result
 
 
