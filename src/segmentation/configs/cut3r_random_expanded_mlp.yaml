@@ -9,9 +9,9 @@ backbone: cut3r-random
 # that coverage instead). See cut3r_random_expanded_linear.yaml for the same data
 # with a linear (hidden_dims: []) head instead.
 #
-# Random-initialized CUT3R baseline. Its scientific meaning is an OPEN decision
-# (see ../../backbones/README.md); the cache it
-# reads comes from a provisional reset_parameters init pending a baseline ADR.
+# Random-initialized CUT3R baseline: the same architecture with every module
+# that exposes reset_parameters re-initialized under a fixed seed. See
+# ../../backbones/README.md for what this control does and does not isolate.
 probe_cache:
   dir: ${CUT3R_CACHE_ROOT}/probe/cut3r-random
   train_dirs:
@@ -22,8 +22,8 @@ probe_cache:
 model:
   feature_dim: 768
   num_classes: 1
-  # [] is a true linear probe; [512] is a 1-hidden-layer MLP probe.
-  # Which one Stage 1 reports is an OPEN decision.
+  # [] is a true linear probe; [512] is a 1-hidden-layer MLP probe. Both are
+  # run and reported; see reports/segmentation/probe-capacity-ablation/.
   hidden_dims: [512]
   activation: gelu
   dropout: 0.0

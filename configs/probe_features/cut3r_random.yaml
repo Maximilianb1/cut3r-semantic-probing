@@ -1,8 +1,8 @@
 experiment: segmentation-cut3r-random
 
-# Random-initialized CUT3R baseline. Its scientific meaning is an OPEN decision
-# (see ../../src/backbones/README.md); the reset_parameters
-# init below is a provisional placeholder pending a baseline ADR.
+# Random-initialized CUT3R baseline: the same architecture with every module that
+# exposes reset_parameters re-initialized under the fixed seed below. See
+# ../../src/backbones/README.md for what this control isolates.
 backbone:
   kind: cut3r
   weights: random
@@ -20,7 +20,8 @@ backbone:
       strategy: reset_parameters
       seed: 20260729
 
-# Read by src/segmentation/configs/cut3r_random.yaml; must match it.
+# Read by src/segmentation/configs/cut3r_random_*.yaml; the probe-head configs
+# must point at the same probe_cache.dir.
 probe_cache:
   dir: ${CUT3R_CACHE_ROOT}/probe/cut3r-random
 

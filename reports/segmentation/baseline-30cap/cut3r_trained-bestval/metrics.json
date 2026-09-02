@@ -2,7 +2,7 @@
   "experiment": "segmentation-cut3r-trained",
   "backbone": "cut3r-trained",
   "probe_cache": {
-    "dir": "/home/student/cut3r-stage0/cache/probe/cut3r-trained",
+    "dir": "${CUT3R_CACHE_ROOT}/probe/cut3r-trained",
     "metadata": {
       "backbone": {
         "backbone": "cut3r-trained",

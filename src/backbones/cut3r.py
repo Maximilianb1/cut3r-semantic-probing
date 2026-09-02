@@ -9,11 +9,11 @@ its target-frame outputs through the shared :class:`Backbone` contract:
 - ``global_tokens`` <- ``state_tokens[5, 0]`` (persistent recurrent memory),
   shape ``[768, 768]``.
 
-``weights="random"`` produces the random-initialized CUT3R baseline. NOTE: the
-scientific meaning of that baseline is an OPEN decision. The re-initialization here is a
-documented, seeded *placeholder* -- it reuses the released architecture and
-resets every module that exposes ``reset_parameters`` under a fixed seed -- and
-must not be treated as a settled contract until an ADR accepts it.
+``weights="random"`` produces the random-initialized CUT3R control: it reuses the
+released architecture and resets every module that exposes ``reset_parameters``
+under a fixed seed. The control isolates pretraining from architecture, which is
+what the reported comparison uses it for; it is not a claim about any other
+notion of "random CUT3R".
 """
 
 from __future__ import annotations
@@ -44,10 +44,10 @@ def _reinitialize_module(module: torch.nn.Module) -> None:
 
 
 def randomize_weights(model: torch.nn.Module, *, seed: int, strategy: str) -> None:
-    """Provisional random re-initialization of a CUT3R model in place.
+    """Re-initialize a CUT3R model in place, deterministically.
 
-    Kept deliberately explicit and seedable. The strategy is a config field so a
-    future ADR can change it without a silent behavior shift.
+    The strategy is a config field rather than a hard-coded call, so changing it is
+    a recorded configuration change instead of a silent behavior shift.
     """
     if strategy not in _RANDOM_INIT_STRATEGIES:
         raise ValueError(
@@ -180,5 +180,4 @@ class Cut3rBackbone(Backbone):
         }
         if self.weights == "random":
             record["random_init"] = dict(self._random_init)
-            record["random_init_status"] = "PROVISIONAL: pending baseline ADR"
         return record

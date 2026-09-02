@@ -1,7 +1,7 @@
 experiment: segmentation-cut3r-trained-partial-mlp
 backbone: cut3r-trained
 
-# Original scale (3,054 train windows, pre-EXP-006), [512] MLP head -- the
+# Original scale (3,054 train windows), [512] MLP head -- the
 # smaller of the two data-scale variants; see cut3r_trained_expanded_mlp.yaml
 # for the larger one and cut3r_trained_expanded_linear.yaml for the
 # linear-probe capacity ablation. Written by configs/probe_features/cut3r_trained.yaml; must match it.
@@ -13,8 +13,8 @@ probe_cache:
 model:
   feature_dim: 768
   num_classes: 1
-  # [] is a true linear probe; [512] is a 1-hidden-layer MLP probe.
-  # Which one Stage 1 reports is an OPEN decision.
+  # [] is a true linear probe; [512] is a 1-hidden-layer MLP probe. Both are
+  # run and reported; see reports/segmentation/probe-capacity-ablation/.
   hidden_dims: [512]
   activation: gelu
   dropout: 0.0

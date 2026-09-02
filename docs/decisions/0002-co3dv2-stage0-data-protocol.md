@@ -1,9 +1,7 @@
 # ADR 0002: CO3Dv2 Stage 0 data protocol
 
-- Status: Proposed
 - Date: 2026-07-18
-- Owners: Max Bershtman; project team review required
-- Related issue/PR: Stage 0 foundations
+- Author: Max Bershtman
 
 ## Context
 

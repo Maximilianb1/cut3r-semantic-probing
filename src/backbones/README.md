@@ -29,20 +29,30 @@ backbone.provenance()     # JSON-serializable identity recorded in the cache
 | Config | Source | spatial ← | global ← | Notes |
 |---|---|---|---|---|
 | `{"kind":"cut3r","weights":"trained"}` | Stage 0 CUT3R path (reuses `Cut3rFeatureExtractor`) | `image_tokens[5,0]` | `state_tokens[5,0]` | 512 / patch-16 geometry |
-| `{"kind":"cut3r","weights":"random"}` | Same architecture, seeded re-init | `image_tokens[5,0]` | `state_tokens[5,0]` | **Baseline meaning is OPEN** |
-| `{"kind":"dinov2"}` | `torch.hub` `dinov2_vitb14` | `x_norm_patchtokens` | `x_norm_clstoken` | patch-14, ImageNet norm; **variant/dependency OPEN** |
+| `{"kind":"cut3r","weights":"random"}` | Same architecture, seeded re-init | `image_tokens[5,0]` | `state_tokens[5,0]` | Untrained control |
+| `{"kind":"dinov2"}` | `torch.hub` `dinov2_vitb14` | `x_norm_patchtokens` | `x_norm_clstoken` | patch-14, ImageNet normalization |
 
-## Open scientific decisions (do not treat as settled)
+## What the two baselines establish
 
-- **Random-initialized CUT3R**: `randomize_weights` resets every module exposing
-  `reset_parameters` under a fixed seed. This is a documented placeholder; the
-  exact intended meaning of this baseline was never settled. Config field `options.random_init = {strategy, seed}`.
-- **DINOv2 variant + dependency**: default `dinov2_vitb14` (768-dim, matches
-  CUT3R). Loading pulls weights via `torch.hub`; pin the variant and record the
-  dependency in a baseline ADR before reporting results.
-- **Comparison protocol**: CUT3R and DINOv2 use different, model-native
-  preprocessing and grids. What is held fixed across backbones for a fair
-  comparison is not yet decided.
+- **Random-initialized CUT3R** is the untrained control. `randomize_weights`
+  resets every module exposing `reset_parameters` under a fixed seed, recorded
+  as `options.random_init = {strategy, seed}` and written into the cache
+  provenance. Holding architecture, data, head, and optimization fixed and
+  removing only the pretrained weights is what isolates pretraining from
+  architecture.
+- **DINOv2 ViT-B/14** is the vision-model anchor: what a model trained for 2D
+  visual representation achieves on the same task. 768-dim to match CUT3R, so
+  the head is identical across the two. The variant and its `torch.hub` source
+  are written into provenance, so a result always names the DINOv2 it used.
 
-These affect scientific claims and should be ratified via ADR (see
-`docs/decisions/`) before any results are published.
+## What the comparison holds fixed
+
+Across all three backbones: the same windows and the same sequence-level splits,
+the same head architecture, loss, optimizer, and epoch budget, and the same
+best-validation checkpoint rule.
+
+Not held fixed: preprocessing and token grid. Each backbone keeps its own native
+geometry — CUT3R at 512 / patch-16, DINOv2 at patch-14 — because resampling one
+model onto the other's grid would degrade it rather than make the comparison
+fairer. The target mask is pooled onto whichever grid the backbone produced, so
+IoU is always measured against that backbone's own resolution.

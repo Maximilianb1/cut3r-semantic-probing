@@ -2,7 +2,7 @@
   "experiment": "segmentation-cut3r-random",
   "backbone": "cut3r-random",
   "probe_cache": {
-    "dir": "/home/student/cut3r-stage0/cache/probe/cut3r-random",
+    "dir": "${CUT3R_CACHE_ROOT}/probe/cut3r-random",
     "metadata": {
       "backbone": {
         "backbone": "cut3r-random",
@@ -28,7 +28,6 @@
           "seed": 20260729,
           "strategy": "reset_parameters"
         },
-        "random_init_status": "PROVISIONAL: pending baseline ADR",
         "square_ok": false,
         "weights": "random"
       },

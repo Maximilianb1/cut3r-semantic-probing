@@ -18,8 +18,8 @@ probe_cache:
 model:
   feature_dim: 768
   num_classes: 1
-  # [] is a true linear probe; [512] is a 1-hidden-layer MLP probe.
-  # Which one Stage 1 reports is an OPEN decision.
+  # [] is a true linear probe; [512] is a 1-hidden-layer MLP probe. Both are
+  # run and reported; see reports/segmentation/probe-capacity-ablation/.
   hidden_dims: [512]
   activation: gelu
   dropout: 0.0

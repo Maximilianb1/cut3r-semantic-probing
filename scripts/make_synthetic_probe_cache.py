@@ -185,7 +185,7 @@ def build(cache_dir: Path, *, windows: int, layout: str, grids: list[tuple[int, 
             category_direction = category_directions[vocabulary.index(category)]
             spatial = _tokens(labels, direction, noise, generator)
             spatial = spatial + category_signal * category_direction.unsqueeze(0)
-            # The latent carries the category signal too, so the open Stage 2 comparison
+            # The latent carries the category signal too, so the Stage 2 comparison
             # (pooled grid tokens vs pooled state) can actually be run on this fixture.
             latent_tokens = 16
             latent = (category_signal * category_direction.expand(latent_tokens, feature_dim)

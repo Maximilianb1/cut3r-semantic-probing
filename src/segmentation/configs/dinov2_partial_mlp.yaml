@@ -1,15 +1,14 @@
 experiment: segmentation-dinov2-partial-mlp
 backbone: dinov2-vitb14
 
-# Original scale (3,054 train windows, pre-EXP-006), [512] MLP head -- the
+# Original scale (3,054 train windows), [512] MLP head -- the
 # smaller of the two data-scale variants; see dinov2_expanded_mlp.yaml for
 # the larger one and dinov2_expanded_linear.yaml for the linear-probe
 # capacity ablation.
 #
-# Advanced frozen baseline. The DINOv2 variant is an OPEN decision pending a
-# baseline ADR; feature_dim 768 matches CUT3R so the head is comparable.
-# Note its token grid is finer than CUT3R's (patch 14 vs 16), so IoU is measured
-# on a different grid - see the cross-backbone comparison ADR.
+# Advanced frozen baseline: torch.hub dinov2_vitb14. feature_dim 768 matches
+# CUT3R so the head is comparable. Its token grid is finer than CUT3R's
+# (patch 14 vs 16), so IoU is measured on a different grid.
 # Smoke-test against the fake caches without editing this file:
 #   CUT3R_CACHE_ROOT=src/segmentation/dummy_embeddings python -m src.segmentation.train_segmentation --config <this file>
 probe_cache:
@@ -18,8 +17,8 @@ probe_cache:
 model:
   feature_dim: 768
   num_classes: 1
-  # [] is a true linear probe; [512] is a 1-hidden-layer MLP probe.
-  # Which one Stage 1 reports is an OPEN decision.
+  # [] is a true linear probe; [512] is a 1-hidden-layer MLP probe. Both are
+  # run and reported; see reports/segmentation/probe-capacity-ablation/.
   hidden_dims: [512]
   activation: gelu
   dropout: 0.0

@@ -9,8 +9,8 @@ backbones under study share the :class:`Backbone` contract so the segmentation
 and classification probes are written once:
 
 - ``{"kind": "cut3r", "weights": "trained"}``
-- ``{"kind": "cut3r", "weights": "random"}``  (baseline meaning is OPEN)
-- ``{"kind": "dinov2"}``                        (variant/dependency is OPEN)
+- ``{"kind": "cut3r", "weights": "random"}``  (untrained control)
+- ``{"kind": "dinov2"}``                        (vision-model anchor)
 """
 
 from __future__ import annotations

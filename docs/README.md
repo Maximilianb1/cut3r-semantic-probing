@@ -9,8 +9,7 @@ directory they sit in.
 | [`REPRODUCING.md`](REPRODUCING.md) | How to re-run the pipeline, from analysis-only to a full extraction. Start here. |
 | [`evaluation-protocol.md`](evaluation-protocol.md) | How IoU and accuracy are aggregated, and why the headline is a category macro rather than a window mean. |
 | [`data/`](data/README.md) | The CO3Dv2 subset, the window protocol, and the cache layouts. |
-| [`decisions/`](decisions/README.md) | Decision records for the choices that constrain what the results can mean. |
-| [`experiments/`](experiments/README.md) | One record per reported run: configuration, numbers, interpretation, limitations. |
+| [`decisions/`](decisions/README.md) | The protocol records: splits, window structure, what counts as a representation, how much training data. |
 
 Results themselves — figures, metrics, per-window predictions — live under
 [`reports/`](../reports/README.md).

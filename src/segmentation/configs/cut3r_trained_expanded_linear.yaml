@@ -3,7 +3,7 @@ backbone: cut3r-trained
 
 # The linear-probe capacity ablation: identical data/recipe to
 # cut3r_trained_expanded_mlp.yaml, hidden_dims: [] instead of [512]. Answers
-# the OPEN decision flagged there -- is this backbone's segmentation signal
+# question flagged there -- is this backbone's segmentation signal
 # (near-)linearly decodable, or does it need the extra MLP capacity? Compare
 # against that [512] run via analysis/build_probe_capacity_comparison.py.
 probe_cache:

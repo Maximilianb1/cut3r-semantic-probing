@@ -117,8 +117,6 @@ categories put chance near 0.02, and a small subset puts it much higher.
 
 ## Part-A results
 
-Full record, with every ablation behind the shipped configuration:
-[`docs/experiments/EXP-004-part-a-classification.md`](../../docs/experiments/EXP-004-part-a-classification.md).
 Validation, 512 windows, 26 categories, chance 0.0385:
 
 | Backbone | Arm | Accuracy | Macro F1 |
@@ -137,11 +135,9 @@ the grid tokens — the ADR 0003 comparison, answered on val. DINOv2 is far ahea
 **One seed, and val is 512 windows from 130 sequences: differences under ~3–4 points are
 not resolvable.** Test is untouched.
 
-> These are the first-pass numbers ([EXP-004](../../docs/experiments/EXP-004-part-a-classification.md)).
-> The **reported** results run the same probe on the unioned, re-split cache with
-> best-validation checkpoint selection and a held-out test split — see
-> [EXP-008](../../docs/experiments/EXP-008-classification-linear-vs-mlp.md) and
-> [reports/classification](../../reports/classification/README.md).
+> These are first-pass numbers. The **reported** results run the same probe on the
+> unioned, re-split cache with best-validation checkpoint selection and a held-out
+> test split — see [reports/classification](../../reports/classification/README.md).
 
 ## Files
 
@@ -188,7 +184,7 @@ than something to remember, so the two arms of the comparison cannot overwrite e
 other and a directory always says which representation produced it.
 
 That tree is git-ignored: it is working output, not a record. Promote a result worth
-keeping to `docs/experiments/`.
+keeping to `reports/`.
 
 `head.pt` records the head **and** the feature source it was trained on, so inference
 refuses to evaluate it against a different representation — otherwise a config edit
@@ -217,7 +213,7 @@ Two things the figures deliberately do not claim: a single run cannot support "A
 (that needs seeds or a paired test over `per_window`), and confidence is not plotted
 because `inference-<split>.json` does not record it yet.
 
-One naming caveat worth repeating: the per-category bars plot **recall**, not accuracy.
+The per-category bars plot **recall**, not accuracy.
 Per-category accuracy in a multiclass setting would count true negatives too, which sits
 near 1.0 for every category and says nothing.
 
