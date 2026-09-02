@@ -6,6 +6,7 @@ Run commands as modules from the repository root:
 python -m scripts.download_co3d_selective --config configs/stage0/debug.yaml --plan-only
 python -m scripts.download_co3d_selective --config configs/stage0/debug.yaml --index-only
 python -m scripts.download_co3d_selective --config configs/stage0/debug.yaml
+python -m scripts.download_co3d_targeted --frames-parquet /artifacts/manifests/full51-part-a-v1/frames.parquet --dataset-root /data/co3d
 python -m scripts.build_manifests --config configs/stage0/debug.yaml
 python -m scripts.project_cache_storage --manifest-dir /artifacts/manifests/full51-part-a-v1 --filesystem-path /cache --reserve-gib 10
 python -m scripts.apply_cut3r_compatibility_patch --cut3r-root /work/CUT3R --expected-commit 8bc15dc92a6d7fd92920b4ec81540d3dec7d3ecf
@@ -28,6 +29,15 @@ per-file SHA-256, source archive, and official container hash provenance under
 config-specific records under `$CO3D_ROOT/.co3d-selective/`, preventing Part B
 from overwriting Part A provenance. Use `full51-part-a.yaml` and
 `full51-part-b.yaml` for the sequential all-category run.
+
+`download_co3d_targeted` is the fetch-only counterpart: given a manifest that
+already exists (a `frames.parquet`), it downloads exactly the
+`image_relpath`/`mask_relpath` files that manifest names, with the same
+per-file CRC/checksum verification, and nothing else. Use it instead of
+`download_co3d_selective` when a trusted manifest already exists and a
+`sampling`-based re-derivation is not guaranteed to reproduce it exactly
+(see [EXP-005](../docs/experiments/EXP-005-part-a-seg-cut3r-unblocked.md)
+for a case where it did not).
 
 The cache override enables genuinely independent reproducibility runs. Reusable
 and tested logic remains under `src/`.

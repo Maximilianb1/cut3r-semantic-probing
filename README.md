@@ -76,7 +76,7 @@ of these status values: `Not started`, `Planned`, `In progress`, `Blocked`,
 | Verify that a binary segmentation probe works on the selected CO3D data | In progress | Aviv Rabi | Max Bershtman (earlier proof of concept) | The probe, dataset, training, and inference code exist and run end to end on a synthetic cache; no automated tests and no run on real embeddings yet. |
 | Decide whether inference with an existing probe is sufficient or whether the MLP must be retrained | Not started | TBD | Max Bershtman (earlier proof of concept) | The decision is recorded as open; no approach has been approved. |
 | Compare against random-weight and state-of-the-art baselines | In progress | Aviv Rabi | - | Shared backbones and a single extraction script cover CUT3R-trained, CUT3R-random, and DINOv2; the baseline definitions still need ADRs. |
-| Analyze results and produce plots | Not started | TBD | Max Bershtman (earlier proof-of-concept report) | Experiment and metric templates exist; the new project has no results yet. |
+| Analyze results and produce plots | In progress | Yam Ben-Tov | Max Bershtman (earlier proof-of-concept report) | Baseline (EXP-005), expanded-training (EXP-006), and probe-capacity-ablation (EXP-007) results and plots exist for all three Part-A backbones; the CO3D Part-B data half is still outstanding. |
 
 ### Stage 2 - Multiclass classification
 

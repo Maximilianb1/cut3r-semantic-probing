@@ -1,11 +1,19 @@
-experiment: segmentation-cut3r-trained
-backbone: cut3r-trained
+experiment: segmentation-dinov2-partial-mlp
+backbone: dinov2-vitb14
 
-# Written by configs/probe_features/cut3r_trained.yaml; must match it.
+# Original scale (3,054 train windows, pre-EXP-006), [512] MLP head -- the
+# smaller of the two data-scale variants; see dinov2_expanded_mlp.yaml for
+# the larger one and dinov2_expanded_linear.yaml for the linear-probe
+# capacity ablation.
+#
+# Advanced frozen baseline. The DINOv2 variant is an OPEN decision pending a
+# baseline ADR; feature_dim 768 matches CUT3R so the head is comparable.
+# Note its token grid is finer than CUT3R's (patch 14 vs 16), so IoU is measured
+# on a different grid - see the cross-backbone comparison ADR.
 # Smoke-test against the fake caches without editing this file:
 #   CUT3R_CACHE_ROOT=src/segmentation/dummy_embeddings python -m src.segmentation.train_segmentation --config <this file>
 probe_cache:
-  dir: ${CUT3R_CACHE_ROOT}/probe/cut3r-trained
+  dir: ${CUT3R_CACHE_ROOT}/probe/dinov2-vitb14
 
 model:
   feature_dim: 768
@@ -36,4 +44,4 @@ splits:
   test: test
 
 output:
-  dir: src/segmentation/experiments/segmentation-cut3r-trained
+  dir: src/segmentation/experiments/segmentation-dinov2-partial-mlp

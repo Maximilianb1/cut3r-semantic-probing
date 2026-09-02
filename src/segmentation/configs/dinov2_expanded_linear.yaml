@@ -1,0 +1,51 @@
+experiment: segmentation-dinov2-expanded-linear
+backbone: dinov2-vitb14
+
+# The linear-probe capacity ablation: identical data/recipe to
+# dinov2_expanded_mlp.yaml, hidden_dims: [] instead of [512]. Answers the
+# OPEN decision flagged there -- is this backbone's segmentation signal
+# (near-)linearly decodable, or does it need the extra MLP capacity? Compare
+# against that [512] run via analysis/build_probe_capacity_comparison.py.
+#
+# Advanced frozen baseline. The DINOv2 variant is an OPEN decision pending a
+# baseline ADR; feature_dim 768 matches CUT3R so the head is comparable.
+# Note its token grid is finer than CUT3R's (patch 14 vs 16), so IoU is measured
+# on a different grid - see the cross-backbone comparison ADR.
+probe_cache:
+  dir: ${CUT3R_CACHE_ROOT}/probe/dinov2-vitb14
+  train_dirs:
+    - ${CUT3R_CACHE_ROOT}/probe/dinov2-vitb14
+    - ${CUT3R_CACHE_ROOT}/probe/dinov2-vitb14-leftover
+    - ${CUT3R_CACHE_ROOT}/probe/dinov2-vitb14-cap100-new-train
+
+model:
+  feature_dim: 768
+  num_classes: 1
+  # True linear probe -- the other side of the capacity ablation vs. [512].
+  hidden_dims: []
+  activation: gelu
+  dropout: 0.0
+
+training:
+  # adam | adamw | sgd (sgd also reads `momentum`)
+  optimizer: adam
+  epochs: 20
+  batch_size: 16
+  lr: 0.001
+  weight_decay: 0.0
+  pos_weight: null
+  seed: 20260729
+  device: cpu
+  # 8, not 0: 3x more windows makes single-threaded reads the bottleneck, not compute.
+  # Doesn't change results (shuffle order is seed-fixed, no per-item randomness).
+  num_workers: 8
+  # tqdm bars; they draw only on a real terminal, never into a redirected log
+  progress: true
+
+splits:
+  train: train
+  val: val
+  test: test
+
+output:
+  dir: src/segmentation/experiments/segmentation-dinov2-expanded-linear

@@ -92,14 +92,22 @@ committing to the transfer.
 
 ### Fetch a probe cache into `${CUT3R_CACHE_ROOT}/probe/<backbone>/`
 
+List before copying — the subfolder under `cache/` does not reliably match
+the bare backbone name. Observed real examples: CUT3R-random matched
+(`cache/cut3r-random`), but CUT3R-trained was `cache/cut3r-trained-target-labeled`
+and DINOv2 was `cache/dinov2-vitb14`, not `cache/cut3r-trained` or `cache/dinov2`.
+A copy from an assumed path that doesn't exist silently transfers nothing.
+
 ```bash
 DRIVE_FOLDER_ID=1wyEljQmtTxmC4mfqcc8T0hXYmaI_yhxr    # example only
 BACKBONE=cut3r-random
 DEST="${CUT3R_CACHE_ROOT}/probe/${BACKBONE}"
 
+rclone --drive-root-folder-id="${DRIVE_FOLDER_ID}" lsd gdrive:cache   # confirm the real subfolder name first
+
 mkdir -p "${DEST}"
 rclone --drive-root-folder-id="${DRIVE_FOLDER_ID}" \
-  copy gdrive:cache/${BACKBONE} "${DEST}" \
+  copy gdrive:cache/<real-subfolder-name> "${DEST}" \
   --progress --transfers 8 --checkers 16 \
   --exclude "*.tmp" --exclude ".ipynb_checkpoints/**"
 ```

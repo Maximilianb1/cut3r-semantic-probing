@@ -7,7 +7,7 @@ it on a chosen split of the probe-feature cache -- reporting the same token
 accuracy and foreground IoU (macro / micro / per-category), plus optional
 per-window predictions and grid-resolution predicted masks.
 
-Run example: python inference_segmentation.py --config configs/cut3r_trained.yaml --split test
+Run example: python inference_segmentation.py --config configs/cut3r_trained_partial_mlp.yaml --split test
 """
 
 from __future__ import annotations
@@ -53,17 +53,30 @@ def load_trained_probe(config: dict[str, Any], checkpoint_path: str | Path, devi
 def assert_not_trained_on(cache_dir: str | Path, config: dict[str, Any], dataset: ProbeCacheDataset, split: str) -> None:
     """
     Fail loudly if the evaluated split shares CO3D sequences with the train split.
+
+    Checks ``probe_cache.train_dirs`` when set (an expanded combined training set:
+    original + leftover + cap100-new-train), not just ``cache_dir``, so evaluating
+    against a combined-data run is checked against everything it actually trained
+    on, not only the single val/test cache.
     """
     train_split = (config.get("splits") or {}).get("train", "train")
     if train_split == split:
         return
     categories = config.get("categories")
     allowed = None if categories is None else set(categories)
-    trained_sequences = {
-        row["sequence_id"]
-        for row in load_probe_index(Path(cache_dir))
-        if row["split"] == train_split and (allowed is None or row["category"] in allowed)
-    }
+    probe_cache = config.get("probe_cache") or {}
+    train_dirs = probe_cache.get("train_dirs")
+    if train_dirs is None:
+        train_dirs = [cache_dir]
+    elif not isinstance(train_dirs, (list, tuple)) or len(train_dirs) == 0:
+        raise ValueError("probe_cache.train_dirs must be a non-empty list when provided")
+    trained_sequences: set[str] = set()
+    for train_dir in train_dirs:
+        trained_sequences |= {
+            row["sequence_id"]
+            for row in load_probe_index(Path(train_dir))
+            if row["split"] == train_split and (allowed is None or row["category"] in allowed)
+        }
     overlap = sorted(trained_sequences & dataset.sequence_ids())
     if overlap:
         raise ValueError(
