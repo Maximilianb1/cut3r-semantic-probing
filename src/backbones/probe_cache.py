@@ -388,7 +388,7 @@ def load_target_features(
 
     Both are sliced inside the shard read, so a classification probe reading only the
     state latents never transfers the grid tokens, and vice versa. Which of the two a
-    classification probe should use is an **open comparison** (see
+    classification probe reads is a **compared variable** (see
     ``src/classification/README.md``), which is why this exposes both rather than
     picking one.
 

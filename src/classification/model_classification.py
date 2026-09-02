@@ -126,8 +126,8 @@ def resolve_features(config: dict[str, Any]) -> FeatureSpec:
     if not isinstance(features, dict) or "source" not in features:
         raise ValueError(
             "Config needs a 'features' block with an explicit 'source': "
-            f"one of {list(_SOURCES)}. Which representation to classify from is an "
-            "open comparison, so it is not defaulted."
+            f"one of {list(_SOURCES)}. Which representation to classify from is a "
+            "compared variable, so it is never defaulted."
         )
     source = str(features["source"])
     if source not in _SOURCES:
