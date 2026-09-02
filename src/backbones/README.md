@@ -36,8 +36,7 @@ backbone.provenance()     # JSON-serializable identity recorded in the cache
 
 - **Random-initialized CUT3R**: `randomize_weights` resets every module exposing
   `reset_parameters` under a fixed seed. This is a documented placeholder; the
-  course meaning of this baseline is unresolved (`src/baselines/README.md`,
-  PROJECT_STATUS). Config field `options.random_init = {strategy, seed}`.
+  exact intended meaning of this baseline was never settled. Config field `options.random_init = {strategy, seed}`.
 - **DINOv2 variant + dependency**: default `dinov2_vitb14` (768-dim, matches
   CUT3R). Loading pulls weights via `torch.hub`; pin the variant and record the
   dependency in a baseline ADR before reporting results.

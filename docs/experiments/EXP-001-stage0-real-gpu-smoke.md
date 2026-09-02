@@ -1,7 +1,7 @@
 # EXP-001: Stage 0 real-data GPU smoke
 
 - Date: 2026-07-18
-- Owner: Max Bershtman with Codex
+- Owner: Max Bershtman
 - Status: Completed (engineering smoke only)
 - Related issue/PR: PRs #2, #3, and #4
 - Code commit: `0e5af52e4b1738bdb838f224bd5cd2e1b80ec476`

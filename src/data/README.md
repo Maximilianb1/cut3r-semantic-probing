@@ -19,5 +19,5 @@ atomic writes. Re-runs accept an existing file only when its size and CRC match.
 
 Reusable modules live in `co3d.py`, `co3d_selective.py`, `windows.py`,
 `transforms.py`, and `validation.py`. See
-[the protocol](../../../docs/data/stage0-protocol.md) and
-[ADR 0002](../../../docs/decisions/0002-co3dv2-stage0-data-protocol.md).
+[the protocol](../../docs/data/stage0-protocol.md) and
+[ADR 0002](../../docs/decisions/0002-co3dv2-stage0-data-protocol.md).

@@ -30,6 +30,6 @@ default without modifying CUT3R's model loader or enabling unrestricted pickle
 loading process-wide.
 
 The adapter depends on pinned upstream private methods. Real A10 preflights and
-the Full-51 extraction passed; [ADR 0003](../../../docs/decisions/0003-cut3r-trajectory-and-cache-contract.md)
+the Full-51 extraction passed; [ADR 0003](../../docs/decisions/0003-cut3r-trajectory-and-cache-contract.md)
 still requires team review before acceptance. The adapter never trains or
 attaches a semantic head.

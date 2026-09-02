@@ -1,30 +1,20 @@
 # Data Documentation
 
-CO3D files are external and must not be committed.
+CO3Dv2 is external. Images, masks, depths, and embedding caches are never
+committed; only the protocols and the small summaries that describe them are.
 
-Every dataset version used by the project should have:
+| Document | What it covers |
+|---|---|
+| [`stage0-protocol.md`](stage0-protocol.md) | The subset, the filtering rules, the official sequence splits, the deterministic six-frame window protocol, and the cache contract. |
+| [`co3dv2-statistics.md`](co3dv2-statistics.md) | The per-category counts the subset decisions were made from. |
+| [`part-a-cache-layout.md`](part-a-cache-layout.md) | The three Part-A cache partitions, what may be unioned with what, and the schema rules for reading them. |
 
-- CO3D version and source URL;
-- category and sequence identifiers;
-- exact frame manifest;
-- train/validation/test assignment;
-- rationale for filtering;
-- mask interpretation and thresholding;
-- preprocessing configuration;
-- checksum or stable version identifier;
-- leakage checks, especially sequence and neighboring-frame overlap;
-- storage location accessible to the team.
+The scientific contracts behind these are
+[ADR 0002](../decisions/0002-co3dv2-stage0-data-protocol.md) and
+[ADR 0003](../decisions/0003-cut3r-trajectory-and-cache-contract.md).
 
-Commit manifests and metadata when small. Keep images, masks, depths, and caches in external storage.
-
-## Current Stage 0 protocol
-
-- [Data and feature protocol](stage0-protocol.md)
-- [Full-51 cache publication and team handoff](stage0-full51-cache-handoff.md)
-- [CO3Dv2 planning statistics](co3dv2-statistics.md)
-- [ADR 0002](../decisions/0002-co3dv2-stage0-data-protocol.md)
-- [ADR 0003](../decisions/0003-cut3r-trajectory-and-cache-contract.md)
-
-Generated manifests consist of `sequences.parquet`, `frames.parquet`,
-`windows.parquet`, and `summary.json`. Keep them external until their size and
-privacy are reviewed; only suitably small summaries/manifests belong in Git.
+A generated manifest is `sequences.parquet`, `frames.parquet`,
+`windows.parquet`, and `summary.json`. Every cache carries a `metadata.json`
+binding it to the checkpoint, upstream commit, configuration, and manifest
+hashes that produced it, and every `metrics.json` copies that metadata in — so
+a reported number is always traceable to the exact cache it came from.

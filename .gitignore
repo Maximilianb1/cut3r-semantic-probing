@@ -44,8 +44,6 @@ mlruns/
 tensorboard/
 cache/
 tmp/
-artifacts/*
-!artifacts/README.md
 
 # Local-only probe scratch: synthetic caches (regenerate with
 # scripts/make_synthetic_probe_cache.py) and run outputs. Promote a real result to
@@ -68,8 +66,4 @@ dist/
 .ninja_deps
 .ninja_log
 src/classification/dummy_embeddings/
-src/classification/experiments/*
-# ...but the figures README explains what the plots mean, so it is tracked.
-!src/classification/experiments/figures/
-src/classification/experiments/figures/*
-!src/classification/experiments/figures/README.md
+src/classification/experiments/

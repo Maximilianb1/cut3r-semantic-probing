@@ -1,7 +1,7 @@
 # EXP-007: Part-A segmentation probe-capacity ablation (linear vs. MLP head)
 
 - Date: 2026-08-25
-- Owner: Yam Ben-Tov with Claude Code
+- Owner: Yam Ben-Tov
 - Status: Completed
 - Related issue/PR: none
 - Code commit: `1adf73c` on branch `seg/21-expand-part-a-data`
@@ -10,8 +10,7 @@
 
 EXP-006 established macro-IoU with the `[512]` MLP head on the expanded
 training set for all three backbones. Every segmentation config has carried
-an OPEN-decision comment since 2026-07-30
-(`docs/sessions/2026-07-30-segmentation-probe-scope.md`) asking whether Stage
+an OPEN-decision comment asking whether Stage
 1 should report the linear head (`hidden_dims: []`) instead of `[512]` — and,
 more importantly for the project's actual question, comparing backbones only
 through an MLP head cannot separate "this backbone's frozen features
@@ -51,7 +50,7 @@ Leakage checks unchanged from EXP-006 (`assert_sequence_disjoint`,
   except `model.hidden_dims: []`.
 - Checkpoint selection: best-val, matching EXP-005/EXP-006.
 - Seed: `20260729`, same as EXP-005/EXP-006.
-- Hardware: Technion course VM (`mcvgpu2025s-0086`), CPU-only
+- Hardware: Technion course VM, CPU-only
   (`torch.cuda.is_available()` is `False` on this VM, same as EXP-006),
   `num_workers: 8`.
 - Exact commands (per backbone):

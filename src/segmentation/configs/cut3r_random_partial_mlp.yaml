@@ -7,7 +7,7 @@ backbone: cut3r-random
 # linear-probe capacity ablation.
 #
 # Random-initialized CUT3R baseline. Its scientific meaning is an OPEN decision
-# (see ../../backbones/README.md and PROJECT_STATUS); the cache it
+# (see ../../backbones/README.md); the cache it
 # reads comes from a provisional reset_parameters init pending a baseline ADR.
 # Smoke-test against the fake caches without editing this file:
 #   CUT3R_CACHE_ROOT=src/segmentation/dummy_embeddings python -m src.segmentation.train_segmentation --config <this file>

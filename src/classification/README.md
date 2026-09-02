@@ -135,8 +135,13 @@ CUT3R's trained features are far above both null models, and the persistent stat
 the grid tokens — the ADR 0003 comparison, answered on val. DINOv2 is far ahead of both.
 
 **One seed, and val is 512 windows from 130 sequences: differences under ~3–4 points are
-not resolvable.** Test is untouched. `head.pt` holds the final epoch, which is the wrong
-one for DINOv2 (peaks by epoch 4) and probably early for CUT3R (still improving at 30).
+not resolvable.** Test is untouched.
+
+> These are the first-pass numbers ([EXP-004](../../docs/experiments/EXP-004-part-a-classification.md)).
+> The **reported** results run the same probe on the unioned, re-split cache with
+> best-validation checkpoint selection and a held-out test split — see
+> [EXP-008](../../docs/experiments/EXP-008-classification-linear-vs-mlp.md) and
+> [reports/classification](../../reports/classification/README.md).
 
 ## Files
 
@@ -144,9 +149,13 @@ one for DINOv2 (peaks by epoch 4) and probably early for CUT3R (still improving 
 |---|---|
 | `model_classification.py` | `ClassificationProbe` = pooling + trainable MLP head (`hidden_dims=[]` gives a true linear probe). The head is defined here rather than shared with `src.segmentation`: the two answer different questions, and keeping them separate means neither can be changed by an edit meant for the other. |
 | `dataset_classification.py` | `ProbeCacheClassificationDataset` over the probe-feature cache (one pooled vector + one label per window). |
-| `train_classification.py` | Config-driven training loop; cross-entropy; asserts sequence-disjoint splits; saves `head.pt`. |
-| `inference_classification.py` | Reloads `head.pt` and evaluates a chosen split (default `test`); per-window predictions + confusion matrix. |
-| `configs/*.yaml` | One config per backbone **and arm** (`<backbone>_{image,state}.yaml`, eight in all). Identical heads; the cache and `features.source` differ. |
+| `train_classification.py` | Config-driven training loop; cross-entropy; asserts sequence-disjoint splits; saves `head.pt`. `training.checkpoint_selection` picks what `head.pt` holds: `final` (default) or `best_val_macro_f1`. |
+| `inference_classification.py` | Reloads `head.pt` and evaluates a chosen split (default `test`); writes per-window predictions, a confusion matrix, and `inference-<split>-probabilities.csv`. |
+| `bootstrap_accuracy.py` | Percentile bootstrap over complete CO3D **sequence** clusters — marginal intervals and paired/unpaired differences. Windows within a sequence are not independent observations, so windows are never the resampling unit. |
+| `build_test_report.py` | Turns per-window probability CSVs into the tables and figures in `reports/classification/`. Refuses to compare runs that were not evaluated on identical test observations. |
+| `rank_visualization.py` | Where the true class ranks among the head's outputs, against the explicit random-ranking baseline. |
+| `configs/*.yaml` | One config per backbone **and arm** (`<backbone>_{image,state}.yaml`), the first-pass Part-A runs. |
+| `configs/fullunion-resplit/*.yaml` | The reported runs: three representations x seven head/regularisation settings on the unioned, re-split cache. The two `*_{linear,mlp512}_adam.yaml` per representation differ **only** in `model.hidden_dims` — that is the capacity ablation. |
 | `visualizations.py` | Figures built from the run outputs; see [Figures](#figures). |
 
 Structure deliberately mirrors [`../segmentation/`](../segmentation/README.md). The
@@ -211,6 +220,22 @@ because `inference-<split>.json` does not record it yet.
 One naming caveat worth repeating: the per-category bars plot **recall**, not accuracy.
 Per-category accuracy in a multiclass setting would count true negatives too, which sits
 near 1.0 for every category and says nothing.
+
+## Test report
+
+`build_test_report.py` is the analysis stage. It reads only
+`inference-<split>-probabilities.csv` files, so it needs no cache, no weights, and no
+GPU — and it is the reason the reported results can be re-derived from what is committed:
+
+```bash
+python -m src.classification.build_test_report   --predictions-dir reports/classification/predictions   --output-dir reports/classification   --seeds reports/classification/bootstrap-seeds.json   --epochs reports/classification/selected-epochs.json
+```
+
+Two design points. Every interval resamples **sequences**, because four windows of one
+object are one observation, not four. And every difference reuses the same cluster draw
+for both models, so the within-sequence error correlation survives into the paired
+interval; the unpaired version is written out beside it as a sensitivity check, never as
+the headline.
 
 ## Smoke test without real embeddings
 

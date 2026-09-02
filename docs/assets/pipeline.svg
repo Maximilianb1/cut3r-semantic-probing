@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 486" width="1080" height="486" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" role="img" aria-label="Pipeline: CO3D windows enter three frozen backbones, tokens are cached once, and two trainable probe heads read them. CUT3R-trained reaches 0.777 macro-IoU and 0.708 accuracy against a 0.277 and 0.214 random-weight control.">
+  <defs>
+    <marker id="arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#8C959F"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1080" height="486" rx="10" fill="#FBFCFD"/>
+
+  <!-- ============ column 1: data ============ -->
+  <rect x="28" y="118" width="176" height="150" rx="9" fill="#FFFFFF" stroke="#D8DEE4"/>
+  <text x="116" y="147" text-anchor="middle" font-size="15" font-weight="600" fill="#1F2328">CO3Dv2</text>
+  <line x1="48" y1="159" x2="184" y2="159" stroke="#E7EBEF"/>
+  <text x="116" y="181" text-anchor="middle" font-size="12.5" fill="#57606A">26 categories</text>
+  <text x="116" y="201" text-anchor="middle" font-size="12.5" fill="#57606A">10,692 windows</text>
+  <text x="116" y="221" text-anchor="middle" font-size="12.5" fill="#57606A">6 frames each</text>
+  <text x="116" y="247" text-anchor="middle" font-size="11.5" fill="#8C959F">split by sequence</text>
+
+  <line x1="212" y1="193" x2="250" y2="193" stroke="#8C959F" stroke-width="1.6" marker-end="url(#arw)"/>
+
+  <!-- ============ column 2: frozen backbones ============ -->
+  <rect x="258" y="84" width="228" height="218" rx="9" fill="#FFFFFF" stroke="#D8DEE4"/>
+  <text x="372" y="112" text-anchor="middle" font-size="15" font-weight="600" fill="#1F2328">Frozen backbone</text>
+  <text x="372" y="131" text-anchor="middle" font-size="11.5" fill="#8C959F">no weights are ever updated</text>
+
+  <rect x="278" y="146" width="188" height="38" rx="7" fill="#F2F8FC" stroke="#0173B2"/>
+  <rect x="278" y="146" width="4" height="38" rx="2" fill="#0173B2"/>
+  <text x="296" y="163" font-size="13" font-weight="600" fill="#1F2328">CUT3R-trained</text>
+  <text x="296" y="177" font-size="11" fill="#57606A">3D reconstruction, pretrained</text>
+
+  <rect x="278" y="192" width="188" height="38" rx="7" fill="#FDF4EE" stroke="#D55E00"/>
+  <rect x="278" y="192" width="4" height="38" rx="2" fill="#D55E00"/>
+  <text x="296" y="209" font-size="13" font-weight="600" fill="#1F2328">CUT3R-random</text>
+  <text x="296" y="223" font-size="11" fill="#57606A">same architecture, untrained</text>
+
+  <rect x="278" y="238" width="188" height="38" rx="7" fill="#EEF9F5" stroke="#029E73"/>
+  <rect x="278" y="238" width="4" height="38" rx="2" fill="#029E73"/>
+  <text x="296" y="255" font-size="13" font-weight="600" fill="#1F2328">DINOv2 ViT-B/14</text>
+  <text x="296" y="269" font-size="11" fill="#57606A">2D vision, pretrained</text>
+
+  <line x1="494" y1="193" x2="532" y2="193" stroke="#8C959F" stroke-width="1.6" marker-end="url(#arw)"/>
+
+  <!-- ============ column 3: cache ============ -->
+  <rect x="540" y="118" width="160" height="150" rx="9" fill="#FFFFFF" stroke="#D8DEE4"/>
+  <text x="620" y="147" text-anchor="middle" font-size="15" font-weight="600" fill="#1F2328">Cached tokens</text>
+  <line x1="558" y1="159" x2="682" y2="159" stroke="#E7EBEF"/>
+  <text x="620" y="181" text-anchor="middle" font-size="12.5" fill="#57606A">state_tokens</text>
+  <text x="620" y="201" text-anchor="middle" font-size="12.5" fill="#57606A">patch-grid tokens</text>
+  <text x="620" y="227" text-anchor="middle" font-size="11.5" fill="#8C959F">extracted once,</text>
+  <text x="620" y="243" text-anchor="middle" font-size="11.5" fill="#8C959F">read many times</text>
+
+  <path d="M 708 193 L 726 193 L 726 106 L 754 106" fill="none" stroke="#8C959F" stroke-width="1.6" marker-end="url(#arw)"/>
+  <path d="M 708 193 L 726 193 L 726 302 L 754 302" fill="none" stroke="#8C959F" stroke-width="1.6" marker-end="url(#arw)"/>
+
+  <!-- ============ column 4a: segmentation ============ -->
+  <rect x="762" y="34" width="290" height="196" rx="9" fill="#FFFFFF" stroke="#D8DEE4"/>
+  <text x="782" y="60" font-size="14.5" font-weight="600" fill="#1F2328">Segmentation probe</text>
+  <text x="782" y="77" font-size="11.5" fill="#8C959F">per-patch head · test macro-IoU</text>
+
+  <line x1="866" y1="94" x2="866" y2="206" stroke="#E7EBEF"/>
+  <line x1="1030" y1="94" x2="1030" y2="206" stroke="#F1F4F7"/>
+
+  <rect x="866" y="98" width="131" height="19" rx="3" fill="#0173B2"/>
+  <text x="782" y="112" font-size="11.5" fill="#57606A">CUT3R-trained</text>
+  <text x="1005" y="112" font-size="11.5" font-weight="600" fill="#1F2328">.777</text>
+
+  <rect x="866" y="132" width="47" height="19" rx="3" fill="#D55E00"/>
+  <text x="782" y="146" font-size="11.5" fill="#57606A">CUT3R-random</text>
+  <text x="921" y="146" font-size="11.5" font-weight="600" fill="#1F2328">.277</text>
+
+  <rect x="866" y="166" width="136" height="19" rx="3" fill="#029E73"/>
+  <text x="782" y="180" font-size="11.5" fill="#57606A">DINOv2</text>
+  <text x="1010" y="180" font-size="11.5" font-weight="600" fill="#1F2328">.806</text>
+
+  <text x="782" y="215" font-size="11" fill="#8C959F">geometry reaches vision parity</text>
+
+  <!-- ============ column 4b: classification ============ -->
+  <rect x="762" y="252" width="290" height="196" rx="9" fill="#FFFFFF" stroke="#D8DEE4"/>
+  <text x="782" y="278" font-size="14.5" font-weight="600" fill="#1F2328">Classification probe</text>
+  <text x="782" y="295" font-size="11.5" fill="#8C959F">image-level head · 26-way accuracy</text>
+
+  <line x1="866" y1="312" x2="866" y2="424" stroke="#E7EBEF"/>
+  <line x1="1030" y1="312" x2="1030" y2="424" stroke="#F1F4F7"/>
+
+  <rect x="866" y="316" width="116" height="19" rx="3" fill="#0173B2"/>
+  <text x="782" y="330" font-size="11.5" fill="#57606A">CUT3R-trained</text>
+  <text x="990" y="330" font-size="11.5" font-weight="600" fill="#1F2328">.708</text>
+
+  <rect x="866" y="350" width="35" height="19" rx="3" fill="#D55E00"/>
+  <text x="782" y="364" font-size="11.5" fill="#57606A">CUT3R-random</text>
+  <text x="909" y="364" font-size="11.5" font-weight="600" fill="#1F2328">.214</text>
+
+  <rect x="866" y="384" width="156" height="19" rx="3" fill="#029E73"/>
+  <text x="782" y="398" font-size="11.5" fill="#57606A">DINOv2</text>
+  <text x="1030" y="398" font-size="11.5" font-weight="600" fill="#1F2328">.953</text>
+
+  <text x="782" y="433" font-size="11" fill="#8C959F">a real gap remains on identity</text>
+
+  <!-- footnote -->
+  <text x="28" y="304" font-size="11.5" fill="#8C959F">Only the two heads are trained.</text>
+  <text x="28" y="322" font-size="11.5" fill="#8C959F">Everything left of them is frozen,</text>
+  <text x="28" y="340" font-size="11.5" fill="#8C959F">so any measured signal is a</text>
+  <text x="28" y="358" font-size="11.5" fill="#8C959F">property of the representation.</text>
+
+  <text x="258" y="340" font-size="11.5" fill="#8C959F">CUT3R-random is the control: it holds architecture, data, and head</text>
+  <text x="258" y="358" font-size="11.5" fill="#8C959F">fixed and removes only the pretraining. The distance between the</text>
+  <text x="258" y="376" font-size="11.5" fill="#8C959F">blue and orange bars is what 3D pretraining is worth.</text>
+</svg>

@@ -56,8 +56,8 @@ script:
 | `CUT3R_CACHE_ROOT` | Root under which extraction writes cache shards. |
 | `CUT3R_ARTIFACT_ROOT` | Root under which manifests and reports are written. |
 
-`docs/project/TECHNION_VM_RUNBOOK.md` records the canonical export block for
-the course VM.
+[`docs/REPRODUCING.md`](../docs/REPRODUCING.md) records the canonical export
+block.
 
 ## Top-level schema
 
@@ -96,7 +96,7 @@ Common patterns:
 
 ## Related
 
-- Provenance and cache identity: `docs/data/stage0-full51-cache-handoff.md`.
+- Provenance and cache identity: `docs/data/stage0-protocol.md`.
 - Manifest and window contracts: ADRs 0002 and 0003 under `docs/decisions/`.
 - Segmentation probe-head configs (twin of `configs/probe_features/`):
   `src/segmentation/configs/`. The two files must agree on

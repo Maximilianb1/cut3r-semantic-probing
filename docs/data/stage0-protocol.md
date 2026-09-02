@@ -161,8 +161,8 @@ The complete Debug run wrote 41 valid windows at 0.464 seconds/window, used
 projected upper bounds of 49 GiB for Full-51 Part A and 47 GiB for Part B. The
 two sequential production runs actually produced 3,667 and 3,458 windows,
 occupying 42.768 and 40.285 GiB respectively. Both were transferred off the VM
-and independently SHA-verified; their canonical identities are recorded in the
-[Full-51 cache handoff](stage0-full51-cache-handoff.md).
+and independently SHA-verified against the checksum list written beside each
+cache root.
 
 Probe overfitting and scientific metrics begin in Stages 1 and 2, not Stage 0.
 
