@@ -5,8 +5,17 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "cut3r-semantic-probing"
 version = "0.1.0"
-description = "Reproducible CO3Dv2 preprocessing and frozen CUT3R feature extraction"
+description = "Semantic probing of frozen CUT3R representations on CO3D"
+readme = "README.md"
 requires-python = ">=3.11"
+authors = [
+  {name = "Ron Bartal"},
+  {name = "Yam Ben-Tov"},
+  {name = "Maximilian Bershtman"},
+  {name = "Lihi Bar-Tal"},
+  {name = "Aviv Rabi"},
+  {name = "Jeremy Jornet"},
+]
 dependencies = [
   "matplotlib>=3.8,<4",
   "numpy==1.26.4",

@@ -63,7 +63,7 @@ def probe_cache_provenance(cache_dir: str | Path) -> dict[str, Any]:
     path = Path(cache_dir) / "metadata.json"
     if not path.is_file():
         raise FileNotFoundError(
-            f"Probe-feature cache metadata is missing: {path}. This workspace consumes "
+            f"Probe-feature cache metadata is missing: {path}. This package consumes "
             "caches; build one first with scripts/extract_probe_features.py"
         )
     return load_json(path)
@@ -283,7 +283,7 @@ def train_from_config(config: dict[str, Any]) -> dict[str, Any]:
     torch.manual_seed(seed)
 
     if int(model_cfg.get("num_classes", 1)) != 1:
-        raise NotImplementedError("train_segmentation currently implements the binary (num_classes=1) probe")
+        raise NotImplementedError("train_segmentation implements the binary (num_classes=1) probe")
 
     checkpoint_selection = str(training.get("checkpoint_selection", "last")).lower()
     if checkpoint_selection not in ("last", "best_val"):

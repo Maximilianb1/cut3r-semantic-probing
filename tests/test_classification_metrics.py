@@ -40,7 +40,7 @@ def test_unknown_pooling_raises_rather_than_defaulting() -> None:
 
 
 def test_features_source_is_required() -> None:
-    """Choosing the representation is an open comparison, so it must be explicit."""
+    """Choosing the representation is a compared variable, so it must be explicit."""
     with pytest.raises(ValueError, match="explicit 'source'"):
         resolve_features({})
     with pytest.raises(ValueError, match="explicit 'source'"):

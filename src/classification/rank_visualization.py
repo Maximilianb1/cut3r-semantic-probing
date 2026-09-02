@@ -47,7 +47,7 @@ def true_class_rank(window: dict[str, Any], label_space: Sequence[str]) -> int:
     if not isinstance(probabilities, dict):
         raise ValueError(
             "Inference has no class_probabilities; rerun inference_classification "
-            "with the probability-exporting version"
+            "so that per-window class probabilities are written"
         )
     expected = set(label_space)
     actual = set(probabilities)
