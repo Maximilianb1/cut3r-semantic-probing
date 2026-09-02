@@ -1,0 +1,17 @@
+{
+  "ci/cut3r-trained/linear": 2600890603,
+  "ci/cut3r-trained/mlp512": 2884357290,
+  "ci/cut3r-random/linear": 3795265263,
+  "ci/cut3r-random/mlp512": 1347936378,
+  "ci/dinov2/linear": 743074936,
+  "ci/dinov2/mlp512": 2865387401,
+  "difference/cut3r-trained/mlp512|cut3r-trained/linear": 2072078395,
+  "difference/cut3r-random/mlp512|cut3r-random/linear": 2706768559,
+  "difference/dinov2/mlp512|dinov2/linear": 2013561229,
+  "difference/cut3r-trained/linear|cut3r-random/linear": 2933986667,
+  "difference/cut3r-trained/mlp512|cut3r-random/mlp512": 3013227517,
+  "difference/dinov2/linear|cut3r-trained/linear": 2726068411,
+  "difference/dinov2/mlp512|cut3r-trained/mlp512": 4088186794,
+  "difference/dinov2/linear|cut3r-random/linear": 1459860819,
+  "difference/dinov2/mlp512|cut3r-random/mlp512": 1089952606
+}

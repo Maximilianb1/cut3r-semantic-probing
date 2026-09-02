@@ -1,0 +1,28 @@
+experiment: classification-dinov2-fullunion-resplit80-10-10-linear-adam-ls01-wd1e4
+backbone: dinov2-vitb14
+probe_cache:
+  dir: ${DINOV2_RESPLIT_CACHE}
+features: {source: state_tokens, pooling: mean, normalize: standardize}
+model:
+  feature_dim: 768
+  hidden_dims: []
+  activation: gelu
+  dropout: 0.0
+  label_space: present
+training:
+  optimizer: adam
+  epochs: 100
+  batch_size: 64
+  lr: 0.001
+  weight_decay: 0.0001
+  label_smoothing: 0.1
+  balanced_sampler: false
+  checkpoint_selection: best_val_macro_f1
+  top_k: 5
+  seed: 20260731
+  device: cpu
+  num_workers: 0
+  preload_features: true
+  progress: false
+splits: {train: train, val: val, test: test}
+output: {dir: src/classification/experiments/fullunion-resplit_dinov2}

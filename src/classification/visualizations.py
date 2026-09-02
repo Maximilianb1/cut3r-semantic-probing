@@ -41,7 +41,8 @@ _RC_PARAMS: dict[str, Any] = {
 _PALETTE = ("#6BAED6", "#FDAE6B", "#74C476", "#FC9999", "#B5A8D4")
 
 # Marker + line style carry the second dimension (train vs val, or which arm), so
-# colour is free to identify the entity.
+# colour is free to identify the compared run. A lone run per backbone is named by
+# backbone; multiple selected runs from one backbone are named by model configuration.
 _TRAIN_STYLE = {"marker": "o", "linestyle": "-"}
 _VAL_STYLE = {"marker": "s", "linestyle": "--"}
 # Line weight and marker cadence: markers every few epochs keep a long run legible
@@ -88,6 +89,10 @@ class Run:
         return self.metrics["features"]["source"]
 
     @property
+    def experiment(self) -> str:
+        return str(self.metrics.get("experiment") or self.directory.name)
+
+    @property
     def backbone(self) -> str:
         return str(self.metrics.get("backbone") or self.metrics.get("experiment"))
 
@@ -99,7 +104,9 @@ class Run:
     @property
     def label(self) -> str:
         suffix = " (SYNTHETIC)" if self.synthetic else ""
-        return f"{self.backbone}{suffix}"
+        marker = "fullunion-resplit80-10-10-"
+        model = self.experiment.split(marker, 1)[-1]
+        return f"{self.backbone} / {model}{suffix}"
 
     def history(self, side: str, metric: str) -> tuple[list[int], list[float]]:
         epochs, values = [], []
@@ -110,7 +117,11 @@ class Run:
         return epochs, values
 
 
-def discover_runs(experiments_dir: str | Path, split: str = "test") -> list[Run]:
+def discover_runs(
+    experiments_dir: str | Path,
+    split: str = "test",
+    experiments: Sequence[str] | None = None,
+) -> list[Run]:
     """Every run under ``<experiments_dir>/<source>/<experiment>/``, sorted."""
     root = Path(experiments_dir)
     runs = [
@@ -122,7 +133,21 @@ def discover_runs(experiments_dir: str | Path, split: str = "test") -> list[Run]
         raise FileNotFoundError(
             f"No runs with a metrics.json under {root}; train something first"
         )
+    if experiments:
+        requested = set(experiments)
+        runs = [run for run in runs if run.experiment in requested]
+        missing = sorted(requested - {run.experiment for run in runs})
+        if missing:
+            raise FileNotFoundError(
+                f"Requested experiments not found under {root}: {missing}"
+            )
     return runs
+
+
+def _series_name(run: Run, runs: Sequence[Run]) -> str:
+    """Use backbone unless several selected runs need model-level distinction."""
+    duplicate_backbone = sum(other.backbone == run.backbone for other in runs) > 1
+    return run.label if duplicate_backbone else run.backbone
 
 
 def _stamp_synthetic(figure: plt.Figure, runs: Iterable[Run]) -> None:
@@ -235,7 +260,7 @@ def plot_curves_by_arm(runs: Sequence[Run], arm: str, *,
                        save_path: str | Path | None = None) -> plt.Figure:
     """One arm's curves: a 2x2 of loss, accuracy, macro F1, macro recall.
 
-    Colour identifies the backbone. Train is the faded solid line, val the marked
+    Colour identifies the compared run. Train is the faded solid line, val the marked
     dashed one, so the gap between them - the thing worth seeing on a frozen-feature
     probe - reads directly off each panel.
     """
@@ -243,8 +268,8 @@ def plot_curves_by_arm(runs: Sequence[Run], arm: str, *,
     selected = [run for run in runs if run.source == arm]
     if not selected:
         raise ValueError(f"No runs with features.source={arm!r}")
-    backbones = sorted({run.backbone for run in selected})
-    colour = {name: _PALETTE[index % len(_PALETTE)] for index, name in enumerate(backbones)}
+    names = sorted({_series_name(run, selected) for run in selected})
+    colour = {name: _PALETTE[index % len(_PALETTE)] for index, name in enumerate(names)}
 
     figure, axes = plt.subplots(2, 2, figsize=(9.0, 6.0))
     for panel, (metric, pretty) in zip(axes.flat, _CURVE_METRICS):
@@ -252,8 +277,15 @@ def plot_curves_by_arm(runs: Sequence[Run], arm: str, *,
             for side, style, alpha in (("train", _TRAIN_STYLE, 0.35), ("val", _VAL_STYLE, 1.0)):
                 epochs, values = run.history(side, metric)
                 if epochs:
-                    panel.plot(epochs, values, color=colour[run.backbone], alpha=alpha,
-                               markevery=_markevery(len(epochs)), **_LINE, **style)
+                    panel.plot(
+                        epochs,
+                        values,
+                        color=colour[_series_name(run, selected)],
+                        alpha=alpha,
+                        markevery=_markevery(len(epochs)),
+                        **_LINE,
+                        **style,
+                    )
         _finish_panel(panel, pretty, metric)
 
     figure.legend(handles=_curve_legend(colour, ("train (faded)", "val")),
@@ -280,8 +312,8 @@ def plot_curves_train_val(runs: Sequence[Run], arm: str, *,
     selected = [run for run in runs if run.source == arm]
     if not selected:
         raise ValueError(f"No runs with features.source={arm!r}")
-    backbones = sorted({run.backbone for run in selected})
-    colour = {name: _PALETTE[index % len(_PALETTE)] for index, name in enumerate(backbones)}
+    names = sorted({_series_name(run, selected) for run in selected})
+    colour = {name: _PALETTE[index % len(_PALETTE)] for index, name in enumerate(names)}
 
     figure, axes = plt.subplots(len(_CURVE_METRICS), 2, figsize=(9.0, 11.0),
                                 sharex=True, sharey="row")
@@ -292,7 +324,7 @@ def plot_curves_train_val(runs: Sequence[Run], arm: str, *,
                 epochs, values = run.history(side, metric)
                 if epochs:
                     style = _TRAIN_STYLE if side == "train" else _VAL_STYLE
-                    panel.plot(epochs, values, color=colour[run.backbone],
+                    panel.plot(epochs, values, color=colour[_series_name(run, selected)],
                                markevery=_markevery(len(epochs)), **_LINE, **style)
             _finish_panel(panel, pretty, metric)
             # The row already names the metric; the panel title names the split.
@@ -315,14 +347,14 @@ def plot_curves_train_val(runs: Sequence[Run], arm: str, *,
 
 def plot_curves_merged(runs: Sequence[Run], *,
                        save_path: str | Path | None = None) -> plt.Figure:
-    """Both arms overlaid, validation only: colour = backbone, line style = arm.
+    """Both arms overlaid, validation only: colour = run, line style = arm.
 
     Validation only on purpose. Adding train would double the lines and bury the one
     comparison this figure exists to make.
     """
     _apply_rc()
-    backbones = sorted({run.backbone for run in runs})
-    colour = {name: _PALETTE[index % len(_PALETTE)] for index, name in enumerate(backbones)}
+    names = sorted({_series_name(run, runs) for run in runs})
+    colour = {name: _PALETTE[index % len(_PALETTE)] for index, name in enumerate(names)}
 
     figure, axes = plt.subplots(2, 2, figsize=(9.0, 6.0))
     for panel, (metric, pretty) in zip(axes.flat, _CURVE_METRICS):
@@ -330,7 +362,7 @@ def plot_curves_merged(runs: Sequence[Run], *,
             epochs, values = run.history("val", metric)
             if epochs:
                 style = _TRAIN_STYLE if run.source == "image_tokens" else _VAL_STYLE
-                panel.plot(epochs, values, color=colour[run.backbone],
+                panel.plot(epochs, values, color=colour[_series_name(run, runs)],
                            markevery=_markevery(len(epochs)), **_LINE, **style)
         _finish_panel(panel, pretty, metric)
 
@@ -452,7 +484,7 @@ def plot_summary(runs: Sequence[Run], *, save_path: str | Path | None = None) ->
     scored = [run for run in runs if run.inference]
     if not scored:
         raise ValueError("No inference files found; run inference before plotting a summary")
-    labels = [f"{run.backbone}\n{run.source}" for run in scored]
+    labels = [f"{run.label}\n{run.source}" for run in scored]
     series = (("Accuracy", "accuracy", _PALETTE[0]),
               ("Macro F1", "macro_f1", _PALETTE[1]),
               ("Macro recall", "macro_recall", _PALETTE[2]))
@@ -551,9 +583,19 @@ def main() -> None:
     parser.add_argument("--split", default="test", help="Which inference-<split>.json to read.")
     parser.add_argument("--output-dir", type=Path, default=None,
                         help="Where to write figures (default: <experiments-dir>/figures).")
+    parser.add_argument(
+        "--experiment",
+        action="append",
+        default=[],
+        help="Exact experiment name to include; repeat to select multiple runs.",
+    )
     arguments = parser.parse_args()
 
-    runs = discover_runs(arguments.experiments_dir, arguments.split)
+    runs = discover_runs(
+        arguments.experiments_dir,
+        arguments.split,
+        experiments=arguments.experiment or None,
+    )
     out = arguments.output_dir or arguments.experiments_dir / "figures"
     out.mkdir(parents=True, exist_ok=True)
     print(f"{len(runs)} run(s) found under {arguments.experiments_dir}")
@@ -571,7 +613,7 @@ def main() -> None:
         plot_summary(scored, save_path=out / "summary.png")
         print(f"  summary            -> {out / 'summary.png'}")
     for run in runs:
-        stem = f"{run.source}-{run.backbone}".replace("/", "-")
+        stem = f"{run.source}-{run.experiment}".replace("/", "-")
         plot_per_category(run, save_path=out / f"per_category-{stem}.png")
         if run.inference:
             plot_confusion_matrix(run, save_path=out / f"confusion-{stem}.png")

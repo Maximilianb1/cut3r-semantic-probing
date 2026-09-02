@@ -40,6 +40,7 @@ from .dataset_classification import (
 
 # Optimizers selectable from the config; an unknown name is rejected, never defaulted.
 _OPTIMIZERS = {"adam": torch.optim.Adam, "adamw": torch.optim.AdamW, "sgd": torch.optim.SGD}
+_CHECKPOINT_SELECTIONS = {"final", "best_val_macro_f1"}
 
 
 def load_config(path: str | Path) -> dict[str, Any]:
@@ -199,6 +200,7 @@ class MulticlassMetrics:
         """Update the metrics per batch."""
         ranked = logits.topk(min(self.top_k, logits.shape[1]), dim=1).indices  # [B, k]
         predicted = ranked[:, 0]
+        probabilities = torch.softmax(logits, dim=1) if self.collect_windows else None
         hit = (predicted == labels)
         self.correct += int(hit.sum().item())
         self.total += int(labels.numel())
@@ -217,10 +219,18 @@ class MulticlassMetrics:
             key = (int(labels[position]), int(predicted[position]))
             self.confusion[key] = self.confusion.get(key, 0) + 1
             if self.collect_windows:
+                assert probabilities is not None
+                class_probabilities = {
+                    name: float(probabilities[position, class_index])
+                    for class_index, name in enumerate(self.vocabulary)
+                }
                 self.windows.append({
                     "window_id": batch["window_id"][position],
+                    "sequence_id": batch["sequence_id"][position],
                     "category": category,
                     "predicted_category": predicted_category,
+                    "predicted_probability": class_probabilities[predicted_category],
+                    "class_probabilities": class_probabilities,
                     "correct": bool(hit[position]),
                 })
 
@@ -307,6 +317,11 @@ def train_from_config(config: dict[str, Any]) -> dict[str, Any]:
     train_set = ProbeCacheClassificationDataset(cache_dir, split=splits["train"], **dataset_options)
     val_set = ProbeCacheClassificationDataset(cache_dir, split=splits["val"], **dataset_options)
     assert_sequence_disjoint(train_set, val_set)
+    if bool(training.get("preload_features", False)):
+        # Pool each frozen representation once. Re-reading a 768x768 state tensor on
+        # every epoch is unnecessary when the resulting 768-vector is only 3 KiB.
+        train_set.preload_features()
+        val_set.preload_features()
 
     loader_options = {
         "batch_size": int(training.get("batch_size", 32)),
@@ -349,7 +364,18 @@ def train_from_config(config: dict[str, Any]) -> dict[str, Any]:
 
     history: list[dict[str, Any]] = []
     epochs = int(training.get("epochs", 10))
+    if epochs < 1:
+        raise ValueError("training.epochs must be at least 1")
     progress = bool(training.get("progress", True))
+    checkpoint_policy = str(training.get("checkpoint_selection", "final"))
+    if checkpoint_policy not in _CHECKPOINT_SELECTIONS:
+        raise ValueError(
+            f"Unknown training.checkpoint_selection {checkpoint_policy!r}; supported: "
+            f"{sorted(_CHECKPOINT_SELECTIONS)}"
+        )
+    selected_head_state: dict[str, torch.Tensor] | None = None
+    selected_epoch: int | None = None
+    selected_val: dict[str, Any] | None = None
     for epoch in _progress(range(1, epochs + 1), "epochs" if progress else None, unit="epoch"):
         model.train()
         train_metrics = MulticlassMetrics(top_k=top_k, vocabulary=label_space)
@@ -378,6 +404,17 @@ def train_from_config(config: dict[str, Any]) -> dict[str, Any]:
             vocabulary=label_space,
         )
         history.append({"epoch": epoch, "train": train, "val": val})
+        if checkpoint_policy == "best_val_macro_f1" and (
+            selected_val is None or val["macro_f1"] > selected_val["macro_f1"]
+        ):
+            # state_dict tensors otherwise keep referencing the live module and would
+            # silently become the final epoch as training continues. Clone to CPU now.
+            selected_head_state = {
+                name: tensor.detach().cpu().clone()
+                for name, tensor in model.head.state_dict().items()
+            }
+            selected_epoch = epoch
+            selected_val = val
         # tqdm.write, not print, so the summary does not land on top of a live bar.
         tqdm.write(
             f"epoch {epoch:3d}  loss {train['loss']:.4f}/{val['loss']:.4f}  "
@@ -386,6 +423,22 @@ def train_from_config(config: dict[str, Any]) -> dict[str, Any]:
             f"recall {train['macro_recall']:.4f}/{val['macro_recall']:.4f}  [train/val]"
         )
 
+    if checkpoint_policy == "final":
+        selected_head_state = {
+            name: tensor.detach().cpu().clone()
+            for name, tensor in model.head.state_dict().items()
+        }
+        selected_epoch = history[-1]["epoch"]
+        selected_val = history[-1]["val"]
+    if selected_head_state is None or selected_epoch is None or selected_val is None:
+        raise RuntimeError("No checkpoint was selected during training")
+
+    selection = {
+        "policy": checkpoint_policy,
+        "epoch": selected_epoch,
+        "val_macro_f1": selected_val["macro_f1"],
+        "val_accuracy": selected_val["accuracy"],
+    }
     result = {
         "experiment": config.get("experiment", "classification"),
         "backbone": config.get("backbone"),
@@ -405,6 +458,7 @@ def train_from_config(config: dict[str, Any]) -> dict[str, Any]:
         "history": history,
         "final_train": history[-1]["train"] if history else None,
         "final_val": history[-1]["val"] if history else None,
+        "checkpoint_selection": selection,
     }
     path = run_directory(config, features)
     if path is not None:
@@ -413,9 +467,11 @@ def train_from_config(config: dict[str, Any]) -> dict[str, Any]:
         # Save the trained head so inference_classification.py can reload the probe.
         torch.save(
             {
-                "head_state_dict": model.head.state_dict(),
+                "head_state_dict": selected_head_state,
                 "model_config": model_cfg,
                 "features": dict(features),
+                "epoch": selected_epoch,
+                "checkpoint_selection": selection,
                 # Travels with the weights: output i means label_space[i], and inference
                 # cannot name a prediction without it.
                 "label_space": list(label_space),

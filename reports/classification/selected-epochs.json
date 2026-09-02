@@ -1,0 +1,8 @@
+{
+  "cut3r-trained/linear": 83,
+  "cut3r-trained/mlp512": 12,
+  "cut3r-random/linear": 82,
+  "cut3r-random/mlp512": 71,
+  "dinov2/linear": 4,
+  "dinov2/mlp512": 33
+}
