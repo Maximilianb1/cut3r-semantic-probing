@@ -163,13 +163,28 @@ between chance and perfect and the IoU code is exercised on real values. Delete 
 run directories before switching to real caches, so a synthetic `metrics.json` never
 sits under the name a real run will reuse.
 
-## Open decisions
+## Results and caveats
 
-The random-CUT3R baseline meaning, the DINOv2 variant/dependency, and the
-cross-backbone comparison protocol are unresolved and should be ratified by ADR
-before results are reported. See
-[../backbones/README.md](../backbones/README.md).
+Reported results are [EXP-006](../../docs/experiments/EXP-006-part-a-seg-expanded-training.md)
+(expanded training, MLP head) and
+[EXP-007](../../docs/experiments/EXP-007-part-a-seg-probe-capacity-ablation.md)
+(the same runs with a linear head). Figures and metrics are in
+[reports/segmentation](../../reports/segmentation/README.md).
 
-Still-open engineering choices in the training code (see `train_segmentation.py`):
-which `checkpoint_selection` mode to report, class-imbalance handling (`pos_weight`),
-and the empty-target IoU convention (a foreground-free window currently scores 1.0).
+What the reported runs settled, and what they did not:
+
+- `checkpoint_selection: best_val` is what every reported run uses, so a result is
+  never whichever epoch training happened to stop on.
+- The CUT3R-random cache uses `layout: target_only` while CUT3R-trained uses
+  `layout: trajectory`. The control therefore isolates weights *and* layout, not
+  weights alone — noted as a limitation rather than fixed, because it would have
+  to close a ~0.5 IoU gap to matter.
+- Class imbalance is untouched: no `pos_weight`, no resampling. The same head and
+  the same loss are used for all three backbones, which is what makes them
+  comparable.
+- A foreground-free window scores IoU 1.0 under the current empty/empty
+  convention. Such windows are rare in CO3D's object-centric sequences, but the
+  convention is a choice, not a fact.
+
+See [../backbones/README.md](../backbones/README.md) for what the random-weight
+baseline does and does not establish.

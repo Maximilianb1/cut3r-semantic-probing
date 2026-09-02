@@ -1,7 +1,7 @@
 # EXP-002: Complete Stage 0 Debug extraction
 
 - Date: 2026-07-18
-- Owner: Max Bershtman with Codex
+- Owner: Max Bershtman
 - Status: Completed
 - Configuration: `configs/stage0/debug.yaml`
 - Dataset: CO3Dv2 `v2_231130`

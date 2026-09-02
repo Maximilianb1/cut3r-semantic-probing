@@ -1,12 +1,17 @@
-# Reports and Presentation
+# Reports
 
-Sources for the final report, presentation, figures, and architecture diagram will live here. Generated large binaries should be stored externally or attached to releases when appropriate.
+The results themselves: the metrics, figures, and predictions behind the report
+and the talk.
 
-Stage 0 contributes versioned dataset summaries, preflight measurements, and
-representation definitions. Do not present debug/pilot checks as scientific
-results or imply that state-conditioned image tokens are persistent state.
+| Directory | Contents |
+|---|---|
+| [`segmentation/`](segmentation/README.md) | Stage 1. Three experiments — the baseline comparison, expanded training, and the linear-vs-MLP probe-capacity ablation — with per-run metrics, training curves, per-category IoU, qualitative best/worst grids, and the cross-backbone statistical comparison. |
+| [`classification/`](classification/README.md) | Stage 2. Per-window test predictions, the metric and bootstrap tables computed from them, and the figures. |
 
-## Contents
+Nothing here is an opaque output. Everything in `classification/` is
+regenerated from `classification/predictions/` by a committed script, and
+everything in `segmentation/` names the config and command that produced it.
 
-- [`segmentation/`](segmentation/README.md) — slide-ready figures and metrics
-  for the Part-A segmentation experiments (EXP-005, EXP-006, EXP-007).
+Model checkpoints, embedding caches, and raw prediction tensors are not here:
+they are large, regenerable working artifacts. See
+[docs/REPRODUCING.md](../docs/REPRODUCING.md).

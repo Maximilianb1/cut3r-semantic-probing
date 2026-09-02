@@ -1,21 +1,16 @@
 # Decision Records
 
-Use an Architecture/Analysis Decision Record (ADR) for choices that affect interfaces, scientific validity, reproducibility, dependencies, or multiple teammates.
-
-## Process
-
-1. Copy `0000-template.md`.
-2. Use the next four-digit number and a short name.
-3. Start with `Proposed`.
-4. Discuss in the linked pull request.
-5. Merge as `Accepted`, `Rejected`, or `Deferred`.
-6. Never rewrite history; supersede an old ADR with a new one.
-
-## Index
+The choices that constrain what the results are allowed to mean — splits,
+window protocol, what counts as a representation, how much training data. Each
+record states the context, the decision, and its consequences, so a number can
+be traced to the contract it was produced under.
 
 | ADR | Status | Decision |
 |---|---|---|
-| [0001](0001-repository-governance.md) | Accepted | Repository governance and tracking |
-| [0002](0002-co3dv2-stage0-data-protocol.md) | Proposed | Official sequence splits and deterministic six-frame windows |
-| [0003](0003-cut3r-trajectory-and-cache-contract.md) | Proposed | Six-timestep image/state features and verified cache |
-| [0004](0004-part-a-segmentation-training-cap-expansion.md) | Proposed | Raise Part-A segmentation training cap 30->100 sequences/category, val/test unchanged |
+| [0002](0002-co3dv2-stage0-data-protocol.md) | Proposed | Official CO3D sequence splits and deterministic six-frame windows, with sequence-level split isolation. |
+| [0003](0003-cut3r-trajectory-and-cache-contract.md) | Proposed | What "the CUT3R representation" means: six-timestep image and state features, and the verified cache that holds them. |
+| [0004](0004-part-a-segmentation-training-cap-expansion.md) | Proposed | Raise the Part-A segmentation training cap from 30 to 100 sequences per category; validation and test unchanged from ADR 0002. |
+
+All three stayed `Proposed`: they were written and followed, but never formally
+ratified by the team. The code enforces them regardless — split isolation is an
+assertion, not a convention.

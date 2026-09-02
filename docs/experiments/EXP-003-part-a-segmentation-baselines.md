@@ -1,11 +1,10 @@
 # EXP-003: Part-A frozen-representation segmentation baselines
 
 - Date: 2026-08-01
-- Owner: Ron Bartal with GitHub Copilot (Claude Opus 4.7)
+- Owner: Ron Bartal
 - Status: Partially completed — DINOv2 and CUT3R-random runs completed; CUT3R-trained blocked pending re-shared probe cache
 - Related issue/PR: follows PR #16; no PR opened this session
 - Code commit: `1f45943` on branch `main`
-- Related session note: [`../sessions/2026-08-01-part-a-baselines.md`](../sessions/2026-08-01-part-a-baselines.md)
 
 ## Hypothesis
 
@@ -62,8 +61,9 @@ Two backbones, identical head geometry and training recipe:
 ## Configuration
 
 - Tracked configs (unchanged this experiment):
-  - [`src/segmentation/configs/dinov2.yaml`](../../src/segmentation/configs/dinov2.yaml);
-  - [`src/segmentation/configs/cut3r_random.yaml`](../../src/segmentation/configs/cut3r_random.yaml).
+  - [`src/segmentation/configs/dinov2_partial_mlp.yaml`](../../src/segmentation/configs/dinov2_partial_mlp.yaml);
+  - [`src/segmentation/configs/cut3r_random_partial_mlp.yaml`](../../src/segmentation/configs/cut3r_random_partial_mlp.yaml)
+    (both renamed after this experiment; see EXP-007).
 - Machine-local overrides under `local/*.vm.yaml` (excluded from git) only
   change `device: cpu → cuda` and `output.dir → ${CUT3R_ARTIFACT_ROOT}/…`.
 - Optimiser: Adam, `lr 1e-3`, `weight_decay 0`, `batch_size 16`, 20 epochs.
@@ -72,7 +72,7 @@ Two backbones, identical head geometry and training recipe:
   last-epoch head kept alongside as `head-last.pt`. Driver:
   `local/train_best_val.py` (thin wrapper reusing `src/segmentation/`
   primitives; not committed).
-- Hardware: NVIDIA A10-24Q on the Technion Azure VM `mcvgpu2025s-0066`,
+- Hardware: NVIDIA A10-24Q on the Technion course VM,
   Python 3.11.15, torch 2.7.1+cu128.
 - Exact commands, on the VM:
 
@@ -193,8 +193,7 @@ Not supported:
 
 ## Problems and deviations
 
-- The `1aZ30CLLbw3Lwgs7KcLYNp4HYNi0uN2hI` Drive folder intended as the
-  CUT3R-trained probe cache turned out to be a Stage-0 *target feature cache*
+- The shared folder intended as the CUT3R-trained probe cache turned out to be a Stage-0 *target feature cache*
   (`cache_schema_version: stage0-target-cache-v1`), missing the `split`,
   `seg_labels_key`, `category`, `sequence_id` columns that the segmentation
   loader (`ProbeCacheDataset`) requires. Blocker communicated to collaborator
@@ -206,11 +205,9 @@ Not supported:
 
 - **Blocker**: obtain a labelled CUT3R-trained probe cache (probe-features-v2,
   target-only layout, with `seg_labels`, `split`, `category`, `sequence_id`)
-  from the collaborator. Recipe on arrival: `rclone copy` per
-  [`DRIVE_TO_VM_RUNBOOK.md`](../project/DRIVE_TO_VM_RUNBOOK.md), then rerun
-  the exact commands above with `local/cut3r_trained.vm.yaml`. Wall-clock
-  ≈5 minutes end to end.
-- On completion, extend the three tables in this record with the CUT3R-trained
-  row and update PROJECT_STATUS.md.
+  from the collaborator, then rerun the exact commands above with
+  `local/cut3r_trained.vm.yaml`. Wall-clock ≈5 minutes end to end.
+  Done in [EXP-005](EXP-005-part-a-seg-cut3r-unblocked.md), which supersedes
+  this record's numbers.
 - Independent follow-up: run CUT3R-random for 40–60 epochs to lock down the
   true random-init plateau. Not on this experiment's critical path.

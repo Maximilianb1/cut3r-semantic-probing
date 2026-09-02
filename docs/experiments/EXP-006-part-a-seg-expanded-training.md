@@ -1,7 +1,7 @@
 # EXP-006: Part-A expanded-training comparison
 
 - Date: 2026-08-22
-- Owner: Yam Ben-Tov with Claude Code
+- Owner: Yam Ben-Tov
 - Status: Completed
 - Related issue/PR: none
 - Code commit: `6a0f33b` on branch `seg/21-expand-part-a-data`
@@ -38,7 +38,7 @@ Only the training data changed.
 
 ## Configuration
 
-- New configs: `src/segmentation/configs/{cut3r_trained,cut3r_random,dinov2}_expanded.yaml`
+- New configs: `src/segmentation/configs/{cut3r_trained,cut3r_random,dinov2}_expanded_mlp.yaml`
   — only `probe_cache.train_dirs` and `output.dir` differ from their originals.
 - New code enabling this: `CombinedProbeCacheDataset` +
   `train_segmentation.build_datasets` (opt-in via `probe_cache.train_dirs`;
@@ -55,10 +55,10 @@ Only the training data changed.
 - Commands (per backbone):
 
   ```bash
-  python -m src.segmentation.train_segmentation --config src/segmentation/configs/<backbone>_expanded.yaml \
+  python -m src.segmentation.train_segmentation --config src/segmentation/configs/<backbone>_expanded_mlp.yaml \
     --checkpoint-selection best_val --output-dir src/segmentation/experiments/segmentation-<backbone>-expanded-bestval
 
-  python -m src.segmentation.inference_segmentation --config src/segmentation/configs/<backbone>_expanded.yaml \
+  python -m src.segmentation.inference_segmentation --config src/segmentation/configs/<backbone>_expanded_mlp.yaml \
     --checkpoint src/segmentation/experiments/segmentation-<backbone>-expanded-bestval/head.pt \
     --split test --save-dir src/segmentation/experiments/segmentation-<backbone>-expanded-bestval --save-masks
   # repeat inference with --split val
@@ -195,7 +195,7 @@ to a few scattered pixels or nothing, uncorrelated with the true object.
 ### Category dataset size vs. difficulty
 
 `python -m src.segmentation.analysis.build_category_representation_check
---config src/segmentation/configs/cut3r_trained_expanded.yaml` — 25 of 26
+--config src/segmentation/configs/cut3r_trained_expanded_mlp.yaml` — 25 of 26
 categories sit in a narrow ~370-400-window band (cap100 nearly equalized
 them; parkingmeter alone sits apart at ~181), yet test IoU still spans
 nearly the full 0-1 range within that band (Spearman r only +0.10 to +0.33,

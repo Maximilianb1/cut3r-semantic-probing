@@ -1,7 +1,7 @@
 # EXP-005: Part-A three-way segmentation comparison (CUT3R-trained unblocked)
 
 - Date: 2026-08-20
-- Owner: Yam Ben-Tov with Claude Code
+- Owner: Yam Ben-Tov
 - Status: Completed
 - Related issue/PR: Pillar A of the segmentation-probe redesign plan
 - Code commit: `be792c7` on branch `seg/21-expand-part-a-data`
@@ -30,7 +30,7 @@ Three backbones, identical head geometry and training recipe (unchanged from EXP
 
 - Probe: 1-hidden-layer MLP (`hidden_dims: [512]`, GELU, dropout 0.0), linear
   head to `num_classes: 1`, sigmoid + BCE, `pos_weight: null`. Identical
-  across all three backbones (`src/segmentation/configs/{cut3r_trained,cut3r_random,dinov2}.yaml`,
+  across all three backbones (`src/segmentation/configs/{cut3r_trained,cut3r_random,dinov2}_partial_mlp.yaml`,
   unchanged).
 - Frozen parameters: all backbone parameters; only the MLP head trains.
 
@@ -45,12 +45,11 @@ Three backbones, identical head geometry and training recipe (unchanged from EXP
 
 ## Data (continued)
 
-The three probe-feature caches and the manifest already exist on the team
-Drive; fetch them per
-[`DRIVE_TO_VM_RUNBOOK.md`](../project/DRIVE_TO_VM_RUNBOOK.md) before running
-anything below. That runbook's `cache/${BACKBONE}` path assumption does not
-match two of the three real folder layouts (see the fix noted in that file);
-list the folder first if a copy comes back empty.
+The three probe-feature caches and the manifest are produced by
+`scripts/extract_probe_features.py`; see
+[`docs/REPRODUCING.md`](../REPRODUCING.md) for the layout they must be placed
+in. The three backbones do not share one folder layout, so check the cache
+root before pointing a config at it.
 
 ## Configuration
 
@@ -73,13 +72,13 @@ list the folder first if a copy comes back empty.
 
   ```bash
   # Last-epoch (stock, unchanged)
-  python -m src.segmentation.train_segmentation --config src/segmentation/configs/<backbone>.yaml
-  python -m src.segmentation.inference_segmentation --config src/segmentation/configs/<backbone>.yaml --split test
+  python -m src.segmentation.train_segmentation --config src/segmentation/configs/<backbone>_partial_mlp.yaml
+  python -m src.segmentation.inference_segmentation --config src/segmentation/configs/<backbone>_partial_mlp.yaml --split test
 
   # Best-val
-  python -m src.segmentation.train_segmentation --config src/segmentation/configs/<backbone>.yaml \
+  python -m src.segmentation.train_segmentation --config src/segmentation/configs/<backbone>_partial_mlp.yaml \
     --checkpoint-selection best_val --output-dir src/segmentation/experiments/segmentation-<backbone>-bestval
-  python -m src.segmentation.inference_segmentation --config src/segmentation/configs/<backbone>.yaml \
+  python -m src.segmentation.inference_segmentation --config src/segmentation/configs/<backbone>_partial_mlp.yaml \
     --checkpoint src/segmentation/experiments/segmentation-<backbone>-bestval/head.pt \
     --split test --save-dir src/segmentation/experiments/segmentation-<backbone>-bestval --save-masks
 

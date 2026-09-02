@@ -10,7 +10,7 @@ backbone: cut3r-random
 # with a linear (hidden_dims: []) head instead.
 #
 # Random-initialized CUT3R baseline. Its scientific meaning is an OPEN decision
-# (see ../../backbones/README.md and PROJECT_STATUS); the cache it
+# (see ../../backbones/README.md); the cache it
 # reads comes from a provisional reset_parameters init pending a baseline ADR.
 probe_cache:
   dir: ${CUT3R_CACHE_ROOT}/probe/cut3r-random

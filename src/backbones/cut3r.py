@@ -10,8 +10,7 @@ its target-frame outputs through the shared :class:`Backbone` contract:
   shape ``[768, 768]``.
 
 ``weights="random"`` produces the random-initialized CUT3R baseline. NOTE: the
-scientific meaning of that baseline is an OPEN decision (see
-``src/baselines/README.md`` and PROJECT_STATUS). The re-initialization here is a
+scientific meaning of that baseline is an OPEN decision. The re-initialization here is a
 documented, seeded *placeholder* -- it reuses the released architecture and
 resets every module that exposes ``reset_parameters`` under a fixed seed -- and
 must not be treated as a settled contract until an ADR accepts it.
