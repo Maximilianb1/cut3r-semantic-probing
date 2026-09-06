@@ -20,21 +20,20 @@ from typing import Any
 import torch
 from torch.utils.data import DataLoader
 
-from src.backbones.probe_cache import load_probe_index
-
 from .model_segmentation import HeadConfig, build_probe
-from .dataset_segmentation import ProbeCacheDataset, collate_windows
+from .dataset_segmentation import CombinedProbeCacheDataset, ProbeCacheDataset, collate_windows
 from .train_segmentation import (
     _resolve_device,
     evaluate_binary,
     load_config,
-    probe_cache_provenance,
+    probe_cache_provenance_record,
+    resolve_probe_cache_dataset,
 )
 
 
 def load_trained_probe(config: dict[str, Any], checkpoint_path: str | Path, device: torch.device) -> torch.nn.Module:
     """
-    Rebuild the probe and load the trained head from "head.pt".
+    Rebuild the probe and load the trained head + standardization statistics from "head.pt".
     """
     checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=True)
     model_cfg = checkpoint["model_config"]
@@ -46,38 +45,30 @@ def load_trained_probe(config: dict[str, Any], checkpoint_path: str | Path, devi
         )
     model = build_probe(model_cfg)
     model.head.load_state_dict(checkpoint["head_state_dict"])
+    model.set_feature_statistics(checkpoint["feature_mean"], checkpoint["feature_std"])
     model.to(device).eval()
     return model
 
 
-def assert_not_trained_on(cache_dir: str | Path, config: dict[str, Any], dataset: ProbeCacheDataset, split: str) -> None:
+def assert_not_trained_on(
+    config: dict[str, Any], dataset: ProbeCacheDataset | CombinedProbeCacheDataset, split: str
+) -> None:
     """
     Fail loudly if the evaluated split shares CO3D sequences with the train split.
 
-    Checks ``probe_cache.train_dirs`` when set (an expanded combined training set:
-    original + leftover + cap100-new-train), not just ``cache_dir``, so evaluating
-    against a combined-data run is checked against everything it actually trained
-    on, not only the single val/test cache.
+    Rebuilds the train dataset via :func:`resolve_probe_cache_dataset`, so this
+    checks against whatever the run actually trained on in every
+    ``probe_cache`` mode - a single ``dir``, an expanded ``train_dirs`` union, or
+    a shared-split ``cache_dirs`` (+ ``split_override_path``) run - not only the
+    single val/test cache.
     """
     train_split = (config.get("splits") or {}).get("train", "train")
     if train_split == split:
         return
-    categories = config.get("categories")
-    allowed = None if categories is None else set(categories)
-    probe_cache = config.get("probe_cache") or {}
-    train_dirs = probe_cache.get("train_dirs")
-    if train_dirs is None:
-        train_dirs = [cache_dir]
-    elif not isinstance(train_dirs, (list, tuple)) or len(train_dirs) == 0:
-        raise ValueError("probe_cache.train_dirs must be a non-empty list when provided")
-    trained_sequences: set[str] = set()
-    for train_dir in train_dirs:
-        trained_sequences |= {
-            row["sequence_id"]
-            for row in load_probe_index(Path(train_dir))
-            if row["split"] == train_split and (allowed is None or row["category"] in allowed)
-        }
-    overlap = sorted(trained_sequences & dataset.sequence_ids())
+    train_dataset = resolve_probe_cache_dataset(
+        config, split=train_split, categories=config.get("categories")
+    )
+    overlap = sorted(train_dataset.sequence_ids() & dataset.sequence_ids())
     if overlap:
         raise ValueError(
             f"Split {split!r} shares {len(overlap)} sequence(s) with the training split "
@@ -94,9 +85,8 @@ def run_inference(config: dict[str, Any], *, checkpoint: str | Path | None = Non
         raise FileNotFoundError(f"Trained head not found at {checkpoint_path}; run train_segmentation.py first")
     model = load_trained_probe(config, checkpoint_path, resolved_device)
 
-    cache_dir = config["probe_cache"]["dir"]
-    dataset = ProbeCacheDataset(cache_dir, split=split, categories=config.get("categories"))
-    assert_not_trained_on(cache_dir, config, dataset, split)
+    dataset = resolve_probe_cache_dataset(config, split=split, categories=config.get("categories"))
+    assert_not_trained_on(config, dataset, split)
     loader = DataLoader(
         dataset,
         batch_size=int(config.get("training", {}).get("batch_size", 16)),
@@ -118,11 +108,16 @@ def run_inference(config: dict[str, Any], *, checkpoint: str | Path | None = Non
         # Same provenance metrics.json carries, so an evaluation file also states which
         # cache produced it - including "synthetic: true" for a smoke run, which
         # otherwise looks identical to a real result.
-        "probe_cache": {"dir": str(cache_dir), "metadata": probe_cache_provenance(cache_dir)},
+        "probe_cache": probe_cache_provenance_record(config),
         "windows": len(dataset),
         "metrics": metrics,
         "per_window_iou": [
-            {"window_id": p["window_id"], "category": p["category"], "foreground_iou": p["foreground_iou"]}
+            {
+                "window_id": p["window_id"],
+                "sequence_id": p["sequence_id"],
+                "category": p["category"],
+                "foreground_iou": p["foreground_iou"],
+            }
             for p in per_window
         ],
     }
@@ -168,7 +163,11 @@ def main() -> None:
         f"[{result['experiment']}] split={result['split']} windows={result['windows']}  "
         f"macro_IoU {metrics['macro_foreground_iou']:.4f}  "
         f"micro_IoU {metrics['micro_foreground_iou']:.4f}  "
-        f"token_acc {metrics['token_accuracy']:.4f}"
+        f"mean_IoU {metrics['mean_iou']:.4f}  "
+        f"mAcc {metrics['mean_class_accuracy']:.4f}  "
+        f"token_acc {metrics['token_accuracy']:.4f}  "
+        f"AUROC {metrics['auroc']:.4f}  "
+        f"AUPRC {metrics['auprc']:.4f}"
     )
 
 

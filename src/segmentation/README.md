@@ -45,9 +45,24 @@ the data pipeline's job — see
 4. **`inference_segmentation.py`** reloads `head.pt` and evaluates on a held-out
    split, with optional per-window predicted masks.
 
-Metrics are foreground **IoU** (macro over windows, micro over tokens, and
-per-category) plus token accuracy — all at **token / patch-grid resolution**
-(the mask was pooled to the backbone's token grid), not full pixel resolution.
+Metrics are foreground and background **IoU** (macro over windows, micro over
+tokens, and per-category), the standard 2-class **mIoU** (`mean_iou`, the
+macro average of the two), **mAcc** (`mean_class_accuracy`, the mean of
+foreground- and background-recall), precision/recall and the raw confusion
+counts (`tp`/`fp`/`fn`/`tn`), plus token accuracy — all at **token /
+patch-grid resolution** (the mask was pooled to the backbone's token grid),
+not full pixel resolution. `token_accuracy` is a class-frequency-weighted
+number dominated by the always-large background class; `mean_class_accuracy`
+(mAcc) is the unbiased alternative.
+
+Also reported: **AUC-ROC** (`auroc`) and **AUC-PR** (`auprc`, average
+precision), pooled over every token and per-category (`curve_metrics.py`,
+no scikit-learn dependency). Every metric above depends on the fixed
+logit > 0 decision threshold used identically across all three backbones (by
+design, so no backbone gets per-backbone tuning); AUC strips that threshold
+out entirely and asks only whether foreground/background scores are
+separable at all, so it isolates "is the information in the embedding" from
+"is 0 the right cutoff for this backbone's raw score scale."
 
 ## Files
 
