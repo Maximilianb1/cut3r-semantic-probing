@@ -256,3 +256,50 @@ def plot_training_curves(
         Path(save_path).parent.mkdir(parents=True, exist_ok=True)
         fig.savefig(save_path)
     return fig
+
+
+# ---- 5. Unified learning curves (all backbone x head-capacity combinations) ----
+
+def plot_unified_learning_curves(
+    histories: dict[str, list[dict[str, Any]]],
+    *,
+    metric: str = "macro_foreground_iou",
+    colors: dict[str, str] | None = None,
+    linestyles: dict[str, str] | None = None,
+    ylabel: str = "Val Macro Foreground IoU",
+    title: str = "Validation Learning Curves",
+    save_path: str | Path | None = None,
+) -> plt.Figure:
+    """Overlays val-``metric`` vs. epoch for every run in ``histories`` (label ->
+    that run's ``metrics.json['history']``) in one figure -- e.g. all 6
+    backbone x head-capacity combinations, so representation quality (which
+    curve sits highest) and probe capacity/overfitting (how far apart a
+    backbone's MLP and linear curves are, and how fast each converges) are
+    both visible at once, instead of six separate per-run figures.
+    """
+    _apply_rc()
+    fig, ax = plt.subplots(figsize=(6.8, 4.4))
+
+    for label, history in histories.items():
+        epochs = [h["epoch"] for h in history]
+        values = [h["val"][metric] for h in history]
+        ax.plot(
+            epochs, values, marker="o", markersize=2.5, linewidth=1.4,
+            label=label, color=(colors or {}).get(label), linestyle=(linestyles or {}).get(label, "-"),
+        )
+
+    ax.set_xlabel("Epoch")
+    ax.set_ylabel(ylabel)
+    ax.set_title(title, fontweight="bold")
+    ax.set_ylim(0, 1.05)
+    ax.grid(linewidth=0.3, alpha=0.5)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.legend(loc="lower right", frameon=True, framealpha=0.85, edgecolor="#ccc",
+              fancybox=False, ncol=2, fontsize=7)
+    fig.tight_layout()
+
+    if save_path is not None:
+        Path(save_path).parent.mkdir(parents=True, exist_ok=True)
+        fig.savefig(save_path)
+    return fig

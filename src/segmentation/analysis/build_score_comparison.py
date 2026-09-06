@@ -1,12 +1,17 @@
-"""Precision/recall, bootstrap CI, and a paired per-window comparison across
-backbones -- straight from already-computed inference-<split>.json /
-masks-<split>.pt. No re-training, no re-inference.
+"""Precision/recall, bootstrap CI, and a paired comparison across backbones --
+straight from already-computed inference-<split>.json / masks-<split>.pt. No
+re-training, no re-inference.
 
 Backbones sharing the same manifest are scored on the *identical* test
 windows, so treating their aggregate IoUs as independent throws away
 information: this script joins on window_id and bootstraps the paired
-per-window deltas, which is a stronger test of "is this gap real" than
-comparing two point estimates.
+deltas, which is a stronger test of "is this gap real" than comparing two
+point estimates. The bootstrap resamples CO3D *sequences*, not windows
+(``bootstrap_iou.py``, mirroring ``src/classification/bootstrap_accuracy.py``):
+a sequence contributes up to 4 windows in this project's test split and those
+windows share the same object instance and scene, so their errors correlate
+even though they're distinct frames. Resampling windows directly would treat
+that as more independent evidence than it is and understate the CI.
 
 Saves three figures, grouped by what's meaningful to read together:
 - macro-iou-ci.png: macro-IoU alone with its bootstrap CI. Duplicated as its
@@ -39,7 +44,10 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-from .runs import BACKBONE_COLOR, DISPLAY_NAME, load_masks, load_per_window_iou, resolve_run_dir
+from ..bootstrap_iou import bootstrap_iou_ci, bootstrap_iou_difference, derive_seed
+from .runs import (
+    BACKBONE_COLOR, DISPLAY_NAME, filtered_iou_clusters, load_masks, load_per_window_iou, resolve_run_dir,
+)
 
 
 def precision_recall(run_dir: Path, split: str) -> dict[str, float]:
@@ -66,17 +74,6 @@ def precision_recall(run_dir: Path, split: str) -> dict[str, float]:
     }
 
 
-def bootstrap_ci_mean(
-    values: np.ndarray, *, n_boot: int, generator: np.random.Generator
-) -> tuple[float, float, float]:
-    """(mean, 2.5th percentile, 97.5th percentile) over ``n_boot`` resamples."""
-    n = len(values)
-    means = np.empty(n_boot)
-    for i in range(n_boot):
-        means[i] = generator.choice(values, size=n, replace=True).mean()
-    return float(values.mean()), float(np.percentile(means, 2.5)), float(np.percentile(means, 97.5))
-
-
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--experiments-root", required=True, type=Path)
@@ -84,7 +81,8 @@ def main() -> None:
     parser.add_argument("--run-suffix", default="", help="e.g. -expanded-bestval to match segmentation-<backbone>-expanded-bestval dirs")
     parser.add_argument("--split", default="test")
     parser.add_argument("--n-boot", type=int, default=10000)
-    parser.add_argument("--seed", type=int, default=20260729)
+    parser.add_argument("--seed", type=int, default=20260825,
+                         help="Base seed; per-backbone/per-comparison seeds are derived from it.")
     parser.add_argument("--output", type=Path, default=None,
                          help="Where to save the standalone macro-IoU CI figure (default: <experiments-root>/../macro-iou-ci.png)")
     parser.add_argument("--overlap-output", type=Path, default=None,
@@ -98,7 +96,6 @@ def main() -> None:
                               "(default: <experiments-root>/../per-window-comparison.csv)")
     args = parser.parse_args()
 
-    generator = np.random.default_rng(args.seed)
     run_dirs = {b: resolve_run_dir(args.experiments_root, b, args.run_suffix) for b in args.backbones}
 
     per_window_rows = {b: load_per_window_iou(run_dirs[b], args.split) for b in args.backbones}
@@ -109,7 +106,10 @@ def main() -> None:
             f"No common {args.split} windows across backbones {args.backbones}; "
             "check that the run manifests/run_suffix line up"
         )
-    print(f"Common {args.split} windows across all backbones: {len(window_ids)}")
+    common_window_ids = set(window_ids)
+    clusters = {b: filtered_iou_clusters(run_dirs[b], args.split, common_window_ids) for b in args.backbones}
+    n_sequences = len(next(iter(clusters.values())).sequence_ids)
+    print(f"Common {args.split} windows across all backbones: {len(window_ids)} ({n_sequences} sequences)")
 
     print("\n=== Precision / recall (global, all tokens) ===")
     pr = {}
@@ -119,25 +119,40 @@ def main() -> None:
         print(f"{DISPLAY_NAME.get(b, b):15s} precision={result['precision']:.4f} recall={result['recall']:.4f} "
               f"micro_iou={result['micro_iou']:.4f} (tp={result['tp']} fp={result['fp']} fn={result['fn']} tn={result['tn']})")
 
-    print(f"\n=== Macro-IoU bootstrap 95% CI ({args.n_boot} resamples over {len(window_ids)} windows) ===")
+    print(f"\n=== Macro-IoU sequence-cluster bootstrap 95% CI ({args.n_boot} resamples over {n_sequences} sequences) ===")
     ci = {}
     for b in args.backbones:
-        values = np.array([per_window[b][w] for w in window_ids])
-        mean, lo, hi = bootstrap_ci_mean(values, n_boot=args.n_boot, generator=generator)
+        seed = derive_seed(args.seed, f"ci/{b}")
+        result = bootstrap_iou_ci(clusters[b], samples=args.n_boot, seed=seed)
+        mean, (lo, hi) = result["macro_iou"]["estimate"], result["macro_iou"]["ci95"]
         ci[b] = (mean, lo, hi)
         print(f"{DISPLAY_NAME.get(b, b):15s} macro_iou={mean:.4f}  95% CI [{lo:.4f}, {hi:.4f}]")
 
-    print("\n=== Paired per-window comparison (bootstrap 95% CI on mean delta) ===")
+    print("\n=== Paired sequence-cluster comparison (bootstrap 95% CI on macro-IoU delta) ===")
     for i, a in enumerate(args.backbones):
         for b in args.backbones[i + 1:]:
-            deltas = np.array([per_window[a][w] - per_window[b][w] for w in window_ids])
-            mean, lo, hi = bootstrap_ci_mean(deltas, n_boot=args.n_boot, generator=generator)
-            wins = int((deltas > 0).sum())
-            losses = int((deltas < 0).sum())
+            seed = derive_seed(args.seed, f"diff/{a}|{b}")
+            result = bootstrap_iou_difference(clusters[a], clusters[b], samples=args.n_boot, seed=seed, paired=True)
+            mean, (lo, hi) = (
+                result["macro_iou_difference"]["estimate"], result["macro_iou_difference"]["ci95"]
+            )
+            wins = int((clusters[a].sequence_iou > clusters[b].sequence_iou).sum())
+            losses = int((clusters[a].sequence_iou < clusters[b].sequence_iou).sum())
             significant = not (lo <= 0.0 <= hi)
             print(f"{DISPLAY_NAME.get(a, a)} - {DISPLAY_NAME.get(b, b):15s} mean_delta={mean:+.4f}  "
-                  f"95% CI [{lo:+.4f}, {hi:+.4f}]  wins/losses={wins}/{losses}  "
+                  f"95% CI [{lo:+.4f}, {hi:+.4f}]  wins/losses={wins}/{losses} (sequences)  "
                   f"{'SIGNIFICANT' if significant else 'not significant'}")
+
+            # Sensitivity check: independently resample each side instead of sharing
+            # the draw, to confirm the paired result isn't an artifact of that pairing.
+            unpaired = bootstrap_iou_difference(
+                clusters[a], clusters[b], samples=args.n_boot, seed=seed, paired=False
+            )
+            u_mean, (u_lo, u_hi) = (
+                unpaired["macro_iou_difference"]["estimate"], unpaired["macro_iou_difference"]["ci95"]
+            )
+            print(f"  (unpaired sensitivity check) mean_delta={u_mean:+.4f}  95% CI [{u_lo:+.4f}, {u_hi:+.4f}]  "
+                  f"{'SIGNIFICANT' if not (u_lo <= 0.0 <= u_hi) else 'not significant'}")
 
     order = sorted(args.backbones, key=lambda b: -ci[b][0])
     x = np.arange(len(order))

@@ -12,6 +12,8 @@ from typing import Any
 
 import torch
 
+from ..bootstrap_iou import SequenceIoUClusters, iou_clusters
+
 DISPLAY_NAME = {
     "cut3r_trained": "CUT3R-trained",
     "cut3r_random": "CUT3R-random",
@@ -44,3 +46,12 @@ def load_per_window_iou(run_dir: Path, split: str) -> dict[str, dict[str, Any]]:
 
 def load_masks(run_dir: Path, split: str = "test") -> dict[str, Any]:
     return torch.load(run_dir / f"masks-{split}.pt", weights_only=True)
+
+
+def filtered_iou_clusters(run_dir: Path, split: str, window_ids: set[str]) -> SequenceIoUClusters:
+    """Sequence-cluster IoU stats built from only ``window_ids`` (typically the
+    windows common to every run being compared), so a paired bootstrap sees
+    the identical test windows on both sides."""
+    inference = load_inference(run_dir, split)
+    rows = [row for row in inference["per_window_iou"] if row["window_id"] in window_ids]
+    return iou_clusters({"per_window_iou": rows})

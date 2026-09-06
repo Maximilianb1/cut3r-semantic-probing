@@ -5,8 +5,10 @@ already-computed inference-<split>.json -- no re-training, no re-inference.
 
 Both heads are evaluated on the identical test windows (same cache, same
 split -- only the head differs), so this is a genuinely paired comparison:
-the per-window IoU delta is bootstrapped directly, the same way
-build_score_comparison.py bootstraps cross-backbone deltas.
+the IoU delta is bootstrapped by resampling CO3D sequences (not windows), the
+same way build_score_comparison.py bootstraps cross-backbone deltas -- a
+sequence contributes multiple correlated windows, so resampling windows
+directly would understate the CI (see bootstrap_iou.py).
 
 Saves two figures:
 - probe-capacity-comparison.png: a grouped bar chart, two bars per backbone
@@ -36,8 +38,10 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-from .build_score_comparison import bootstrap_ci_mean
-from .runs import BACKBONE_COLOR, DISPLAY_NAME, load_inference, load_per_window_iou, resolve_run_dir
+from ..bootstrap_iou import bootstrap_iou_ci, bootstrap_iou_difference, derive_seed
+from .runs import (
+    BACKBONE_COLOR, DISPLAY_NAME, filtered_iou_clusters, load_inference, load_per_window_iou, resolve_run_dir,
+)
 
 
 def main() -> None:
@@ -50,12 +54,11 @@ def main() -> None:
                          help="run_suffix for the linear (hidden_dims: []) runs")
     parser.add_argument("--split", default="test")
     parser.add_argument("--n-boot", type=int, default=10000)
-    parser.add_argument("--seed", type=int, default=20260729)
+    parser.add_argument("--seed", type=int, default=20260825,
+                         help="Base seed; per-backbone/per-comparison seeds are derived from it.")
     parser.add_argument("--output", type=Path, default=None,
                          help="default: <experiments-root>/../probe-capacity-comparison.png")
     args = parser.parse_args()
-
-    generator = np.random.default_rng(args.seed)
 
     mlp_dirs = {b: resolve_run_dir(args.experiments_root, b, args.mlp_run_suffix) for b in args.backbones}
     linear_dirs = {b: resolve_run_dir(args.experiments_root, b, args.linear_run_suffix) for b in args.backbones}
@@ -65,25 +68,48 @@ def main() -> None:
     linear_iou = {b: {w: row["foreground_iou"] for w, row in load_per_window_iou(linear_dirs[b], args.split).items()}
                   for b in args.backbones}
 
-    print(f"=== Probe-capacity ablation: [512] MLP vs. linear ([]) head, paired per-window ({args.split}) ===")
+    print(f"=== Probe-capacity ablation: [512] MLP vs. linear ([]) head, "
+          f"paired sequence-cluster bootstrap ({args.split}) ===")
     results = {}
     for b in args.backbones:
-        window_ids = sorted(set(mlp_iou[b]) & set(linear_iou[b]))
+        window_ids = set(mlp_iou[b]) & set(linear_iou[b])
         if not window_ids:
             raise ValueError(
                 f"No common {args.split} windows between {mlp_dirs[b]} and {linear_dirs[b]} for {b}; "
                 "check that both runs share the same cache/split"
             )
-        mlp_values = np.array([mlp_iou[b][w] for w in window_ids])
-        linear_values = np.array([linear_iou[b][w] for w in window_ids])
-        deltas = mlp_values - linear_values
+        mlp_clusters = filtered_iou_clusters(mlp_dirs[b], args.split, window_ids)
+        linear_clusters = filtered_iou_clusters(linear_dirs[b], args.split, window_ids)
+        n_sequences = len(mlp_clusters.sequence_ids)
 
-        mlp_mean, mlp_lo, mlp_hi = bootstrap_ci_mean(mlp_values, n_boot=args.n_boot, generator=generator)
-        linear_mean, linear_lo, linear_hi = bootstrap_ci_mean(linear_values, n_boot=args.n_boot, generator=generator)
-        delta_mean, delta_lo, delta_hi = bootstrap_ci_mean(deltas, n_boot=args.n_boot, generator=generator)
-        wins = int((deltas > 0).sum())
-        losses = int((deltas < 0).sum())
+        mlp_result = bootstrap_iou_ci(mlp_clusters, samples=args.n_boot, seed=derive_seed(args.seed, f"ci/mlp/{b}"))
+        linear_result = bootstrap_iou_ci(
+            linear_clusters, samples=args.n_boot, seed=derive_seed(args.seed, f"ci/linear/{b}")
+        )
+        diff_seed = derive_seed(args.seed, f"diff/{b}")
+        delta_result = bootstrap_iou_difference(
+            mlp_clusters, linear_clusters, samples=args.n_boot, seed=diff_seed, paired=True
+        )
+        mlp_mean, (mlp_lo, mlp_hi) = mlp_result["macro_iou"]["estimate"], mlp_result["macro_iou"]["ci95"]
+        linear_mean, (linear_lo, linear_hi) = (
+            linear_result["macro_iou"]["estimate"], linear_result["macro_iou"]["ci95"]
+        )
+        delta_mean, (delta_lo, delta_hi) = (
+            delta_result["macro_iou_difference"]["estimate"], delta_result["macro_iou_difference"]["ci95"]
+        )
+        wins = int((mlp_clusters.sequence_iou > linear_clusters.sequence_iou).sum())
+        losses = int((mlp_clusters.sequence_iou < linear_clusters.sequence_iou).sum())
         significant = not (delta_lo <= 0.0 <= delta_hi)
+
+        # Sensitivity check: independently resample each side instead of sharing
+        # the draw, to confirm the paired result isn't an artifact of that pairing.
+        unpaired = bootstrap_iou_difference(
+            mlp_clusters, linear_clusters, samples=args.n_boot, seed=diff_seed, paired=False
+        )
+        u_mean, (u_lo, u_hi) = (
+            unpaired["macro_iou_difference"]["estimate"], unpaired["macro_iou_difference"]["ci95"]
+        )
+        u_significant = not (u_lo <= 0.0 <= u_hi)
 
         results[b] = {
             "n_windows": len(window_ids),
@@ -93,11 +119,13 @@ def main() -> None:
             "wins": wins, "losses": losses, "significant": significant,
         }
         name = DISPLAY_NAME.get(b, b)
-        print(f"\n{name} ({len(window_ids)} windows):")
+        print(f"\n{name} ({len(window_ids)} windows, {n_sequences} sequences):")
         print(f"  mlp    macro_iou={mlp_mean:.4f}  95% CI [{mlp_lo:.4f}, {mlp_hi:.4f}]")
         print(f"  linear macro_iou={linear_mean:.4f}  95% CI [{linear_lo:.4f}, {linear_hi:.4f}]")
         print(f"  delta (mlp - linear)={delta_mean:+.4f}  95% CI [{delta_lo:+.4f}, {delta_hi:+.4f}]  "
-              f"wins/losses={wins}/{losses}  {'SIGNIFICANT' if significant else 'not significant'}")
+              f"wins/losses={wins}/{losses} (sequences)  {'SIGNIFICANT' if significant else 'not significant'}")
+        print(f"  (unpaired sensitivity check) mean_delta={u_mean:+.4f}  95% CI [{u_lo:+.4f}, {u_hi:+.4f}]  "
+              f"{'SIGNIFICANT' if u_significant else 'not significant'}")
 
     # ---- One combined figure: two bars per backbone (mlp vs. linear), so
     # all three capacity ablations read together in one place. Same visual
