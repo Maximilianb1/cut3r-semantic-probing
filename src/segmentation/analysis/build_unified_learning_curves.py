@@ -13,8 +13,8 @@ produced metrics.json for each of the 6 <backbone>_<capacity> configs):
 
     python -m src.segmentation.analysis.build_unified_learning_curves \
         --experiments-root src/segmentation/experiments \
-        --backbones cut3r_trained cut3r_random dinov2 \
-        --mlp-run-suffix=-expanded-bestval --linear-run-suffix=-expanded-linear-bestval
+        --backbones cut3r-trained cut3r-random dinov2 \
+        --mlp-run-suffix=-mlp --linear-run-suffix=-linear
 """
 
 from __future__ import annotations
@@ -30,9 +30,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--experiments-root", required=True, type=Path)
     parser.add_argument("--backbones", nargs="+", required=True)
-    parser.add_argument("--mlp-run-suffix", default="-expanded-bestval",
+    parser.add_argument("--mlp-run-suffix", default="-mlp",
                          help="run_suffix for the [512] MLP runs (segmentation-<backbone><suffix>)")
-    parser.add_argument("--linear-run-suffix", default="-expanded-linear-bestval",
+    parser.add_argument("--linear-run-suffix", default="-linear",
                          help="run_suffix for the linear (hidden_dims: []) runs")
     parser.add_argument("--metric", default="macro_foreground_iou",
                          help="Which val metric (a key under history[i]['val']) to plot")

@@ -1,0 +1,6613 @@
+{
+  "experiment": "segmentation-cut3r-random-linear",
+  "split": "test",
+  "checkpoint": "src/segmentation/experiments/segmentation-cut3r-random-linear-bestval/head.pt",
+  "probe_cache": {
+    "cache_dirs": [
+      "/home/student/cut3r-stage0/cache/probe/cut3r-random",
+      "/home/student/cut3r-stage0/cache/probe/cut3r-random-leftover",
+      "/home/student/cut3r-stage0/cache/probe/cut3r-random-cap100-new-train"
+    ],
+    "split_override_path": "configs/segmentation_split_override.json"
+  },
+  "windows": 1077,
+  "metrics": {
+    "token_accuracy": 0.7454996233994476,
+    "macro_foreground_iou": 0.1870821133253091,
+    "micro_foreground_iou": 0.18859750057532793,
+    "mean_category_iou": 0.18519476659981302,
+    "per_category_iou": {
+      "apple": 0.3246820248613142,
+      "ball": 0.09251688774980875,
+      "baseballbat": 0.20783175802015721,
+      "bench": 0.12027005885120468,
+      "book": 0.18005335941105108,
+      "bowl": 0.3021652642567083,
+      "cake": 0.16077865432872407,
+      "carrot": 0.25820367483285384,
+      "chair": 0.15107031277793495,
+      "cup": 0.06827759182918326,
+      "frisbee": 0.33416766614607635,
+      "handbag": 0.2474046342686793,
+      "hydrant": 0.13366554977958753,
+      "kite": 0.10956434687581915,
+      "microwave": 0.1424127271479492,
+      "mouse": 0.14487778545379215,
+      "parkingmeter": 0.11503891314306669,
+      "plant": 0.17538500027121615,
+      "sandwich": 0.17815371275748182,
+      "stopsign": 0.2741764578640916,
+      "teddybear": 0.26701916676476034,
+      "toilet": 0.14429122680889567,
+      "toyplane": 0.11216077405007745,
+      "toytruck": 0.3000793088504597,
+      "umbrella": 0.22240760799079398,
+      "wineglass": 0.04840946650344931
+    },
+    "macro_background_iou": 0.7208867070215902,
+    "micro_background_iou": 0.7294982170912402,
+    "mean_category_background_iou": 0.7233981037734232,
+    "per_category_background_iou": {
+      "apple": 0.747647032253901,
+      "ball": 0.6482968598872708,
+      "baseballbat": 0.7746243137492439,
+      "bench": 0.5298842551290434,
+      "book": 0.7188311851116332,
+      "bowl": 0.857075322265723,
+      "cake": 0.7961996693550203,
+      "carrot": 0.8451952926177526,
+      "chair": 0.5815789049040193,
+      "cup": 0.7683604880512909,
+      "frisbee": 0.8330697916182352,
+      "handbag": 0.7114175359148661,
+      "hydrant": 0.8040786399124864,
+      "kite": 0.7286305553423739,
+      "microwave": 0.43369615159981106,
+      "mouse": 0.8278048405722012,
+      "parkingmeter": 0.8244320359924998,
+      "plant": 0.8708194353609969,
+      "sandwich": 0.718928611621238,
+      "stopsign": 0.6084425744075846,
+      "teddybear": 0.6357134354931222,
+      "toilet": 0.5368943870669332,
+      "toyplane": 0.8176452650367613,
+      "toytruck": 0.7936347059884795,
+      "umbrella": 0.5907960281540103,
+      "wineglass": 0.8046533807025046
+    },
+    "mean_iou": 0.45398441017344965,
+    "foreground_precision": 0.38273635477582846,
+    "foreground_recall": 0.27103704129759576,
+    "background_recall": 0.8779627131708257,
+    "mean_class_accuracy": 0.5744998772342107,
+    "tp": 37698,
+    "fp": 60798,
+    "fn": 101390,
+    "tn": 437394,
+    "auroc": 0.6518277288636714,
+    "auprc": 0.340272788522135,
+    "per_category_auroc": {
+      "apple": 0.819266189581881,
+      "ball": 0.482379402480616,
+      "baseballbat": 0.5401700442490595,
+      "bench": 0.5361737359350042,
+      "book": 0.6157002854288648,
+      "bowl": 0.8680535666712997,
+      "cake": 0.6273237846010362,
+      "carrot": 0.7990415125085821,
+      "chair": 0.5206983362868545,
+      "cup": 0.5193577791880312,
+      "frisbee": 0.8109398670953843,
+      "handbag": 0.7393538320872325,
+      "hydrant": 0.6574414214159565,
+      "kite": 0.6306689974883185,
+      "microwave": 0.4997111664873563,
+      "mouse": 0.6703828725483609,
+      "parkingmeter": 0.6796471827288737,
+      "plant": 0.7968371490408952,
+      "sandwich": 0.6314980690658065,
+      "stopsign": 0.805338821100481,
+      "teddybear": 0.6965565524453842,
+      "toilet": 0.4609328103640316,
+      "toyplane": 0.47845424610956233,
+      "toytruck": 0.8139180349192465,
+      "umbrella": 0.6380398277205697,
+      "wineglass": 0.5559460265928667
+    },
+    "per_category_auprc": {
+      "apple": 0.5101086632491312,
+      "ball": 0.16316077978137017,
+      "baseballbat": 0.11235376280526709,
+      "bench": 0.347376550158243,
+      "book": 0.3453112356490961,
+      "bowl": 0.6685192340571874,
+      "cake": 0.33785499570163413,
+      "carrot": 0.1573980656013669,
+      "chair": 0.382801577944079,
+      "cup": 0.10828752759453521,
+      "frisbee": 0.6035653713457597,
+      "handbag": 0.48702097683382417,
+      "hydrant": 0.2169385999598606,
+      "kite": 0.3301923422825759,
+      "microwave": 0.44758776971022335,
+      "mouse": 0.25840346486917914,
+      "parkingmeter": 0.26785694062028803,
+      "plant": 0.4629836900059229,
+      "sandwich": 0.3682175095839352,
+      "stopsign": 0.5929572247310976,
+      "teddybear": 0.5953328469559814,
+      "toilet": 0.39081643592794035,
+      "toyplane": 0.16681697208014737,
+      "toytruck": 0.5611478464389633,
+      "umbrella": 0.5267263871884489,
+      "wineglass": 0.19720324069120276
+    },
+    "mean_category_auroc": 0.649762750543906,
+    "mean_category_auprc": 0.3694976927602793,
+    "windows": 1077
+  },
+  "per_window_iou": [
+    {
+      "window_id": "window-a5194b15a1dd48d3d4ce",
+      "sequence_id": "39_1760_5220",
+      "category": "apple",
+      "foreground_iou": 0.17142857142857143
+    },
+    {
+      "window_id": "window-2347be495950180a2b83",
+      "sequence_id": "39_1760_5220",
+      "category": "apple",
+      "foreground_iou": 0.2413793103448276
+    },
+    {
+      "window_id": "window-4ca96421f52c5de5f980",
+      "sequence_id": "39_1760_5220",
+      "category": "apple",
+      "foreground_iou": 0.21875
+    },
+    {
+      "window_id": "window-f8b6a62217699ef1bbea",
+      "sequence_id": "39_1760_5220",
+      "category": "apple",
+      "foreground_iou": 0.3023255813953488
+    },
+    {
+      "window_id": "window-f8263df7967c0ba96ad1",
+      "sequence_id": "598_91536_181444",
+      "category": "apple",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-0f0cf911336c2d28af0d",
+      "sequence_id": "598_91536_181444",
+      "category": "apple",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-152d04fce06e3a5e3671",
+      "sequence_id": "598_91536_181444",
+      "category": "apple",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-b277ee5b81eb05bf9ba2",
+      "sequence_id": "598_91536_181444",
+      "category": "apple",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-859bcfadf11cef761689",
+      "sequence_id": "606_95100_191582",
+      "category": "apple",
+      "foreground_iou": 0.8373493975903614
+    },
+    {
+      "window_id": "window-a235de759810abf62def",
+      "sequence_id": "606_95100_191582",
+      "category": "apple",
+      "foreground_iou": 0.9411764705882353
+    },
+    {
+      "window_id": "window-0322a0df03c7fe88d509",
+      "sequence_id": "606_95100_191582",
+      "category": "apple",
+      "foreground_iou": 0.8823529411764706
+    },
+    {
+      "window_id": "window-c8bc8e817f2b7b6dddaa",
+      "sequence_id": "606_95100_191582",
+      "category": "apple",
+      "foreground_iou": 0.8051948051948052
+    },
+    {
+      "window_id": "window-17bc302edff885f34b19",
+      "sequence_id": "341_35457_64787",
+      "category": "apple",
+      "foreground_iou": 0.9008264462809917
+    },
+    {
+      "window_id": "window-0a859511037fe35be729",
+      "sequence_id": "341_35457_64787",
+      "category": "apple",
+      "foreground_iou": 0.6230769230769231
+    },
+    {
+      "window_id": "window-4a493ced31ba0bdca85a",
+      "sequence_id": "341_35457_64787",
+      "category": "apple",
+      "foreground_iou": 0.558282208588957
+    },
+    {
+      "window_id": "window-89289bfcbadf47c1eb06",
+      "sequence_id": "341_35457_64787",
+      "category": "apple",
+      "foreground_iou": 0.9459459459459459
+    },
+    {
+      "window_id": "window-c269620f6afdbd806881",
+      "sequence_id": "573_83777_166002",
+      "category": "apple",
+      "foreground_iou": 0.3333333333333333
+    },
+    {
+      "window_id": "window-18954e4e69182daf3d71",
+      "sequence_id": "20_740_1433",
+      "category": "ball",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-cebb1bfb5a3361a1424e",
+      "sequence_id": "20_740_1433",
+      "category": "ball",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-1a50b394f459bfe2e4d2",
+      "sequence_id": "20_740_1433",
+      "category": "ball",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-7774809c5ee70652bb5f",
+      "sequence_id": "20_740_1433",
+      "category": "ball",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-a58ed705416bb94c5c1c",
+      "sequence_id": "540_78950_152956",
+      "category": "ball",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-1b60fd7d4152cd6d5b60",
+      "sequence_id": "540_78950_152956",
+      "category": "ball",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-2c27598abf5682ba3fae",
+      "sequence_id": "540_78950_152956",
+      "category": "ball",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-7555c36e88a3327b8c05",
+      "sequence_id": "540_78950_152956",
+      "category": "ball",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-00abd8b8476ff66b2e2f",
+      "sequence_id": "601_92779_185462",
+      "category": "ball",
+      "foreground_iou": 0.11568123393316196
+    },
+    {
+      "window_id": "window-0a9ac33901d5224f1e06",
+      "sequence_id": "601_92779_185462",
+      "category": "ball",
+      "foreground_iou": 0.3021978021978022
+    },
+    {
+      "window_id": "window-56d8ce073fa8d663c561",
+      "sequence_id": "601_92779_185462",
+      "category": "ball",
+      "foreground_iou": 0.2702702702702703
+    },
+    {
+      "window_id": "window-d0d4a0dfe4b2e79157cc",
+      "sequence_id": "601_92779_185462",
+      "category": "ball",
+      "foreground_iou": 0.15246636771300448
+    },
+    {
+      "window_id": "window-a33b0ed12a0bdf4e4649",
+      "sequence_id": "606_95090_191497",
+      "category": "ball",
+      "foreground_iou": 0.43478260869565216
+    },
+    {
+      "window_id": "window-0e82f78d498502813edf",
+      "sequence_id": "339_35231_64065",
+      "category": "baseballbat",
+      "foreground_iou": 0.0718232044198895
+    },
+    {
+      "window_id": "window-eb0ce86f5a6411e85b12",
+      "sequence_id": "339_35231_64065",
+      "category": "baseballbat",
+      "foreground_iou": 0.2962962962962963
+    },
+    {
+      "window_id": "window-c6fb73022e6eef2968d7",
+      "sequence_id": "339_35231_64065",
+      "category": "baseballbat",
+      "foreground_iou": 0.03767123287671233
+    },
+    {
+      "window_id": "window-b049e4afda582836ccac",
+      "sequence_id": "339_35231_64065",
+      "category": "baseballbat",
+      "foreground_iou": 0.05921052631578947
+    },
+    {
+      "window_id": "window-913a42bd6b9f8d13264d",
+      "sequence_id": "394_48718_96346",
+      "category": "baseballbat",
+      "foreground_iou": 0.75
+    },
+    {
+      "window_id": "window-abfb108651df7ad455c5",
+      "sequence_id": "422_58712_114033",
+      "category": "baseballbat",
+      "foreground_iou": 0.08139534883720931
+    },
+    {
+      "window_id": "window-80a5394e9722af7e6891",
+      "sequence_id": "422_58712_114033",
+      "category": "baseballbat",
+      "foreground_iou": 0.1111111111111111
+    },
+    {
+      "window_id": "window-5552493e07f66979610a",
+      "sequence_id": "422_58712_114033",
+      "category": "baseballbat",
+      "foreground_iou": 0.4059040590405904
+    },
+    {
+      "window_id": "window-f4df023e7f2cb85d30aa",
+      "sequence_id": "422_58712_114033",
+      "category": "baseballbat",
+      "foreground_iou": 0.05357142857142857
+    },
+    {
+      "window_id": "window-609230b6f7a9f4acb6a2",
+      "sequence_id": "441_63121_125146",
+      "category": "bench",
+      "foreground_iou": 0.03728813559322034
+    },
+    {
+      "window_id": "window-e85372d15af42f562d87",
+      "sequence_id": "441_63121_125146",
+      "category": "bench",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-8441ebe4dda2fc62f966",
+      "sequence_id": "441_63121_125146",
+      "category": "bench",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-7a2fa40828d88017d447",
+      "sequence_id": "441_63121_125146",
+      "category": "bench",
+      "foreground_iou": 0.3104166666666667
+    },
+    {
+      "window_id": "window-55be3083c90f035cbc03",
+      "sequence_id": "522_74983_145885",
+      "category": "bench",
+      "foreground_iou": 0.09359605911330049
+    },
+    {
+      "window_id": "window-a78b5959c243a8c48096",
+      "sequence_id": "522_74983_145885",
+      "category": "bench",
+      "foreground_iou": 0.24054054054054055
+    },
+    {
+      "window_id": "window-7fe3fea1fbc0714f27e7",
+      "sequence_id": "522_74983_145885",
+      "category": "bench",
+      "foreground_iou": 0.0061162079510703364
+    },
+    {
+      "window_id": "window-c9aba81283e7f4686189",
+      "sequence_id": "590_88838_175308",
+      "category": "bench",
+      "foreground_iou": 0.07291666666666667
+    },
+    {
+      "window_id": "window-62e1dee1f45cb5eec133",
+      "sequence_id": "590_88838_175308",
+      "category": "bench",
+      "foreground_iou": 0.028419182948490232
+    },
+    {
+      "window_id": "window-5a87c2e1b31b61e97a10",
+      "sequence_id": "590_88838_175308",
+      "category": "bench",
+      "foreground_iou": 0.03315881326352531
+    },
+    {
+      "window_id": "window-49dac67fbad32852e6ce",
+      "sequence_id": "590_88838_175308",
+      "category": "bench",
+      "foreground_iou": 0.043402777777777776
+    },
+    {
+      "window_id": "window-66192eb0307e0eb47065",
+      "sequence_id": "109_13000_27085",
+      "category": "book",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-496625cd10acf3e55b4f",
+      "sequence_id": "109_13000_27085",
+      "category": "book",
+      "foreground_iou": 0.04904632152588556
+    },
+    {
+      "window_id": "window-d70540c3b274e8178092",
+      "sequence_id": "109_13000_27085",
+      "category": "book",
+      "foreground_iou": 0.498567335243553
+    },
+    {
+      "window_id": "window-79bed525a97be0eeee90",
+      "sequence_id": "109_13000_27085",
+      "category": "book",
+      "foreground_iou": 0.06896551724137931
+    },
+    {
+      "window_id": "window-9add258b7011ae9270c7",
+      "sequence_id": "128_14856_29634",
+      "category": "book",
+      "foreground_iou": 0.11290322580645161
+    },
+    {
+      "window_id": "window-2f42332f1312933dbbe8",
+      "sequence_id": "128_14856_29634",
+      "category": "book",
+      "foreground_iou": 0.13259668508287292
+    },
+    {
+      "window_id": "window-34d7eb67ce8d9396a711",
+      "sequence_id": "128_14856_29634",
+      "category": "book",
+      "foreground_iou": 0.08379888268156424
+    },
+    {
+      "window_id": "window-201c73b13ca38729f00c",
+      "sequence_id": "128_14856_29634",
+      "category": "book",
+      "foreground_iou": 0.05048076923076923
+    },
+    {
+      "window_id": "window-57442aad81aac9e984d1",
+      "sequence_id": "555_79908_155367",
+      "category": "book",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-842cff91a77d5d4a6ab8",
+      "sequence_id": "555_79908_155367",
+      "category": "book",
+      "foreground_iou": 0.061068702290076333
+    },
+    {
+      "window_id": "window-ce9fbb05ccb71de04e29",
+      "sequence_id": "555_79908_155367",
+      "category": "book",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-db02e3dcae8659f7c8a3",
+      "sequence_id": "555_79908_155367",
+      "category": "book",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-9110e642f628d0ff9291",
+      "sequence_id": "69_5689_13099",
+      "category": "bowl",
+      "foreground_iou": 0.6388888888888888
+    },
+    {
+      "window_id": "window-20fca9c551ed39b87126",
+      "sequence_id": "69_5689_13099",
+      "category": "bowl",
+      "foreground_iou": 0.6808510638297872
+    },
+    {
+      "window_id": "window-4076cbbe7b24ecd152e4",
+      "sequence_id": "69_5689_13099",
+      "category": "bowl",
+      "foreground_iou": 0.7378048780487805
+    },
+    {
+      "window_id": "window-c8b2f2a19af78d03a2d3",
+      "sequence_id": "69_5689_13099",
+      "category": "bowl",
+      "foreground_iou": 0.46853146853146854
+    },
+    {
+      "window_id": "window-3ed41f400a15c9f3b7e3",
+      "sequence_id": "70_5968_13785",
+      "category": "bowl",
+      "foreground_iou": 0.6308724832214765
+    },
+    {
+      "window_id": "window-4f994df4507816af8368",
+      "sequence_id": "70_5968_13785",
+      "category": "bowl",
+      "foreground_iou": 0.6573426573426573
+    },
+    {
+      "window_id": "window-c9d0d7b4dcacb3aba60c",
+      "sequence_id": "70_5968_13785",
+      "category": "bowl",
+      "foreground_iou": 0.6946564885496184
+    },
+    {
+      "window_id": "window-45f2bc65ac85dca13a8b",
+      "sequence_id": "70_5968_13785",
+      "category": "bowl",
+      "foreground_iou": 0.5495495495495496
+    },
+    {
+      "window_id": "window-23d5e500cc4fe8878dbc",
+      "sequence_id": "70_6146_14007",
+      "category": "bowl",
+      "foreground_iou": 0.34507042253521125
+    },
+    {
+      "window_id": "window-1b969fba558ff7b74ab1",
+      "sequence_id": "70_6146_14007",
+      "category": "bowl",
+      "foreground_iou": 0.22727272727272727
+    },
+    {
+      "window_id": "window-e4698cf610ea853611c2",
+      "sequence_id": "70_6146_14007",
+      "category": "bowl",
+      "foreground_iou": 0.06428571428571428
+    },
+    {
+      "window_id": "window-b66549716ae2f3a6dc0c",
+      "sequence_id": "70_6146_14007",
+      "category": "bowl",
+      "foreground_iou": 0.09836065573770492
+    },
+    {
+      "window_id": "window-7b4f03ddf03840d6f11b",
+      "sequence_id": "70_6174_14048",
+      "category": "bowl",
+      "foreground_iou": 0.05673758865248227
+    },
+    {
+      "window_id": "window-cc12ce0308b2e9ac34a9",
+      "sequence_id": "70_6174_14048",
+      "category": "bowl",
+      "foreground_iou": 0.052083333333333336
+    },
+    {
+      "window_id": "window-6318c0cefeb4ddde2925",
+      "sequence_id": "70_6174_14048",
+      "category": "bowl",
+      "foreground_iou": 0.03125
+    },
+    {
+      "window_id": "window-dba0d3ca188423be743b",
+      "sequence_id": "70_6174_14048",
+      "category": "bowl",
+      "foreground_iou": 0.04195804195804196
+    },
+    {
+      "window_id": "window-068f47a2310a809537a8",
+      "sequence_id": "69_5685_13095",
+      "category": "bowl",
+      "foreground_iou": 0.7175572519083969
+    },
+    {
+      "window_id": "window-31c44d260a35837eb5a4",
+      "sequence_id": "69_5685_13095",
+      "category": "bowl",
+      "foreground_iou": 0.6875
+    },
+    {
+      "window_id": "window-6d74c03d8714b5de9abb",
+      "sequence_id": "69_5685_13095",
+      "category": "bowl",
+      "foreground_iou": 0.6808510638297872
+    },
+    {
+      "window_id": "window-dfbd06563459eef412b8",
+      "sequence_id": "69_5685_13095",
+      "category": "bowl",
+      "foreground_iou": 0.46153846153846156
+    },
+    {
+      "window_id": "window-12c2c41764869cb3428f",
+      "sequence_id": "402_52416_102617",
+      "category": "cake",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-ef96b414aab1fc475495",
+      "sequence_id": "402_52416_102617",
+      "category": "cake",
+      "foreground_iou": 0.15204678362573099
+    },
+    {
+      "window_id": "window-d3e062cc6c60b000f34b",
+      "sequence_id": "402_52416_102617",
+      "category": "cake",
+      "foreground_iou": 0.1404494382022472
+    },
+    {
+      "window_id": "window-599784292361e9031cd0",
+      "sequence_id": "402_52416_102617",
+      "category": "cake",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-b5785f65e83acab18f5f",
+      "sequence_id": "404_53631_104613",
+      "category": "cake",
+      "foreground_iou": 0.027777777777777776
+    },
+    {
+      "window_id": "window-d52c768849d4850ce78e",
+      "sequence_id": "404_53631_104613",
+      "category": "cake",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-c26b458bad355c6475b7",
+      "sequence_id": "404_53631_104613",
+      "category": "cake",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-315696beb1e9177cc69f",
+      "sequence_id": "404_53631_104613",
+      "category": "cake",
+      "foreground_iou": 0.06818181818181818
+    },
+    {
+      "window_id": "window-cc7042d59dc0a1bf0311",
+      "sequence_id": "618_100556_201259",
+      "category": "cake",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-089f6ac82002c53b333d",
+      "sequence_id": "618_100556_201259",
+      "category": "cake",
+      "foreground_iou": 0.029411764705882353
+    },
+    {
+      "window_id": "window-573cb1375999a550a3c3",
+      "sequence_id": "618_100556_201259",
+      "category": "cake",
+      "foreground_iou": 0.03076923076923077
+    },
+    {
+      "window_id": "window-0d29dbcb8ca683e2ff18",
+      "sequence_id": "618_100556_201259",
+      "category": "cake",
+      "foreground_iou": 0.03225806451612903
+    },
+    {
+      "window_id": "window-8cb178f7910c516f2ace",
+      "sequence_id": "506_73024_142114",
+      "category": "cake",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-36e598bdd12356baffc8",
+      "sequence_id": "506_73024_142114",
+      "category": "cake",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-7e8c380f93d3451066f4",
+      "sequence_id": "506_73024_142114",
+      "category": "cake",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-aabed407cc5de7d259bf",
+      "sequence_id": "506_73024_142114",
+      "category": "cake",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-7dd7f7bb9dec0001b3d6",
+      "sequence_id": "579_85588_169044",
+      "category": "cake",
+      "foreground_iou": 0.20813397129186603
+    },
+    {
+      "window_id": "window-36e4dd88cf84ce1edc64",
+      "sequence_id": "373_41528_82919",
+      "category": "carrot",
+      "foreground_iou": 0.37681159420289856
+    },
+    {
+      "window_id": "window-fea9b4ec69331df07661",
+      "sequence_id": "373_41528_82919",
+      "category": "carrot",
+      "foreground_iou": 0.05
+    },
+    {
+      "window_id": "window-6132e6c48c769538502e",
+      "sequence_id": "373_41528_82919",
+      "category": "carrot",
+      "foreground_iou": 0.3026315789473684
+    },
+    {
+      "window_id": "window-16cf359bdbff3cc40c99",
+      "sequence_id": "373_41528_82919",
+      "category": "carrot",
+      "foreground_iou": 0.18085106382978725
+    },
+    {
+      "window_id": "window-75bf70403f6b681cd16f",
+      "sequence_id": "380_44975_89942",
+      "category": "carrot",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-c98581e6a9fdc82023cd",
+      "sequence_id": "380_44975_89942",
+      "category": "carrot",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-09c42dfa29ca79752202",
+      "sequence_id": "380_44975_89942",
+      "category": "carrot",
+      "foreground_iou": 1.0
+    },
+    {
+      "window_id": "window-97582313a41072636a0b",
+      "sequence_id": "380_44975_89942",
+      "category": "carrot",
+      "foreground_iou": 0.2
+    },
+    {
+      "window_id": "window-99d628a63f4905d85d56",
+      "sequence_id": "387_46481_92694",
+      "category": "carrot",
+      "foreground_iou": 0.6829268292682927
+    },
+    {
+      "window_id": "window-c724a2b55b2c68e2853a",
+      "sequence_id": "387_46481_92694",
+      "category": "carrot",
+      "foreground_iou": 0.7162162162162162
+    },
+    {
+      "window_id": "window-f2c2d43552155960b3b9",
+      "sequence_id": "387_46481_92694",
+      "category": "carrot",
+      "foreground_iou": 0.7974683544303798
+    },
+    {
+      "window_id": "window-3e7bbeb6503b58a950d1",
+      "sequence_id": "387_46481_92694",
+      "category": "carrot",
+      "foreground_iou": 0.7313432835820896
+    },
+    {
+      "window_id": "window-9502a37af061a62f751a",
+      "sequence_id": "398_50487_99053",
+      "category": "carrot",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-2b99d21628f24db9d4a1",
+      "sequence_id": "398_50487_99053",
+      "category": "carrot",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-aa9ab007f4a1fe772d0b",
+      "sequence_id": "398_50487_99053",
+      "category": "carrot",
+      "foreground_iou": 0.05555555555555555
+    },
+    {
+      "window_id": "window-76c195f4bee929c5f6eb",
+      "sequence_id": "398_50487_99053",
+      "category": "carrot",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-dfc207e05907c2836e87",
+      "sequence_id": "540_79048_153217",
+      "category": "carrot",
+      "foreground_iou": 0.7358490566037735
+    },
+    {
+      "window_id": "window-df06438e0f0e44f11be9",
+      "sequence_id": "339_35078_63078",
+      "category": "chair",
+      "foreground_iou": 0.07380073800738007
+    },
+    {
+      "window_id": "window-c098be370e7edee27c73",
+      "sequence_id": "339_35078_63078",
+      "category": "chair",
+      "foreground_iou": 0.37816764132553604
+    },
+    {
+      "window_id": "window-b47fe2a76c1790ae3a90",
+      "sequence_id": "339_35078_63078",
+      "category": "chair",
+      "foreground_iou": 0.46964285714285714
+    },
+    {
+      "window_id": "window-8a2759d95c9e43527237",
+      "sequence_id": "339_35078_63078",
+      "category": "chair",
+      "foreground_iou": 0.17848970251716248
+    },
+    {
+      "window_id": "window-1b676dac0ce26ea087d4",
+      "sequence_id": "394_48812_96535",
+      "category": "chair",
+      "foreground_iou": 0.007518796992481203
+    },
+    {
+      "window_id": "window-05f1f319a08ad4471b1d",
+      "sequence_id": "394_48812_96535",
+      "category": "chair",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-0e4ee1e95603655131a1",
+      "sequence_id": "394_48812_96535",
+      "category": "chair",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-9b2acba8bf15dcbe1b00",
+      "sequence_id": "394_48812_96535",
+      "category": "chair",
+      "foreground_iou": 0.027972027972027972
+    },
+    {
+      "window_id": "window-47a9245c4d99c673b1c5",
+      "sequence_id": "575_84704_167573",
+      "category": "chair",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-a54cd1edfe4d3053fa0f",
+      "sequence_id": "575_84704_167573",
+      "category": "chair",
+      "foreground_iou": 0.0038910505836575876
+    },
+    {
+      "window_id": "window-b4b606384ec5d2d4cac4",
+      "sequence_id": "575_84704_167573",
+      "category": "chair",
+      "foreground_iou": 0.0072992700729927005
+    },
+    {
+      "window_id": "window-fa39257b31a1625c7d97",
+      "sequence_id": "575_84704_167573",
+      "category": "chair",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-e3c767a0ba5c43d02652",
+      "sequence_id": "577_85077_168376",
+      "category": "chair",
+      "foreground_iou": 0.21428571428571427
+    },
+    {
+      "window_id": "window-3902b3621398fa79f669",
+      "sequence_id": "577_85077_168376",
+      "category": "chair",
+      "foreground_iou": 0.012658227848101266
+    },
+    {
+      "window_id": "window-beaac9a27296d08727cb",
+      "sequence_id": "577_85077_168376",
+      "category": "chair",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-aaa036107c3775fae205",
+      "sequence_id": "577_85077_168376",
+      "category": "chair",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-f69a9b82e9c550cd64ca",
+      "sequence_id": "30_1146_3390",
+      "category": "cup",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-bd3596836d44e79d4252",
+      "sequence_id": "30_1146_3390",
+      "category": "cup",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-9f685f820ad02c772ad6",
+      "sequence_id": "30_1146_3390",
+      "category": "cup",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-15ae1e610040e65fd64d",
+      "sequence_id": "30_1146_3390",
+      "category": "cup",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-68e5d78b34e957429724",
+      "sequence_id": "38_1710_5105",
+      "category": "cup",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-15796203b27bbee6235d",
+      "sequence_id": "38_1710_5105",
+      "category": "cup",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-cf5769a755a7b2677504",
+      "sequence_id": "38_1710_5105",
+      "category": "cup",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-b763b58b5f3e28f09a7f",
+      "sequence_id": "38_1710_5105",
+      "category": "cup",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-aad6a8eb601ba6b9e14f",
+      "sequence_id": "31_1306_4001",
+      "category": "cup",
+      "foreground_iou": 0.3076923076923077
+    },
+    {
+      "window_id": "window-bb7657b879b33e104e5a",
+      "sequence_id": "31_1306_4001",
+      "category": "cup",
+      "foreground_iou": 0.13333333333333333
+    },
+    {
+      "window_id": "window-cb52e5fc233b1d1b20d5",
+      "sequence_id": "31_1306_4001",
+      "category": "cup",
+      "foreground_iou": 0.08974358974358974
+    },
+    {
+      "window_id": "window-3e61aef5d2e6fe77a6b8",
+      "sequence_id": "68_5253_12352",
+      "category": "frisbee",
+      "foreground_iou": 0.4986979166666667
+    },
+    {
+      "window_id": "window-daaf54a266ca0c392b7b",
+      "sequence_id": "68_5253_12352",
+      "category": "frisbee",
+      "foreground_iou": 0.43882978723404253
+    },
+    {
+      "window_id": "window-434dbe9780e8c86c2a57",
+      "sequence_id": "68_5253_12352",
+      "category": "frisbee",
+      "foreground_iou": 0.4434907010014306
+    },
+    {
+      "window_id": "window-0bc911db3491c165d9fb",
+      "sequence_id": "68_5253_12352",
+      "category": "frisbee",
+      "foreground_iou": 0.5358931552587646
+    },
+    {
+      "window_id": "window-9ceecb9b17901dbea3af",
+      "sequence_id": "68_5303_12428",
+      "category": "frisbee",
+      "foreground_iou": 0.8278688524590164
+    },
+    {
+      "window_id": "window-17cf044de695bf387afb",
+      "sequence_id": "68_5303_12428",
+      "category": "frisbee",
+      "foreground_iou": 0.8487394957983193
+    },
+    {
+      "window_id": "window-56f49826d7350ff1094e",
+      "sequence_id": "68_5303_12428",
+      "category": "frisbee",
+      "foreground_iou": 0.75
+    },
+    {
+      "window_id": "window-662b2a70f56f1481ea40",
+      "sequence_id": "68_5303_12428",
+      "category": "frisbee",
+      "foreground_iou": 0.75
+    },
+    {
+      "window_id": "window-59a432361bb1330f83ba",
+      "sequence_id": "399_51019_100051",
+      "category": "handbag",
+      "foreground_iou": 0.13109756097560976
+    },
+    {
+      "window_id": "window-dceb0cdab68ca8c51879",
+      "sequence_id": "399_51019_100051",
+      "category": "handbag",
+      "foreground_iou": 0.02903225806451613
+    },
+    {
+      "window_id": "window-351d01c48649e3eb78dd",
+      "sequence_id": "399_51019_100051",
+      "category": "handbag",
+      "foreground_iou": 0.06984126984126984
+    },
+    {
+      "window_id": "window-906e89ddf5d1f39a3fe6",
+      "sequence_id": "399_51019_100051",
+      "category": "handbag",
+      "foreground_iou": 0.09171597633136094
+    },
+    {
+      "window_id": "window-793bd11a0fd1c174eb0b",
+      "sequence_id": "405_53965_105196",
+      "category": "handbag",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-aa04396da72ffaa9cf50",
+      "sequence_id": "405_53965_105196",
+      "category": "handbag",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-a2b867a82aa7d9a32ad8",
+      "sequence_id": "405_53965_105196",
+      "category": "handbag",
+      "foreground_iou": 0.0053475935828877
+    },
+    {
+      "window_id": "window-69caf86e7ad90c227cf5",
+      "sequence_id": "405_53965_105196",
+      "category": "handbag",
+      "foreground_iou": 0.023391812865497075
+    },
+    {
+      "window_id": "window-481bbd5cac21476deff6",
+      "sequence_id": "185_19989_38870",
+      "category": "hydrant",
+      "foreground_iou": 0.5555555555555556
+    },
+    {
+      "window_id": "window-7abb776e5ca7a1bdba9d",
+      "sequence_id": "185_19989_38870",
+      "category": "hydrant",
+      "foreground_iou": 0.543859649122807
+    },
+    {
+      "window_id": "window-021f39729652d7f0b609",
+      "sequence_id": "185_19989_38870",
+      "category": "hydrant",
+      "foreground_iou": 0.08433734939759036
+    },
+    {
+      "window_id": "window-6cb73721517d7779d16f",
+      "sequence_id": "185_19989_38870",
+      "category": "hydrant",
+      "foreground_iou": 0.25
+    },
+    {
+      "window_id": "window-8b3637a4ebd6e9eb019d",
+      "sequence_id": "491_70237_136049",
+      "category": "hydrant",
+      "foreground_iou": 0.041666666666666664
+    },
+    {
+      "window_id": "window-1f04002d127021ef49a2",
+      "sequence_id": "491_70237_136049",
+      "category": "hydrant",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-97e66f69a8875044c3ae",
+      "sequence_id": "491_70237_136049",
+      "category": "hydrant",
+      "foreground_iou": 0.058823529411764705
+    },
+    {
+      "window_id": "window-91a2f390991cca216422",
+      "sequence_id": "491_70237_136049",
+      "category": "hydrant",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-233d00bb6e79552aff9e",
+      "sequence_id": "417_57567_110737",
+      "category": "hydrant",
+      "foreground_iou": 0.3387096774193548
+    },
+    {
+      "window_id": "window-100b00d4c3fccfad7a15",
+      "sequence_id": "417_57567_110737",
+      "category": "hydrant",
+      "foreground_iou": 0.1650943396226415
+    },
+    {
+      "window_id": "window-fb0f41160331980d863e",
+      "sequence_id": "417_57567_110737",
+      "category": "hydrant",
+      "foreground_iou": 0.11979166666666667
+    },
+    {
+      "window_id": "window-909dd8873cc6029cb5f2",
+      "sequence_id": "417_57567_110737",
+      "category": "hydrant",
+      "foreground_iou": 0.3780487804878049
+    },
+    {
+      "window_id": "window-276748d03295c2b17d7d",
+      "sequence_id": "435_61866_121155",
+      "category": "hydrant",
+      "foreground_iou": 0.42528735632183906
+    },
+    {
+      "window_id": "window-42ae272f5d284b6eadfc",
+      "sequence_id": "377_43704_87005",
+      "category": "kite",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-383a396f3b5774eaf7fa",
+      "sequence_id": "377_43704_87005",
+      "category": "kite",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-7e3b9ce92de1393ab230",
+      "sequence_id": "377_43704_87005",
+      "category": "kite",
+      "foreground_iou": 0.032467532467532464
+    },
+    {
+      "window_id": "window-79529900e92608dd69be",
+      "sequence_id": "377_43704_87005",
+      "category": "kite",
+      "foreground_iou": 0.017241379310344827
+    },
+    {
+      "window_id": "window-bb9f60dbc2758302af8e",
+      "sequence_id": "380_45125_90280",
+      "category": "kite",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-673447d8510eae667fa1",
+      "sequence_id": "380_45125_90280",
+      "category": "kite",
+      "foreground_iou": 0.005649717514124294
+    },
+    {
+      "window_id": "window-480a7ba9984b89ba298f",
+      "sequence_id": "380_45125_90280",
+      "category": "kite",
+      "foreground_iou": 0.0111731843575419
+    },
+    {
+      "window_id": "window-72bcd0086dd8aaa365bc",
+      "sequence_id": "380_45125_90280",
+      "category": "kite",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-47f820b8650b168d0d3e",
+      "sequence_id": "566_81802_162361",
+      "category": "kite",
+      "foreground_iou": 0.02459016393442623
+    },
+    {
+      "window_id": "window-e5eedf177d8130ecd77b",
+      "sequence_id": "566_81802_162361",
+      "category": "kite",
+      "foreground_iou": 0.24390243902439024
+    },
+    {
+      "window_id": "window-6daace5b7be2801205d4",
+      "sequence_id": "566_81802_162361",
+      "category": "kite",
+      "foreground_iou": 0.02912621359223301
+    },
+    {
+      "window_id": "window-f19ff6974df9bf2bcd44",
+      "sequence_id": "566_81802_162361",
+      "category": "kite",
+      "foreground_iou": 0.03
+    },
+    {
+      "window_id": "window-889437385f3199b846d4",
+      "sequence_id": "422_58731_114267",
+      "category": "microwave",
+      "foreground_iou": 0.04921259842519685
+    },
+    {
+      "window_id": "window-f7f76a742a1565a6540d",
+      "sequence_id": "422_58731_114267",
+      "category": "microwave",
+      "foreground_iou": 0.1056338028169014
+    },
+    {
+      "window_id": "window-e156f51a3ddc6657441c",
+      "sequence_id": "422_58731_114267",
+      "category": "microwave",
+      "foreground_iou": 0.1
+    },
+    {
+      "window_id": "window-4661ae7b7e1e6213fda7",
+      "sequence_id": "422_58731_114267",
+      "category": "microwave",
+      "foreground_iou": 0.023454157782515993
+    },
+    {
+      "window_id": "window-5b8fc8a5a2c88b47f558",
+      "sequence_id": "504_72412_140518",
+      "category": "microwave",
+      "foreground_iou": 0.33755274261603374
+    },
+    {
+      "window_id": "window-b14e2fd7311abc1068d9",
+      "sequence_id": "504_72412_140518",
+      "category": "microwave",
+      "foreground_iou": 0.46443514644351463
+    },
+    {
+      "window_id": "window-238a0de3f9cf6e8b3cfb",
+      "sequence_id": "504_72412_140518",
+      "category": "microwave",
+      "foreground_iou": 0.632258064516129
+    },
+    {
+      "window_id": "window-a9166e81bc46d3ff064e",
+      "sequence_id": "504_72412_140518",
+      "category": "microwave",
+      "foreground_iou": 0.7941176470588235
+    },
+    {
+      "window_id": "window-d70279450d581115ca95",
+      "sequence_id": "620_101451_203490",
+      "category": "microwave",
+      "foreground_iou": 0.12195121951219512
+    },
+    {
+      "window_id": "window-c6c8d8bc718b087430e2",
+      "sequence_id": "620_101451_203490",
+      "category": "microwave",
+      "foreground_iou": 0.05660377358490566
+    },
+    {
+      "window_id": "window-434f6b7d65b3b67fe1d3",
+      "sequence_id": "620_101451_203490",
+      "category": "microwave",
+      "foreground_iou": 0.08888888888888889
+    },
+    {
+      "window_id": "window-482e25feabb30ccf4b61",
+      "sequence_id": "620_101451_203490",
+      "category": "microwave",
+      "foreground_iou": 0.04918032786885246
+    },
+    {
+      "window_id": "window-9683760895f5c81f2b56",
+      "sequence_id": "416_57507_111739",
+      "category": "microwave",
+      "foreground_iou": 0.6639344262295082
+    },
+    {
+      "window_id": "window-eb361604b03d9cdfb9d0",
+      "sequence_id": "416_57507_111739",
+      "category": "microwave",
+      "foreground_iou": 0.4147727272727273
+    },
+    {
+      "window_id": "window-6890722d1e76d516ebb5",
+      "sequence_id": "416_57507_111739",
+      "category": "microwave",
+      "foreground_iou": 0.6122448979591837
+    },
+    {
+      "window_id": "window-10769bedccc7e994419b",
+      "sequence_id": "416_57507_111739",
+      "category": "microwave",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-4cad43580460ad7de362",
+      "sequence_id": "117_13754_28208",
+      "category": "mouse",
+      "foreground_iou": 0.038834951456310676
+    },
+    {
+      "window_id": "window-d0138215af07aee3e6ce",
+      "sequence_id": "117_13754_28208",
+      "category": "mouse",
+      "foreground_iou": 0.08547008547008547
+    },
+    {
+      "window_id": "window-41268c81a04d0ce81afe",
+      "sequence_id": "117_13754_28208",
+      "category": "mouse",
+      "foreground_iou": 0.08695652173913043
+    },
+    {
+      "window_id": "window-a0a5038ae089a0f84755",
+      "sequence_id": "117_13754_28208",
+      "category": "mouse",
+      "foreground_iou": 0.058333333333333334
+    },
+    {
+      "window_id": "window-cc4d3d63518c1514b483",
+      "sequence_id": "14_161_1089",
+      "category": "mouse",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-834cd9028600a3147aa6",
+      "sequence_id": "14_161_1089",
+      "category": "mouse",
+      "foreground_iou": 0.00980392156862745
+    },
+    {
+      "window_id": "window-35cd8c945d03bee082ac",
+      "sequence_id": "14_161_1089",
+      "category": "mouse",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-de59f3a9f45001d86603",
+      "sequence_id": "14_161_1089",
+      "category": "mouse",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-0549c33b5d3b47151a2f",
+      "sequence_id": "463_65493_128066",
+      "category": "mouse",
+      "foreground_iou": 0.1282051282051282
+    },
+    {
+      "window_id": "window-2390116f935589ccfea5",
+      "sequence_id": "463_65493_128066",
+      "category": "mouse",
+      "foreground_iou": 0.06976744186046512
+    },
+    {
+      "window_id": "window-9129f844590b0425bc35",
+      "sequence_id": "463_65493_128066",
+      "category": "mouse",
+      "foreground_iou": 0.0875
+    },
+    {
+      "window_id": "window-69473760fd5af2faf83b",
+      "sequence_id": "463_65493_128066",
+      "category": "mouse",
+      "foreground_iou": 0.09090909090909091
+    },
+    {
+      "window_id": "window-ecc53fb31b36756ef8cf",
+      "sequence_id": "595_90655_181134",
+      "category": "mouse",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-0fdfeff7229ebe6e84e2",
+      "sequence_id": "595_90655_181134",
+      "category": "mouse",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-26f5a074ebeea6eed0b8",
+      "sequence_id": "595_90655_181134",
+      "category": "mouse",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-aa41b41dbeef09580e83",
+      "sequence_id": "595_90655_181134",
+      "category": "mouse",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-8ef4f72d3745f1ef982f",
+      "sequence_id": "514_73746_143524",
+      "category": "mouse",
+      "foreground_iou": 0.559322033898305
+    },
+    {
+      "window_id": "window-b650d1b67322e6225d5b",
+      "sequence_id": "165_18074_33881",
+      "category": "parkingmeter",
+      "foreground_iou": 0.15162454873646208
+    },
+    {
+      "window_id": "window-8ad5d527366bed21656a",
+      "sequence_id": "165_18074_33881",
+      "category": "parkingmeter",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-9cc44d301c8d14ac08fa",
+      "sequence_id": "165_18074_33881",
+      "category": "parkingmeter",
+      "foreground_iou": 0.6589147286821705
+    },
+    {
+      "window_id": "window-30822d97a2ec3875fd83",
+      "sequence_id": "165_18074_33881",
+      "category": "parkingmeter",
+      "foreground_iou": 0.04113924050632911
+    },
+    {
+      "window_id": "window-444f1d977d5e4fd75fba",
+      "sequence_id": "184_19896_38549",
+      "category": "parkingmeter",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-719cdb10276c75a0037f",
+      "sequence_id": "184_19896_38549",
+      "category": "parkingmeter",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-635003c05c5ecc62c2d6",
+      "sequence_id": "184_19896_38549",
+      "category": "parkingmeter",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-890bb6ac65009f6e7588",
+      "sequence_id": "184_19896_38549",
+      "category": "parkingmeter",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-fb8c4d8c8590d68ecdd3",
+      "sequence_id": "605_94590_188099",
+      "category": "parkingmeter",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-f5708baddbabc3be1d89",
+      "sequence_id": "605_94590_188099",
+      "category": "parkingmeter",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-b9488fd7414d8834a611",
+      "sequence_id": "605_94590_188099",
+      "category": "parkingmeter",
+      "foreground_iou": 0.031578947368421054
+    },
+    {
+      "window_id": "window-df738f462c2cf3511c03",
+      "sequence_id": "471_66632_131257",
+      "category": "parkingmeter",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-b05f6240d5e85ac1bd91",
+      "sequence_id": "471_66632_131257",
+      "category": "parkingmeter",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-245bdcdbdc13e9e5c1bd",
+      "sequence_id": "471_66632_131257",
+      "category": "parkingmeter",
+      "foreground_iou": 0.3783783783783784
+    },
+    {
+      "window_id": "window-8808c0845138eaf87da6",
+      "sequence_id": "471_66632_131257",
+      "category": "parkingmeter",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-07dc043af4dc2e7eee70",
+      "sequence_id": "271_28959_57363",
+      "category": "plant",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-c84516d62941c55c109b",
+      "sequence_id": "271_28959_57363",
+      "category": "plant",
+      "foreground_iou": 0.4155844155844156
+    },
+    {
+      "window_id": "window-cba0849d46e31282c79a",
+      "sequence_id": "271_28959_57363",
+      "category": "plant",
+      "foreground_iou": 0.30851063829787234
+    },
+    {
+      "window_id": "window-15f0f5aff0639f25afd8",
+      "sequence_id": "271_28959_57363",
+      "category": "plant",
+      "foreground_iou": 0.44
+    },
+    {
+      "window_id": "window-81555c5cd6077cf57295",
+      "sequence_id": "616_99391_199556",
+      "category": "plant",
+      "foreground_iou": 0.4157303370786517
+    },
+    {
+      "window_id": "window-f58445203dad5b3be55a",
+      "sequence_id": "616_99391_199556",
+      "category": "plant",
+      "foreground_iou": 0.4032258064516129
+    },
+    {
+      "window_id": "window-677424c60df178713dab",
+      "sequence_id": "616_99391_199556",
+      "category": "plant",
+      "foreground_iou": 0.4838709677419355
+    },
+    {
+      "window_id": "window-bb891a0bab1e039b76c9",
+      "sequence_id": "616_99391_199556",
+      "category": "plant",
+      "foreground_iou": 0.3644859813084112
+    },
+    {
+      "window_id": "window-cf36521a78645dda332a",
+      "sequence_id": "271_28918_56413",
+      "category": "plant",
+      "foreground_iou": 0.7584269662921348
+    },
+    {
+      "window_id": "window-82e708cef7e337f83462",
+      "sequence_id": "271_28918_56413",
+      "category": "plant",
+      "foreground_iou": 0.7305389221556886
+    },
+    {
+      "window_id": "window-bb83d79937716bf47dbd",
+      "sequence_id": "271_28918_56413",
+      "category": "plant",
+      "foreground_iou": 0.6824324324324325
+    },
+    {
+      "window_id": "window-e002b358ec1ce7c7cec4",
+      "sequence_id": "271_28918_56413",
+      "category": "plant",
+      "foreground_iou": 0.7591240875912408
+    },
+    {
+      "window_id": "window-2e6c1566ed38391f2b68",
+      "sequence_id": "482_68924_133884",
+      "category": "plant",
+      "foreground_iou": 0.058823529411764705
+    },
+    {
+      "window_id": "window-47459df057fa89fc2657",
+      "sequence_id": "482_68924_133884",
+      "category": "plant",
+      "foreground_iou": 0.02631578947368421
+    },
+    {
+      "window_id": "window-cf681534b92ac9885e7e",
+      "sequence_id": "482_68924_133884",
+      "category": "plant",
+      "foreground_iou": 0.125
+    },
+    {
+      "window_id": "window-095e07e2420c9e42396a",
+      "sequence_id": "482_68924_133884",
+      "category": "plant",
+      "foreground_iou": 0.09836065573770492
+    },
+    {
+      "window_id": "window-ecb6b8a90fec5062c252",
+      "sequence_id": "422_58669_113721",
+      "category": "sandwich",
+      "foreground_iou": 0.08791208791208792
+    },
+    {
+      "window_id": "window-964f0698b0fc341dc056",
+      "sequence_id": "422_58669_113721",
+      "category": "sandwich",
+      "foreground_iou": 0.06976744186046512
+    },
+    {
+      "window_id": "window-0792ee8fb8f5becd65c6",
+      "sequence_id": "422_58669_113721",
+      "category": "sandwich",
+      "foreground_iou": 0.12558139534883722
+    },
+    {
+      "window_id": "window-c8e3ac75936894c2d8c5",
+      "sequence_id": "422_58669_113721",
+      "category": "sandwich",
+      "foreground_iou": 0.023758099352051837
+    },
+    {
+      "window_id": "window-3c30020fb755a9f79aaf",
+      "sequence_id": "428_60158_117064",
+      "category": "sandwich",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-7a4165a045782a6fd851",
+      "sequence_id": "428_60158_117064",
+      "category": "sandwich",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-e0d5a43759fa344cd208",
+      "sequence_id": "428_60158_117064",
+      "category": "sandwich",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-e14f9be5c6d0e91aa1a9",
+      "sequence_id": "428_60158_117064",
+      "category": "sandwich",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-7f475dadcc25ef9cae99",
+      "sequence_id": "601_92964_186696",
+      "category": "sandwich",
+      "foreground_iou": 0.02531645569620253
+    },
+    {
+      "window_id": "window-1248dd9bcbd7e27e26e0",
+      "sequence_id": "411_56085_108581",
+      "category": "stopsign",
+      "foreground_iou": 1.0
+    },
+    {
+      "window_id": "window-57e6dcfcc60f1eceb86f",
+      "sequence_id": "411_56085_108581",
+      "category": "stopsign",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-040c7eccfb3cf74c557a",
+      "sequence_id": "411_56085_108581",
+      "category": "stopsign",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-14c64e9067bf39e1fa2d",
+      "sequence_id": "411_56085_108581",
+      "category": "stopsign",
+      "foreground_iou": 0.68
+    },
+    {
+      "window_id": "window-66e575cce2cc6a6604da",
+      "sequence_id": "464_65768_129267",
+      "category": "stopsign",
+      "foreground_iou": 0.20233463035019456
+    },
+    {
+      "window_id": "window-333d4cf9b4c465448c87",
+      "sequence_id": "464_65768_129267",
+      "category": "stopsign",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-2fc3f42d8d7d53579490",
+      "sequence_id": "464_65768_129267",
+      "category": "stopsign",
+      "foreground_iou": 0.3333333333333333
+    },
+    {
+      "window_id": "window-a42f78f01c3533ac68a5",
+      "sequence_id": "617_99937_198961",
+      "category": "stopsign",
+      "foreground_iou": 0.3088235294117647
+    },
+    {
+      "window_id": "window-1dcfd4f7f4f8667e9c4a",
+      "sequence_id": "617_99937_198961",
+      "category": "stopsign",
+      "foreground_iou": 0.26838235294117646
+    },
+    {
+      "window_id": "window-4114280d610829aaa9a0",
+      "sequence_id": "617_99937_198961",
+      "category": "stopsign",
+      "foreground_iou": 0.2610294117647059
+    },
+    {
+      "window_id": "window-33e3e96d57e9913c45bc",
+      "sequence_id": "617_99937_198961",
+      "category": "stopsign",
+      "foreground_iou": 0.35661764705882354
+    },
+    {
+      "window_id": "window-a26f9a8e5e67c19b9a5a",
+      "sequence_id": "617_99963_198997",
+      "category": "stopsign",
+      "foreground_iou": 0.2702205882352941
+    },
+    {
+      "window_id": "window-adb55751a9d9b8cce85e",
+      "sequence_id": "617_99963_198997",
+      "category": "stopsign",
+      "foreground_iou": 0.3805147058823529
+    },
+    {
+      "window_id": "window-6a900387ff199bea66f6",
+      "sequence_id": "617_99963_198997",
+      "category": "stopsign",
+      "foreground_iou": 0.3915441176470588
+    },
+    {
+      "window_id": "window-1519cda4d07e78e9c635",
+      "sequence_id": "617_99963_198997",
+      "category": "stopsign",
+      "foreground_iou": 0.3547794117647059
+    },
+    {
+      "window_id": "window-9ef9ff62fe7c9b4f873a",
+      "sequence_id": "341_35504_65289",
+      "category": "teddybear",
+      "foreground_iou": 0.8654708520179372
+    },
+    {
+      "window_id": "window-485c417eb3b66ac391a2",
+      "sequence_id": "341_35504_65289",
+      "category": "teddybear",
+      "foreground_iou": 0.7309644670050761
+    },
+    {
+      "window_id": "window-4593f71a6bac330fd953",
+      "sequence_id": "341_35504_65289",
+      "category": "teddybear",
+      "foreground_iou": 0.8076923076923077
+    },
+    {
+      "window_id": "window-7252f244aadd313732ad",
+      "sequence_id": "341_35504_65289",
+      "category": "teddybear",
+      "foreground_iou": 0.4733178654292343
+    },
+    {
+      "window_id": "window-263eed908e6e3fcc265a",
+      "sequence_id": "375_42694_85519",
+      "category": "teddybear",
+      "foreground_iou": 0.13145539906103287
+    },
+    {
+      "window_id": "window-5744ad0f06fc2f0317ff",
+      "sequence_id": "375_42694_85519",
+      "category": "teddybear",
+      "foreground_iou": 0.2222222222222222
+    },
+    {
+      "window_id": "window-e88c16abc48ddd7cc0fe",
+      "sequence_id": "375_42694_85519",
+      "category": "teddybear",
+      "foreground_iou": 0.3072289156626506
+    },
+    {
+      "window_id": "window-491f57a726ca15e8940f",
+      "sequence_id": "375_42694_85519",
+      "category": "teddybear",
+      "foreground_iou": 0.1693548387096774
+    },
+    {
+      "window_id": "window-0dd3581a5328bb8e8c1e",
+      "sequence_id": "540_79168_153323",
+      "category": "teddybear",
+      "foreground_iou": 0.14678899082568808
+    },
+    {
+      "window_id": "window-03fee45c0040f4522140",
+      "sequence_id": "205_21704_46416",
+      "category": "toilet",
+      "foreground_iou": 0.10204081632653061
+    },
+    {
+      "window_id": "window-0b9e0a50480ef6ca1886",
+      "sequence_id": "205_21704_46416",
+      "category": "toilet",
+      "foreground_iou": 0.4965277777777778
+    },
+    {
+      "window_id": "window-16a94c4b5de2b8bf2eb1",
+      "sequence_id": "205_21704_46416",
+      "category": "toilet",
+      "foreground_iou": 0.5141509433962265
+    },
+    {
+      "window_id": "window-522d0759a5c28fcaf17f",
+      "sequence_id": "205_21704_46416",
+      "category": "toilet",
+      "foreground_iou": 0.22242647058823528
+    },
+    {
+      "window_id": "window-824f9d7e7ceafd190a4a",
+      "sequence_id": "413_56478_109034",
+      "category": "toilet",
+      "foreground_iou": 0.008130081300813009
+    },
+    {
+      "window_id": "window-07fa4f6a8b2cbe72836f",
+      "sequence_id": "413_56478_109034",
+      "category": "toilet",
+      "foreground_iou": 0.008064516129032258
+    },
+    {
+      "window_id": "window-c98a2d938bcab39fb79d",
+      "sequence_id": "413_56478_109034",
+      "category": "toilet",
+      "foreground_iou": 0.017341040462427744
+    },
+    {
+      "window_id": "window-7707b786a0b5549bb77c",
+      "sequence_id": "413_56478_109034",
+      "category": "toilet",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-c76378686b5b90156284",
+      "sequence_id": "437_62506_123076",
+      "category": "toilet",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-fee7a22ba9f7c81b7e06",
+      "sequence_id": "437_62506_123076",
+      "category": "toilet",
+      "foreground_iou": 0.01
+    },
+    {
+      "window_id": "window-35921e16a340b0596287",
+      "sequence_id": "437_62506_123076",
+      "category": "toilet",
+      "foreground_iou": 0.0070921985815602835
+    },
+    {
+      "window_id": "window-2c480c098c997b15f260",
+      "sequence_id": "437_62506_123076",
+      "category": "toilet",
+      "foreground_iou": 0.015037593984962405
+    },
+    {
+      "window_id": "window-2b9396b454d4bad7ced4",
+      "sequence_id": "439_62833_124011",
+      "category": "toilet",
+      "foreground_iou": 0.0030581039755351682
+    },
+    {
+      "window_id": "window-086f4cf2682312fcb75b",
+      "sequence_id": "439_62833_124011",
+      "category": "toilet",
+      "foreground_iou": 0.03954802259887006
+    },
+    {
+      "window_id": "window-b19e14cde195e8d8c1de",
+      "sequence_id": "439_62833_124011",
+      "category": "toilet",
+      "foreground_iou": 0.059845559845559844
+    },
+    {
+      "window_id": "window-b9bed7050524f08641f4",
+      "sequence_id": "439_62833_124011",
+      "category": "toilet",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-7de744cbb6e7605a8ff0",
+      "sequence_id": "554_79591_157154",
+      "category": "toilet",
+      "foreground_iou": 0.29591836734693877
+    },
+    {
+      "window_id": "window-5936f51f9cf0b2333dea",
+      "sequence_id": "554_79591_157154",
+      "category": "toilet",
+      "foreground_iou": 0.12244897959183673
+    },
+    {
+      "window_id": "window-fdf578fbb6ecf54faa5c",
+      "sequence_id": "554_79591_157154",
+      "category": "toilet",
+      "foreground_iou": 0.041666666666666664
+    },
+    {
+      "window_id": "window-2da1a1c3d1ce74d7ea61",
+      "sequence_id": "554_79591_157154",
+      "category": "toilet",
+      "foreground_iou": 0.03571428571428571
+    },
+    {
+      "window_id": "window-df26e6f0cec5f642ee73",
+      "sequence_id": "621_101856_202982",
+      "category": "toilet",
+      "foreground_iou": 0.02666666666666667
+    },
+    {
+      "window_id": "window-57e2d563353a080ba2bd",
+      "sequence_id": "621_101856_202982",
+      "category": "toilet",
+      "foreground_iou": 0.626984126984127
+    },
+    {
+      "window_id": "window-5420431cdef788f64907",
+      "sequence_id": "621_101856_202982",
+      "category": "toilet",
+      "foreground_iou": 0.6033057851239669
+    },
+    {
+      "window_id": "window-8b8ad2d260e0c3aa5d56",
+      "sequence_id": "621_101856_202982",
+      "category": "toilet",
+      "foreground_iou": 0.2524271844660194
+    },
+    {
+      "window_id": "window-8a2863763e761459602a",
+      "sequence_id": "379_44588_88880",
+      "category": "toyplane",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-7e169b28fbe3a7d84fc8",
+      "sequence_id": "379_44588_88880",
+      "category": "toyplane",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-4c1c5d6c8a6497444414",
+      "sequence_id": "379_44588_88880",
+      "category": "toyplane",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-d5f1d08c1048256f0ebd",
+      "sequence_id": "379_44588_88880",
+      "category": "toyplane",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-04d69633c3c110cec0cf",
+      "sequence_id": "394_48399_95917",
+      "category": "toyplane",
+      "foreground_iou": 0.043478260869565216
+    },
+    {
+      "window_id": "window-721a62aa61a6a5e1c2b1",
+      "sequence_id": "394_48399_95917",
+      "category": "toyplane",
+      "foreground_iou": 0.16666666666666666
+    },
+    {
+      "window_id": "window-789600d8cafeed33fd39",
+      "sequence_id": "394_48399_95917",
+      "category": "toyplane",
+      "foreground_iou": 0.5714285714285714
+    },
+    {
+      "window_id": "window-e7975228244766bedb3e",
+      "sequence_id": "523_75465_147306",
+      "category": "toyplane",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-3abcc76ed1b786502638",
+      "sequence_id": "523_75465_147306",
+      "category": "toyplane",
+      "foreground_iou": 0.0625
+    },
+    {
+      "window_id": "window-27b354bd50d410e5f9d6",
+      "sequence_id": "523_75465_147306",
+      "category": "toyplane",
+      "foreground_iou": 0.10606060606060606
+    },
+    {
+      "window_id": "window-fbfe9b81b017a0812e8f",
+      "sequence_id": "523_75465_147306",
+      "category": "toyplane",
+      "foreground_iou": 0.06976744186046512
+    },
+    {
+      "window_id": "window-e61f08b09cbe68d1d17b",
+      "sequence_id": "482_69158_134947",
+      "category": "toyplane",
+      "foreground_iou": 0.11711711711711711
+    },
+    {
+      "window_id": "window-242595c498b07e3ca60b",
+      "sequence_id": "380_45012_90011",
+      "category": "toytruck",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-ef56e12c6b678c61f5e6",
+      "sequence_id": "380_45012_90011",
+      "category": "toytruck",
+      "foreground_iou": 0.4222222222222222
+    },
+    {
+      "window_id": "window-415d231a339f320b998c",
+      "sequence_id": "380_45012_90011",
+      "category": "toytruck",
+      "foreground_iou": 0.5714285714285714
+    },
+    {
+      "window_id": "window-1c5453da7354747df01c",
+      "sequence_id": "380_45012_90011",
+      "category": "toytruck",
+      "foreground_iou": 0.5555555555555556
+    },
+    {
+      "window_id": "window-bf8d7438a693911b2e80",
+      "sequence_id": "77_7867_15600",
+      "category": "toytruck",
+      "foreground_iou": 0.6555555555555556
+    },
+    {
+      "window_id": "window-f0b7019e62ff59ea2d78",
+      "sequence_id": "77_7867_15600",
+      "category": "toytruck",
+      "foreground_iou": 0.004016064257028112
+    },
+    {
+      "window_id": "window-c7d73b92349672858ab5",
+      "sequence_id": "77_7867_15600",
+      "category": "toytruck",
+      "foreground_iou": 0.06542056074766354
+    },
+    {
+      "window_id": "window-c8bfa20520e2a10870f3",
+      "sequence_id": "77_7867_15600",
+      "category": "toytruck",
+      "foreground_iou": 0.16722408026755853
+    },
+    {
+      "window_id": "window-092d71a45d88cf21ffb8",
+      "sequence_id": "173_18802_34607",
+      "category": "umbrella",
+      "foreground_iou": 0.3787528868360277
+    },
+    {
+      "window_id": "window-2814830f85b2e725cfe9",
+      "sequence_id": "173_18802_34607",
+      "category": "umbrella",
+      "foreground_iou": 0.7833827893175074
+    },
+    {
+      "window_id": "window-08a80e7e2ac6938fd3d9",
+      "sequence_id": "173_18802_34607",
+      "category": "umbrella",
+      "foreground_iou": 0.11065573770491803
+    },
+    {
+      "window_id": "window-42b87f59ee648189d6a3",
+      "sequence_id": "173_18802_34607",
+      "category": "umbrella",
+      "foreground_iou": 0.016736401673640166
+    },
+    {
+      "window_id": "window-aac321e42a4de0ca1aa8",
+      "sequence_id": "137_15756_31094",
+      "category": "wineglass",
+      "foreground_iou": 0.29457364341085274
+    },
+    {
+      "window_id": "window-d9c945c533508f1d3feb",
+      "sequence_id": "137_15756_31094",
+      "category": "wineglass",
+      "foreground_iou": 0.26506024096385544
+    },
+    {
+      "window_id": "window-06dfd8011cb5e4e4d729",
+      "sequence_id": "137_15756_31094",
+      "category": "wineglass",
+      "foreground_iou": 0.375
+    },
+    {
+      "window_id": "window-3d62e858e5316158d079",
+      "sequence_id": "137_15756_31094",
+      "category": "wineglass",
+      "foreground_iou": 0.3448275862068966
+    },
+    {
+      "window_id": "window-954d2117b3f66c4c7281",
+      "sequence_id": "377_43599_86840",
+      "category": "wineglass",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-4175058b46b2c16e8c6a",
+      "sequence_id": "377_43599_86840",
+      "category": "wineglass",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-db9bbbc06fd66f7bbca3",
+      "sequence_id": "377_43599_86840",
+      "category": "wineglass",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-04eafd06d66a914ccc9f",
+      "sequence_id": "377_43599_86840",
+      "category": "wineglass",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-807f84fc131aeea93b4a",
+      "sequence_id": "555_79901_155359",
+      "category": "wineglass",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-9ebce93e5f4787385209",
+      "sequence_id": "555_79901_155359",
+      "category": "wineglass",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-cc886ffa69f99fe16568",
+      "sequence_id": "555_79901_155359",
+      "category": "wineglass",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-46dc9ba09e846bf4f3ae",
+      "sequence_id": "555_79901_155359",
+      "category": "wineglass",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-c0ab44eaef7cf8ec5615",
+      "sequence_id": "592_89268_179067",
+      "category": "wineglass",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-47ae3840268a682fd4d8",
+      "sequence_id": "592_89268_179067",
+      "category": "wineglass",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-b64c524c7e02020a485f",
+      "sequence_id": "592_89268_179067",
+      "category": "wineglass",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-5a4cae7531f62b4be38f",
+      "sequence_id": "592_89268_179067",
+      "category": "wineglass",
+      "foreground_iou": 0.02564102564102564
+    },
+    {
+      "window_id": "leftover-window-9caaa9084a30b94b53a8",
+      "sequence_id": "540_78950_152956",
+      "category": "ball",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "leftover-window-fdd886eff9b335889e98",
+      "sequence_id": "540_78950_152956",
+      "category": "ball",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "leftover-window-ba4765c7214b854b30fa",
+      "sequence_id": "394_48718_96346",
+      "category": "baseballbat",
+      "foreground_iou": 1.0
+    },
+    {
+      "window_id": "leftover-window-71314e08d1fb118e69c4",
+      "sequence_id": "394_48718_96346",
+      "category": "baseballbat",
+      "foreground_iou": 1.0
+    },
+    {
+      "window_id": "leftover-window-8a95875d57b781ad53bd",
+      "sequence_id": "394_48718_96346",
+      "category": "baseballbat",
+      "foreground_iou": 1.0
+    },
+    {
+      "window_id": "leftover-window-32bc6fe7476c93d9ce7b",
+      "sequence_id": "522_74983_145885",
+      "category": "bench",
+      "foreground_iou": 1.0
+    },
+    {
+      "window_id": "leftover-window-07edc160a134c8eca3ed",
+      "sequence_id": "339_35078_63078",
+      "category": "chair",
+      "foreground_iou": 0.05080213903743316
+    },
+    {
+      "window_id": "leftover-window-3cae193b92e1ce567510",
+      "sequence_id": "339_35078_63078",
+      "category": "chair",
+      "foreground_iou": 0.4116666666666667
+    },
+    {
+      "window_id": "leftover-window-73d1c567df03014f4f51",
+      "sequence_id": "31_1306_4001",
+      "category": "cup",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "leftover-window-ee3a5cfad818af3dc498",
+      "sequence_id": "605_94590_188099",
+      "category": "parkingmeter",
+      "foreground_iou": 1.0
+    },
+    {
+      "window_id": "leftover-window-bf14ff9d74aaa13d6fe4",
+      "sequence_id": "464_65768_129267",
+      "category": "stopsign",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "leftover-window-24a40e6b895a4a8b58ef",
+      "sequence_id": "394_48399_95917",
+      "category": "toyplane",
+      "foreground_iou": 1.0
+    },
+    {
+      "window_id": "window-3f05c7dbdc7abe0f4eda",
+      "sequence_id": "161_17685_33706",
+      "category": "apple",
+      "foreground_iou": 0.037037037037037035
+    },
+    {
+      "window_id": "window-5e03b62ab16b645a1db1",
+      "sequence_id": "161_17685_33706",
+      "category": "apple",
+      "foreground_iou": 0.054770318021201414
+    },
+    {
+      "window_id": "window-d92714f12d263d492f47",
+      "sequence_id": "161_17685_33706",
+      "category": "apple",
+      "foreground_iou": 0.10416666666666667
+    },
+    {
+      "window_id": "window-1eb8cf9248c10e95d526",
+      "sequence_id": "161_17685_33706",
+      "category": "apple",
+      "foreground_iou": 0.092
+    },
+    {
+      "window_id": "window-4a21df12dff2d4016a14",
+      "sequence_id": "339_35123_63240",
+      "category": "apple",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-53a41f333e790e380467",
+      "sequence_id": "339_35123_63240",
+      "category": "apple",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-e767773a7a7dbd810adb",
+      "sequence_id": "339_35123_63240",
+      "category": "apple",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-e96ed225bd0599a5a3be",
+      "sequence_id": "339_35123_63240",
+      "category": "apple",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-8ab605b09cd8cc310ec4",
+      "sequence_id": "353_37195_69929",
+      "category": "apple",
+      "foreground_iou": 0.11475409836065574
+    },
+    {
+      "window_id": "window-c462947e27e19548dab8",
+      "sequence_id": "353_37195_69929",
+      "category": "apple",
+      "foreground_iou": 0.3103448275862069
+    },
+    {
+      "window_id": "window-34748de5b7ab90eeb1d8",
+      "sequence_id": "353_37195_69929",
+      "category": "apple",
+      "foreground_iou": 0.21604938271604937
+    },
+    {
+      "window_id": "window-effbb93354b83d69625a",
+      "sequence_id": "353_37195_69929",
+      "category": "apple",
+      "foreground_iou": 0.24242424242424243
+    },
+    {
+      "window_id": "window-4b1fa8cf539bd3ae9de9",
+      "sequence_id": "43_2188_6569",
+      "category": "apple",
+      "foreground_iou": 0.06130268199233716
+    },
+    {
+      "window_id": "window-87b88ee9b8ef9ee1ff2f",
+      "sequence_id": "43_2188_6569",
+      "category": "apple",
+      "foreground_iou": 0.06403940886699508
+    },
+    {
+      "window_id": "window-999189a22ab0da9719bc",
+      "sequence_id": "43_2188_6569",
+      "category": "apple",
+      "foreground_iou": 0.08387096774193549
+    },
+    {
+      "window_id": "window-f2f5ed47a7a9a5a30f45",
+      "sequence_id": "43_2188_6569",
+      "category": "apple",
+      "foreground_iou": 0.0593607305936073
+    },
+    {
+      "window_id": "window-6017010900fdcb3acf1d",
+      "sequence_id": "470_66282_129995",
+      "category": "apple",
+      "foreground_iou": 0.8160919540229885
+    },
+    {
+      "window_id": "window-647c97f2cb5b3d02defe",
+      "sequence_id": "470_66282_129995",
+      "category": "apple",
+      "foreground_iou": 0.5238095238095238
+    },
+    {
+      "window_id": "window-6dc0021ac404c642efc3",
+      "sequence_id": "470_66282_129995",
+      "category": "apple",
+      "foreground_iou": 0.7843137254901961
+    },
+    {
+      "window_id": "window-5196a52359579003e24e",
+      "sequence_id": "470_66282_129995",
+      "category": "apple",
+      "foreground_iou": 0.45318352059925093
+    },
+    {
+      "window_id": "window-78b50c143b5328d2d0e3",
+      "sequence_id": "566_81825_162463",
+      "category": "apple",
+      "foreground_iou": 0.5372168284789643
+    },
+    {
+      "window_id": "window-58dacfa8e7a707903949",
+      "sequence_id": "566_81825_162463",
+      "category": "apple",
+      "foreground_iou": 0.042105263157894736
+    },
+    {
+      "window_id": "window-70b5e5d80d58a556ffe8",
+      "sequence_id": "566_81825_162463",
+      "category": "apple",
+      "foreground_iou": 0.5158620689655172
+    },
+    {
+      "window_id": "window-317a77695d61220cff68",
+      "sequence_id": "566_81825_162463",
+      "category": "apple",
+      "foreground_iou": 0.43783783783783786
+    },
+    {
+      "window_id": "window-ee5fa101991ed211aaa7",
+      "sequence_id": "213_22540_46084",
+      "category": "ball",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-d69a757ccac44e1de543",
+      "sequence_id": "213_22540_46084",
+      "category": "ball",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-e0142c7ac9ef5589e650",
+      "sequence_id": "213_22540_46084",
+      "category": "ball",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-bd9936cd32677c413503",
+      "sequence_id": "213_22540_46084",
+      "category": "ball",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-3479f45ec68fdb956b10",
+      "sequence_id": "333_33894_61781",
+      "category": "ball",
+      "foreground_iou": 0.0972972972972973
+    },
+    {
+      "window_id": "window-6185c68745db89aec067",
+      "sequence_id": "333_33894_61781",
+      "category": "ball",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-a5ae887d50200f4e8537",
+      "sequence_id": "333_33894_61781",
+      "category": "ball",
+      "foreground_iou": 0.1322314049586777
+    },
+    {
+      "window_id": "window-f394785745f9f7e408f6",
+      "sequence_id": "333_33894_61781",
+      "category": "ball",
+      "foreground_iou": 0.2088607594936709
+    },
+    {
+      "window_id": "window-e8a5ab0dcb04b6111f33",
+      "sequence_id": "387_46749_93068",
+      "category": "ball",
+      "foreground_iou": 0.14
+    },
+    {
+      "window_id": "window-b56cd491b26b21b7997e",
+      "sequence_id": "387_46749_93068",
+      "category": "ball",
+      "foreground_iou": 0.11627906976744186
+    },
+    {
+      "window_id": "window-e5226804e382d526e9d0",
+      "sequence_id": "387_46749_93068",
+      "category": "ball",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-2fcd2a385400724f8f25",
+      "sequence_id": "387_46749_93068",
+      "category": "ball",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-aed8283bf3f3ad4e71f5",
+      "sequence_id": "392_47774_94856",
+      "category": "ball",
+      "foreground_iou": 0.022058823529411766
+    },
+    {
+      "window_id": "window-a0ba3c9b8ea264008cb1",
+      "sequence_id": "392_47774_94856",
+      "category": "ball",
+      "foreground_iou": 0.01838235294117647
+    },
+    {
+      "window_id": "window-6d94ed92f1d795317be7",
+      "sequence_id": "392_47774_94856",
+      "category": "ball",
+      "foreground_iou": 0.016544117647058824
+    },
+    {
+      "window_id": "window-713e1a1fb3fc2938b38a",
+      "sequence_id": "392_47774_94856",
+      "category": "ball",
+      "foreground_iou": 0.02022058823529412
+    },
+    {
+      "window_id": "window-5c7e15c186f76abf8933",
+      "sequence_id": "463_65702_128768",
+      "category": "ball",
+      "foreground_iou": 0.64
+    },
+    {
+      "window_id": "window-74af8e9003d04ab89dc3",
+      "sequence_id": "463_65702_128768",
+      "category": "ball",
+      "foreground_iou": 0.09271523178807947
+    },
+    {
+      "window_id": "window-697662dd21e878f9dfe6",
+      "sequence_id": "463_65702_128768",
+      "category": "ball",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-7d4f961ecf6071f1bde6",
+      "sequence_id": "463_65702_128768",
+      "category": "ball",
+      "foreground_iou": 0.24193548387096775
+    },
+    {
+      "window_id": "window-b37185b6a76fafd170c5",
+      "sequence_id": "563_81472_161812",
+      "category": "ball",
+      "foreground_iou": 0.03543307086614173
+    },
+    {
+      "window_id": "window-c6948add0ff89198d6e7",
+      "sequence_id": "563_81472_161812",
+      "category": "ball",
+      "foreground_iou": 0.12727272727272726
+    },
+    {
+      "window_id": "window-410abb7670e47dea0368",
+      "sequence_id": "563_81472_161812",
+      "category": "ball",
+      "foreground_iou": 0.4235294117647059
+    },
+    {
+      "window_id": "window-bb5b0c90eaeddaaaef1e",
+      "sequence_id": "563_81472_161812",
+      "category": "ball",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-914c951443259f053dfc",
+      "sequence_id": "186_20091_37188",
+      "category": "baseballbat",
+      "foreground_iou": 0.2777777777777778
+    },
+    {
+      "window_id": "window-86e277dac67d9bf1ba7b",
+      "sequence_id": "186_20091_37188",
+      "category": "baseballbat",
+      "foreground_iou": 0.23636363636363636
+    },
+    {
+      "window_id": "window-5393ee450dadd7d2b07a",
+      "sequence_id": "186_20091_37188",
+      "category": "baseballbat",
+      "foreground_iou": 0.3333333333333333
+    },
+    {
+      "window_id": "window-978b67275dda9f7e6996",
+      "sequence_id": "186_20091_37188",
+      "category": "baseballbat",
+      "foreground_iou": 0.30864197530864196
+    },
+    {
+      "window_id": "window-8e863ae24f96b9082b30",
+      "sequence_id": "207_21922_46427",
+      "category": "baseballbat",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-6755aa61523a6ad6f5f5",
+      "sequence_id": "207_21922_46427",
+      "category": "baseballbat",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-e5bc5c2b14f606d587c2",
+      "sequence_id": "207_21922_46427",
+      "category": "baseballbat",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-8d3e5434e26b8df0452c",
+      "sequence_id": "403_52888_103227",
+      "category": "baseballbat",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-2252d36376740121a92e",
+      "sequence_id": "403_52888_103227",
+      "category": "baseballbat",
+      "foreground_iou": 0.01702127659574468
+    },
+    {
+      "window_id": "window-f11a794ccf399540acb2",
+      "sequence_id": "403_52888_103227",
+      "category": "baseballbat",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-a5748b88b331eed4b93f",
+      "sequence_id": "403_52888_103227",
+      "category": "baseballbat",
+      "foreground_iou": 0.03125
+    },
+    {
+      "window_id": "window-2001c94cd016449be404",
+      "sequence_id": "404_53438_104193",
+      "category": "baseballbat",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-2c38815b4606daa88263",
+      "sequence_id": "404_53438_104193",
+      "category": "baseballbat",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-789b56ead394b761637f",
+      "sequence_id": "404_53438_104193",
+      "category": "baseballbat",
+      "foreground_iou": 0.3155080213903743
+    },
+    {
+      "window_id": "window-48147204d955df3d61d0",
+      "sequence_id": "404_53438_104193",
+      "category": "baseballbat",
+      "foreground_iou": 0.7540983606557377
+    },
+    {
+      "window_id": "window-afb16423a0d5838c7e5f",
+      "sequence_id": "434_61708_121635",
+      "category": "baseballbat",
+      "foreground_iou": 0.05660377358490566
+    },
+    {
+      "window_id": "window-cf4a5b4a0638cd3ac6f0",
+      "sequence_id": "434_61708_121635",
+      "category": "baseballbat",
+      "foreground_iou": 0.08955223880597014
+    },
+    {
+      "window_id": "window-4f0810df4ca9f0fe3e16",
+      "sequence_id": "434_61708_121635",
+      "category": "baseballbat",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-3bb4bb9b0a26998fbcd5",
+      "sequence_id": "434_61708_121635",
+      "category": "baseballbat",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-7ad41cfe83234d314e6a",
+      "sequence_id": "589_88218_174933",
+      "category": "baseballbat",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-8bad10164e0ab732dc01",
+      "sequence_id": "589_88218_174933",
+      "category": "baseballbat",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-20f84205b0c7533d148e",
+      "sequence_id": "589_88218_174933",
+      "category": "baseballbat",
+      "foreground_iou": 0.06363636363636363
+    },
+    {
+      "window_id": "window-30d12a3105fffa81409f",
+      "sequence_id": "589_88218_174933",
+      "category": "baseballbat",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-ba4964654f1e62658153",
+      "sequence_id": "612_97423_195275",
+      "category": "baseballbat",
+      "foreground_iou": 0.15
+    },
+    {
+      "window_id": "window-31713b7f61d3b21b58ed",
+      "sequence_id": "612_97423_195275",
+      "category": "baseballbat",
+      "foreground_iou": 0.48148148148148145
+    },
+    {
+      "window_id": "window-54e65babe06d3a144d8b",
+      "sequence_id": "612_97423_195275",
+      "category": "baseballbat",
+      "foreground_iou": 0.4838709677419355
+    },
+    {
+      "window_id": "window-c40779e4c6483669253b",
+      "sequence_id": "612_97423_195275",
+      "category": "baseballbat",
+      "foreground_iou": 0.16666666666666666
+    },
+    {
+      "window_id": "window-80c35bea6e683379ba59",
+      "sequence_id": "622_102277_205424",
+      "category": "baseballbat",
+      "foreground_iou": 0.0706713780918728
+    },
+    {
+      "window_id": "window-02607176a299dced4c0b",
+      "sequence_id": "622_102277_205424",
+      "category": "baseballbat",
+      "foreground_iou": 0.014227642276422764
+    },
+    {
+      "window_id": "window-aa6162d8be767fa2ce55",
+      "sequence_id": "622_102277_205424",
+      "category": "baseballbat",
+      "foreground_iou": 0.06868686868686869
+    },
+    {
+      "window_id": "window-859e6ad192fae485c027",
+      "sequence_id": "622_102277_205424",
+      "category": "baseballbat",
+      "foreground_iou": 0.150390625
+    },
+    {
+      "window_id": "window-d5b7d29b2f73d630c394",
+      "sequence_id": "194_20910_41119",
+      "category": "bench",
+      "foreground_iou": 0.08015267175572519
+    },
+    {
+      "window_id": "window-18d3645c7039fdf604e0",
+      "sequence_id": "194_20910_41119",
+      "category": "bench",
+      "foreground_iou": 0.04205607476635514
+    },
+    {
+      "window_id": "window-0a935893c2a33b74b73e",
+      "sequence_id": "194_20910_41119",
+      "category": "bench",
+      "foreground_iou": 0.07174887892376682
+    },
+    {
+      "window_id": "window-cbf85f525fb6ee4c6d86",
+      "sequence_id": "194_20910_41119",
+      "category": "bench",
+      "foreground_iou": 0.08187134502923976
+    },
+    {
+      "window_id": "window-186a92f856e5d1e1c3c9",
+      "sequence_id": "408_55502_106798",
+      "category": "bench",
+      "foreground_iou": 0.02894736842105263
+    },
+    {
+      "window_id": "window-8179e06b57a77aaff758",
+      "sequence_id": "408_55502_106798",
+      "category": "bench",
+      "foreground_iou": 0.42727272727272725
+    },
+    {
+      "window_id": "window-fab367350458e22c1a80",
+      "sequence_id": "408_55502_106798",
+      "category": "bench",
+      "foreground_iou": 0.0053475935828877
+    },
+    {
+      "window_id": "window-b261ff0210027cb50a6b",
+      "sequence_id": "408_55502_106798",
+      "category": "bench",
+      "foreground_iou": 0.008379888268156424
+    },
+    {
+      "window_id": "window-45144539b5c7c0a06ccd",
+      "sequence_id": "411_56026_108282",
+      "category": "bench",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-342ac2e33a7fe1be9edf",
+      "sequence_id": "411_56026_108282",
+      "category": "bench",
+      "foreground_iou": 0.09302325581395349
+    },
+    {
+      "window_id": "window-f2b1e388c98c2c9eafc7",
+      "sequence_id": "411_56026_108282",
+      "category": "bench",
+      "foreground_iou": 0.10116731517509728
+    },
+    {
+      "window_id": "window-16cfc218062aef9bc582",
+      "sequence_id": "411_56026_108282",
+      "category": "bench",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-822085cb7ebb8588687e",
+      "sequence_id": "423_58895_113886",
+      "category": "bench",
+      "foreground_iou": 0.019230769230769232
+    },
+    {
+      "window_id": "window-17d5246856c0f1e3866f",
+      "sequence_id": "423_58895_113886",
+      "category": "bench",
+      "foreground_iou": 0.20955882352941177
+    },
+    {
+      "window_id": "window-8acc96f72b81e61baed0",
+      "sequence_id": "423_58895_113886",
+      "category": "bench",
+      "foreground_iou": 0.32142857142857145
+    },
+    {
+      "window_id": "window-6cf1982dd6f396801c57",
+      "sequence_id": "423_58895_113886",
+      "category": "bench",
+      "foreground_iou": 0.06629834254143646
+    },
+    {
+      "window_id": "window-90e7d115091ae8694ee3",
+      "sequence_id": "478_67945_133213",
+      "category": "bench",
+      "foreground_iou": 0.042105263157894736
+    },
+    {
+      "window_id": "window-113599db47b0ebdb4a8b",
+      "sequence_id": "478_67945_133213",
+      "category": "bench",
+      "foreground_iou": 0.20153550863723607
+    },
+    {
+      "window_id": "window-7f7f748113cdfd499c7d",
+      "sequence_id": "478_67945_133213",
+      "category": "bench",
+      "foreground_iou": 0.04230769230769231
+    },
+    {
+      "window_id": "window-bc0529669a8c736adea9",
+      "sequence_id": "478_67945_133213",
+      "category": "bench",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-ba3a04c87472082f05c2",
+      "sequence_id": "478_67963_133212",
+      "category": "bench",
+      "foreground_iou": 0.07365439093484419
+    },
+    {
+      "window_id": "window-2c4a9ec3bcd4e04d8e17",
+      "sequence_id": "478_67963_133212",
+      "category": "bench",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-fc828a9e6ba5add896ae",
+      "sequence_id": "478_67963_133212",
+      "category": "bench",
+      "foreground_iou": 0.13559322033898305
+    },
+    {
+      "window_id": "window-df8ce07fe578023ba6e3",
+      "sequence_id": "478_67963_133212",
+      "category": "bench",
+      "foreground_iou": 0.00980392156862745
+    },
+    {
+      "window_id": "window-90e2ff1a0f7d5908c962",
+      "sequence_id": "513_73549_143678",
+      "category": "bench",
+      "foreground_iou": 0.597972972972973
+    },
+    {
+      "window_id": "window-84129554f9eab7bf62bb",
+      "sequence_id": "513_73549_143678",
+      "category": "bench",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-6e75d4edd7df2664938a",
+      "sequence_id": "513_73549_143678",
+      "category": "bench",
+      "foreground_iou": 0.008746355685131196
+    },
+    {
+      "window_id": "window-a4ef066d3f1d8e640062",
+      "sequence_id": "513_73549_143678",
+      "category": "bench",
+      "foreground_iou": 0.6103448275862069
+    },
+    {
+      "window_id": "window-c72fec0b64563800fa7e",
+      "sequence_id": "602_93372_184915",
+      "category": "bench",
+      "foreground_iou": 0.01744186046511628
+    },
+    {
+      "window_id": "window-2c52ff016024a4fa4c92",
+      "sequence_id": "602_93372_184915",
+      "category": "bench",
+      "foreground_iou": 0.05389221556886228
+    },
+    {
+      "window_id": "window-58948fb369b2fa0c9eb3",
+      "sequence_id": "602_93372_184915",
+      "category": "bench",
+      "foreground_iou": 0.025236593059936908
+    },
+    {
+      "window_id": "window-c6f3f23e6cceeb4bffb4",
+      "sequence_id": "602_93372_184915",
+      "category": "bench",
+      "foreground_iou": 0.05090909090909091
+    },
+    {
+      "window_id": "window-fd86becba5dd1c7dac21",
+      "sequence_id": "150_16688_31926",
+      "category": "book",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-446438db566bdee8cb3d",
+      "sequence_id": "150_16688_31926",
+      "category": "book",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-3defe9f72e1b99f483bc",
+      "sequence_id": "150_16688_31926",
+      "category": "book",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-b087adb311c8881302b8",
+      "sequence_id": "150_16688_31926",
+      "category": "book",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-431d39f0fceab806dc61",
+      "sequence_id": "455_64113_126326",
+      "category": "book",
+      "foreground_iou": 0.056338028169014086
+    },
+    {
+      "window_id": "window-5a4dc354da5bfe6fc1c4",
+      "sequence_id": "455_64113_126326",
+      "category": "book",
+      "foreground_iou": 0.03389830508474576
+    },
+    {
+      "window_id": "window-fb3d14db55f6fc67c759",
+      "sequence_id": "455_64113_126326",
+      "category": "book",
+      "foreground_iou": 0.05303030303030303
+    },
+    {
+      "window_id": "window-749b35d7306e13d1958b",
+      "sequence_id": "455_64113_126326",
+      "category": "book",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-ebcd08d05c330b98d608",
+      "sequence_id": "457_64467_127027",
+      "category": "book",
+      "foreground_iou": 0.6145454545454545
+    },
+    {
+      "window_id": "window-690fe2626a7d9a988572",
+      "sequence_id": "457_64467_127027",
+      "category": "book",
+      "foreground_iou": 0.6313131313131313
+    },
+    {
+      "window_id": "window-d3ec09e52e345bf0864a",
+      "sequence_id": "457_64467_127027",
+      "category": "book",
+      "foreground_iou": 0.34394904458598724
+    },
+    {
+      "window_id": "window-8c890688b27eee33883b",
+      "sequence_id": "457_64467_127027",
+      "category": "book",
+      "foreground_iou": 0.32323232323232326
+    },
+    {
+      "window_id": "window-66424bec62427e9c38da",
+      "sequence_id": "480_68613_133505",
+      "category": "book",
+      "foreground_iou": 0.20967741935483872
+    },
+    {
+      "window_id": "window-a4dc52e55de1e453a59b",
+      "sequence_id": "480_68613_133505",
+      "category": "book",
+      "foreground_iou": 0.23711340206185566
+    },
+    {
+      "window_id": "window-19d071eda2c4ca716221",
+      "sequence_id": "480_68613_133505",
+      "category": "book",
+      "foreground_iou": 0.008403361344537815
+    },
+    {
+      "window_id": "window-baf7480cae1f785fd44d",
+      "sequence_id": "480_68613_133505",
+      "category": "book",
+      "foreground_iou": 0.3026315789473684
+    },
+    {
+      "window_id": "window-0571c7f87be2eaa8b22f",
+      "sequence_id": "504_72523_140733",
+      "category": "book",
+      "foreground_iou": 0.5338983050847458
+    },
+    {
+      "window_id": "window-e4a7b7a0668d8aa2ad76",
+      "sequence_id": "504_72523_140733",
+      "category": "book",
+      "foreground_iou": 0.2733333333333333
+    },
+    {
+      "window_id": "window-645553122fc5b36c7dd8",
+      "sequence_id": "504_72523_140733",
+      "category": "book",
+      "foreground_iou": 0.3382352941176471
+    },
+    {
+      "window_id": "window-b81e30d249f8758d5e52",
+      "sequence_id": "504_72523_140733",
+      "category": "book",
+      "foreground_iou": 0.38461538461538464
+    },
+    {
+      "window_id": "window-db53159bf940f31a3404",
+      "sequence_id": "571_83473_165531",
+      "category": "book",
+      "foreground_iou": 0.14012738853503184
+    },
+    {
+      "window_id": "window-212e7221968bb69ad1a5",
+      "sequence_id": "571_83473_165531",
+      "category": "book",
+      "foreground_iou": 0.15894039735099338
+    },
+    {
+      "window_id": "window-0196ebf963902d5268a2",
+      "sequence_id": "571_83473_165531",
+      "category": "book",
+      "foreground_iou": 0.2603550295857988
+    },
+    {
+      "window_id": "window-25050efcf5c01a88ca29",
+      "sequence_id": "571_83473_165531",
+      "category": "book",
+      "foreground_iou": 0.07453416149068323
+    },
+    {
+      "window_id": "window-6ac80a917fbf0cfefe84",
+      "sequence_id": "579_85961_170386",
+      "category": "book",
+      "foreground_iou": 0.06040268456375839
+    },
+    {
+      "window_id": "window-7448a927e9e7d028ff20",
+      "sequence_id": "579_85961_170386",
+      "category": "book",
+      "foreground_iou": 0.18229166666666666
+    },
+    {
+      "window_id": "window-7364fa7ff894da327d4c",
+      "sequence_id": "579_85961_170386",
+      "category": "book",
+      "foreground_iou": 0.014705882352941176
+    },
+    {
+      "window_id": "window-53f55a261c65c118dc66",
+      "sequence_id": "579_85961_170386",
+      "category": "book",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-573cd9edbd7fce214114",
+      "sequence_id": "610_96800_193984",
+      "category": "book",
+      "foreground_iou": 0.44776119402985076
+    },
+    {
+      "window_id": "window-7ecf505e80e2c7e76e83",
+      "sequence_id": "610_96800_193984",
+      "category": "book",
+      "foreground_iou": 0.8571428571428571
+    },
+    {
+      "window_id": "window-3abcbb0c3026d98159f5",
+      "sequence_id": "610_96800_193984",
+      "category": "book",
+      "foreground_iou": 0.24444444444444444
+    },
+    {
+      "window_id": "window-1d4cad3dbd9add0877fc",
+      "sequence_id": "610_96800_193984",
+      "category": "book",
+      "foreground_iou": 0.08
+    },
+    {
+      "window_id": "window-b67f84b54be24984a63e",
+      "sequence_id": "69_5418_12829",
+      "category": "bowl",
+      "foreground_iou": 0.09090909090909091
+    },
+    {
+      "window_id": "window-7a95dcb5d475abbbd60c",
+      "sequence_id": "69_5418_12829",
+      "category": "bowl",
+      "foreground_iou": 0.011494252873563218
+    },
+    {
+      "window_id": "window-37d37fc5ba0e28c3d6fe",
+      "sequence_id": "69_5418_12829",
+      "category": "bowl",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-4e6a4888947cd79fca01",
+      "sequence_id": "69_5418_12829",
+      "category": "bowl",
+      "foreground_iou": 0.035398230088495575
+    },
+    {
+      "window_id": "window-f47a3a245bdf1785aac7",
+      "sequence_id": "69_5460_12809",
+      "category": "bowl",
+      "foreground_iou": 0.03773584905660377
+    },
+    {
+      "window_id": "window-30323a0fbe70516617d1",
+      "sequence_id": "69_5460_12809",
+      "category": "bowl",
+      "foreground_iou": 0.02586206896551724
+    },
+    {
+      "window_id": "window-cdb4f46a5e3989c7f71a",
+      "sequence_id": "69_5460_12809",
+      "category": "bowl",
+      "foreground_iou": 0.013333333333333334
+    },
+    {
+      "window_id": "window-e8a81fde550b9eb947ae",
+      "sequence_id": "69_5460_12809",
+      "category": "bowl",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-fc38c9d990963bb6fc86",
+      "sequence_id": "70_5855_13660",
+      "category": "bowl",
+      "foreground_iou": 0.05263157894736842
+    },
+    {
+      "window_id": "window-910b38b4b67701cf05bb",
+      "sequence_id": "70_5855_13660",
+      "category": "bowl",
+      "foreground_iou": 0.4880952380952381
+    },
+    {
+      "window_id": "window-d5f2c4f9c8fc2341d466",
+      "sequence_id": "70_5855_13660",
+      "category": "bowl",
+      "foreground_iou": 0.6865671641791045
+    },
+    {
+      "window_id": "window-7cc3beee7320870102bf",
+      "sequence_id": "70_5855_13660",
+      "category": "bowl",
+      "foreground_iou": 0.45614035087719296
+    },
+    {
+      "window_id": "window-0ac485a47a792ba4db98",
+      "sequence_id": "70_6141_14002",
+      "category": "bowl",
+      "foreground_iou": 0.2631578947368421
+    },
+    {
+      "window_id": "window-233257d77600192e8251",
+      "sequence_id": "70_6141_14002",
+      "category": "bowl",
+      "foreground_iou": 0.10660980810234541
+    },
+    {
+      "window_id": "window-58f058b2de8d95a47f67",
+      "sequence_id": "70_6141_14002",
+      "category": "bowl",
+      "foreground_iou": 0.056451612903225805
+    },
+    {
+      "window_id": "window-c9c69dc1936c74bac54c",
+      "sequence_id": "70_6141_14002",
+      "category": "bowl",
+      "foreground_iou": 0.041666666666666664
+    },
+    {
+      "window_id": "window-f8c1994fb0eb00d84e72",
+      "sequence_id": "70_6171_14045",
+      "category": "bowl",
+      "foreground_iou": 0.2
+    },
+    {
+      "window_id": "window-7906d413f5cd159b4083",
+      "sequence_id": "70_6171_14045",
+      "category": "bowl",
+      "foreground_iou": 0.4146341463414634
+    },
+    {
+      "window_id": "window-ebf1567eb47cf9bd56dc",
+      "sequence_id": "70_6171_14045",
+      "category": "bowl",
+      "foreground_iou": 0.049689440993788817
+    },
+    {
+      "window_id": "window-93d88250950568be618f",
+      "sequence_id": "70_6171_14045",
+      "category": "bowl",
+      "foreground_iou": 0.05517241379310345
+    },
+    {
+      "window_id": "window-33da32b4ea5e6a0eb6f2",
+      "sequence_id": "70_6255_14132",
+      "category": "bowl",
+      "foreground_iou": 0.48717948717948717
+    },
+    {
+      "window_id": "window-0394344a3626ff7c9e0b",
+      "sequence_id": "70_6255_14132",
+      "category": "bowl",
+      "foreground_iou": 0.6601307189542484
+    },
+    {
+      "window_id": "window-6ba8da912999e9cbc94d",
+      "sequence_id": "70_6255_14132",
+      "category": "bowl",
+      "foreground_iou": 0.2
+    },
+    {
+      "window_id": "window-50e2806236ac0bf32868",
+      "sequence_id": "70_6255_14132",
+      "category": "bowl",
+      "foreground_iou": 0.3394495412844037
+    },
+    {
+      "window_id": "window-8a8894a63720a71a4f29",
+      "sequence_id": "374_41877_83813",
+      "category": "cake",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-a474b8faf777f51f5d48",
+      "sequence_id": "374_41877_83813",
+      "category": "cake",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-05889e8293c99da755a9",
+      "sequence_id": "374_41877_83813",
+      "category": "cake",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-6367782be63cf064a840",
+      "sequence_id": "374_41877_83813",
+      "category": "cake",
+      "foreground_iou": 0.006024096385542169
+    },
+    {
+      "window_id": "window-f2b5af3d3119c22ed549",
+      "sequence_id": "387_46497_92714",
+      "category": "cake",
+      "foreground_iou": 0.3891213389121339
+    },
+    {
+      "window_id": "window-b2cb49c9ea167fa0f35d",
+      "sequence_id": "387_46497_92714",
+      "category": "cake",
+      "foreground_iou": 0.16877637130801687
+    },
+    {
+      "window_id": "window-b2e8fe18a5ffe212c0bb",
+      "sequence_id": "387_46497_92714",
+      "category": "cake",
+      "foreground_iou": 0.49056603773584906
+    },
+    {
+      "window_id": "window-80405b21e7c710a08473",
+      "sequence_id": "387_46497_92714",
+      "category": "cake",
+      "foreground_iou": 0.3351063829787234
+    },
+    {
+      "window_id": "window-4cf8c8c457b1f5685bae",
+      "sequence_id": "395_48888_96683",
+      "category": "cake",
+      "foreground_iou": 0.582010582010582
+    },
+    {
+      "window_id": "window-3097604b01fe551d5bbc",
+      "sequence_id": "395_48888_96683",
+      "category": "cake",
+      "foreground_iou": 0.49295774647887325
+    },
+    {
+      "window_id": "window-ecdcea7370dc65a2188b",
+      "sequence_id": "395_48888_96683",
+      "category": "cake",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-b71ee83f8b43add43127",
+      "sequence_id": "395_48888_96683",
+      "category": "cake",
+      "foreground_iou": 0.39751552795031053
+    },
+    {
+      "window_id": "window-dd0c97a6652905041e2b",
+      "sequence_id": "402_52373_102629",
+      "category": "cake",
+      "foreground_iou": 0.31221719457013575
+    },
+    {
+      "window_id": "window-cfbd651f9166f66f1eb5",
+      "sequence_id": "402_52373_102629",
+      "category": "cake",
+      "foreground_iou": 0.9117647058823529
+    },
+    {
+      "window_id": "window-0297b0b1b5c963e02d11",
+      "sequence_id": "402_52373_102629",
+      "category": "cake",
+      "foreground_iou": 0.8923076923076924
+    },
+    {
+      "window_id": "window-144c3ceed04eca203154",
+      "sequence_id": "402_52373_102629",
+      "category": "cake",
+      "foreground_iou": 0.9245283018867925
+    },
+    {
+      "window_id": "window-7127ab2db3c93dc49a42",
+      "sequence_id": "51_3027_8446",
+      "category": "cake",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-3e528be936dae2cdce13",
+      "sequence_id": "51_3027_8446",
+      "category": "cake",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-ba867b32e843939587ee",
+      "sequence_id": "51_3027_8446",
+      "category": "cake",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-f57037aa6acd8e31e105",
+      "sequence_id": "51_3027_8446",
+      "category": "cake",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-7409c34747705eeae29b",
+      "sequence_id": "604_94183_188888",
+      "category": "cake",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-959886686a315921de05",
+      "sequence_id": "604_94183_188888",
+      "category": "cake",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-f38ad099f23eb704e20a",
+      "sequence_id": "604_94183_188888",
+      "category": "cake",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-c93bc417dea2bf1a6a14",
+      "sequence_id": "604_94183_188888",
+      "category": "cake",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-b1526f6ecdfcffe587e2",
+      "sequence_id": "380_45303_90595",
+      "category": "carrot",
+      "foreground_iou": 0.7058823529411765
+    },
+    {
+      "window_id": "window-6d4fde9dcb74dcb87646",
+      "sequence_id": "380_45303_90595",
+      "category": "carrot",
+      "foreground_iou": 0.14285714285714285
+    },
+    {
+      "window_id": "window-7795fbb3695ed0ccc26f",
+      "sequence_id": "380_45303_90595",
+      "category": "carrot",
+      "foreground_iou": 0.9090909090909091
+    },
+    {
+      "window_id": "window-9f46f9a4b884fb5d5ee9",
+      "sequence_id": "380_45303_90595",
+      "category": "carrot",
+      "foreground_iou": 0.9473684210526315
+    },
+    {
+      "window_id": "window-52b3e54c6bc75ec36edb",
+      "sequence_id": "396_49407_97472",
+      "category": "carrot",
+      "foreground_iou": 0.2875
+    },
+    {
+      "window_id": "window-d55b6adfe213b2938004",
+      "sequence_id": "396_49407_97472",
+      "category": "carrot",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-3f9cc1188ea590741b50",
+      "sequence_id": "396_49407_97472",
+      "category": "carrot",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-5618024b50a1cd53dc58",
+      "sequence_id": "396_49407_97472",
+      "category": "carrot",
+      "foreground_iou": 0.17142857142857143
+    },
+    {
+      "window_id": "window-2398b890b92c5465e86c",
+      "sequence_id": "403_53018_103538",
+      "category": "carrot",
+      "foreground_iou": 0.028985507246376812
+    },
+    {
+      "window_id": "window-6b0e24e5efbaa26d0d46",
+      "sequence_id": "403_53018_103538",
+      "category": "carrot",
+      "foreground_iou": 0.0335195530726257
+    },
+    {
+      "window_id": "window-69d9626a36affb7b8e2d",
+      "sequence_id": "403_53018_103538",
+      "category": "carrot",
+      "foreground_iou": 0.015122873345935728
+    },
+    {
+      "window_id": "window-cd864d92f9bdf9f3a368",
+      "sequence_id": "403_53018_103538",
+      "category": "carrot",
+      "foreground_iou": 0.02962962962962963
+    },
+    {
+      "window_id": "window-9f4ef960fdba1e833fd2",
+      "sequence_id": "405_53919_105067",
+      "category": "carrot",
+      "foreground_iou": 0.27722772277227725
+    },
+    {
+      "window_id": "window-0453e052c315664011f0",
+      "sequence_id": "405_53919_105067",
+      "category": "carrot",
+      "foreground_iou": 0.27
+    },
+    {
+      "window_id": "window-fda7060dc3fd34940cdd",
+      "sequence_id": "405_53919_105067",
+      "category": "carrot",
+      "foreground_iou": 0.25510204081632654
+    },
+    {
+      "window_id": "window-827704fd54fe6bb4a8f1",
+      "sequence_id": "405_53919_105067",
+      "category": "carrot",
+      "foreground_iou": 0.2635135135135135
+    },
+    {
+      "window_id": "window-40a080ee7e9aeae481ea",
+      "sequence_id": "472_66668_130816",
+      "category": "carrot",
+      "foreground_iou": 0.010619469026548672
+    },
+    {
+      "window_id": "window-316667552dde44861c90",
+      "sequence_id": "472_66668_130816",
+      "category": "carrot",
+      "foreground_iou": 0.3333333333333333
+    },
+    {
+      "window_id": "window-47db91c208c765d1f3db",
+      "sequence_id": "472_66668_130816",
+      "category": "carrot",
+      "foreground_iou": 0.023809523809523808
+    },
+    {
+      "window_id": "window-abc4ba2f3aa4e917103c",
+      "sequence_id": "472_66668_130816",
+      "category": "carrot",
+      "foreground_iou": 0.013245033112582781
+    },
+    {
+      "window_id": "window-b5a5355118d080476abb",
+      "sequence_id": "558_80364_157339",
+      "category": "carrot",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-4d99734e1b00910e3bbb",
+      "sequence_id": "558_80364_157339",
+      "category": "carrot",
+      "foreground_iou": 0.038461538461538464
+    },
+    {
+      "window_id": "window-450a875282037ab9d236",
+      "sequence_id": "558_80364_157339",
+      "category": "carrot",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-f04dd1260fc9fa21394b",
+      "sequence_id": "558_80364_157339",
+      "category": "carrot",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-0b3357ff6029eb99693f",
+      "sequence_id": "346_36017_65899",
+      "category": "chair",
+      "foreground_iou": 0.18269230769230768
+    },
+    {
+      "window_id": "window-ab8e3454ed45ca8d0834",
+      "sequence_id": "346_36017_65899",
+      "category": "chair",
+      "foreground_iou": 0.12
+    },
+    {
+      "window_id": "window-4468bc683631924c22e8",
+      "sequence_id": "346_36017_65899",
+      "category": "chair",
+      "foreground_iou": 0.0321285140562249
+    },
+    {
+      "window_id": "window-2515f66c060e07092d7b",
+      "sequence_id": "346_36017_65899",
+      "category": "chair",
+      "foreground_iou": 0.30472103004291845
+    },
+    {
+      "window_id": "window-551b8b90e1ce123f0e6a",
+      "sequence_id": "374_42091_84179",
+      "category": "chair",
+      "foreground_iou": 0.234375
+    },
+    {
+      "window_id": "window-0ff9fc1bd2b9920d359b",
+      "sequence_id": "374_42091_84179",
+      "category": "chair",
+      "foreground_iou": 0.5238095238095238
+    },
+    {
+      "window_id": "window-10b0b642795ca5fb0e49",
+      "sequence_id": "374_42091_84179",
+      "category": "chair",
+      "foreground_iou": 0.004149377593360996
+    },
+    {
+      "window_id": "window-5e005c5aa34da50c37ce",
+      "sequence_id": "374_42091_84179",
+      "category": "chair",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-d069585cd4db08ab3038",
+      "sequence_id": "375_42546_85248",
+      "category": "chair",
+      "foreground_iou": 0.014285714285714285
+    },
+    {
+      "window_id": "window-d2cce1dbad85d89577f9",
+      "sequence_id": "375_42546_85248",
+      "category": "chair",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-cbd99d50d37a9ae0fa82",
+      "sequence_id": "375_42546_85248",
+      "category": "chair",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-c4f7217b6551e0b45187",
+      "sequence_id": "375_42546_85248",
+      "category": "chair",
+      "foreground_iou": 0.027777777777777776
+    },
+    {
+      "window_id": "window-ee0d22e6e282b507dba1",
+      "sequence_id": "455_64092_126267",
+      "category": "chair",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-f61961c9e35df9d936f6",
+      "sequence_id": "455_64092_126267",
+      "category": "chair",
+      "foreground_iou": 0.04330708661417323
+    },
+    {
+      "window_id": "window-0c96796ee6a8f1635b5a",
+      "sequence_id": "455_64092_126267",
+      "category": "chair",
+      "foreground_iou": 0.4279661016949153
+    },
+    {
+      "window_id": "window-df0344260d23f4b04e2e",
+      "sequence_id": "455_64092_126267",
+      "category": "chair",
+      "foreground_iou": 0.005305039787798408
+    },
+    {
+      "window_id": "window-4bd8536c0e2b08a3da90",
+      "sequence_id": "540_79166_153384",
+      "category": "chair",
+      "foreground_iou": 0.36594202898550726
+    },
+    {
+      "window_id": "window-f908d9b07996304fc158",
+      "sequence_id": "540_79166_153384",
+      "category": "chair",
+      "foreground_iou": 0.08401084010840108
+    },
+    {
+      "window_id": "window-4d1fc45b53113680651b",
+      "sequence_id": "540_79166_153384",
+      "category": "chair",
+      "foreground_iou": 0.49491525423728816
+    },
+    {
+      "window_id": "window-158b15b10519886e8e98",
+      "sequence_id": "540_79166_153384",
+      "category": "chair",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-e4b9e5b545dd3e2264cf",
+      "sequence_id": "540_79244_153464",
+      "category": "chair",
+      "foreground_iou": 0.33088235294117646
+    },
+    {
+      "window_id": "window-1342db88dd6eacec5e58",
+      "sequence_id": "540_79244_153464",
+      "category": "chair",
+      "foreground_iou": 0.14776632302405499
+    },
+    {
+      "window_id": "window-fa2c947d850a5091d2ca",
+      "sequence_id": "540_79244_153464",
+      "category": "chair",
+      "foreground_iou": 0.4864864864864865
+    },
+    {
+      "window_id": "window-99ada1a7fda499ed24e4",
+      "sequence_id": "540_79244_153464",
+      "category": "chair",
+      "foreground_iou": 0.21068249258160238
+    },
+    {
+      "window_id": "window-d6750f6c3f6bed9474e3",
+      "sequence_id": "614_98436_197914",
+      "category": "chair",
+      "foreground_iou": 0.31511254019292606
+    },
+    {
+      "window_id": "window-f2eb5561c17db4247fd4",
+      "sequence_id": "614_98436_197914",
+      "category": "chair",
+      "foreground_iou": 0.32926829268292684
+    },
+    {
+      "window_id": "window-79dd3751342848404687",
+      "sequence_id": "614_98436_197914",
+      "category": "chair",
+      "foreground_iou": 0.16412213740458015
+    },
+    {
+      "window_id": "window-a9310951e7e8d4f6caf0",
+      "sequence_id": "614_98436_197914",
+      "category": "chair",
+      "foreground_iou": 0.2633333333333333
+    },
+    {
+      "window_id": "window-66bd3032ef021f525785",
+      "sequence_id": "31_1243_3785",
+      "category": "cup",
+      "foreground_iou": 0.15492957746478872
+    },
+    {
+      "window_id": "window-d06a3880b1594c740911",
+      "sequence_id": "31_1243_3785",
+      "category": "cup",
+      "foreground_iou": 0.36585365853658536
+    },
+    {
+      "window_id": "window-cf4482942aa15f928af8",
+      "sequence_id": "31_1243_3785",
+      "category": "cup",
+      "foreground_iou": 0.358695652173913
+    },
+    {
+      "window_id": "window-6ca036fcb008c9bb60a6",
+      "sequence_id": "31_1243_3785",
+      "category": "cup",
+      "foreground_iou": 0.23333333333333334
+    },
+    {
+      "window_id": "window-7688954ce6bdca28bf89",
+      "sequence_id": "34_1426_4531",
+      "category": "cup",
+      "foreground_iou": 0.03365384615384615
+    },
+    {
+      "window_id": "window-cd12b1790073ad4c257c",
+      "sequence_id": "34_1426_4531",
+      "category": "cup",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-e153ae5f56c573a2bc86",
+      "sequence_id": "34_1426_4531",
+      "category": "cup",
+      "foreground_iou": 0.042735042735042736
+    },
+    {
+      "window_id": "window-36e41aad0bc1787196ce",
+      "sequence_id": "34_1426_4531",
+      "category": "cup",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-29e8174f1295a6f77dcb",
+      "sequence_id": "405_54076_105454",
+      "category": "cup",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-0f1c7d9d0d33b4b8d181",
+      "sequence_id": "405_54076_105454",
+      "category": "cup",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-ccce05e3d47b100f2e98",
+      "sequence_id": "405_54076_105454",
+      "category": "cup",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-d341b22cad9255995e8c",
+      "sequence_id": "405_54076_105454",
+      "category": "cup",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-2df512f4d47d03ca83c2",
+      "sequence_id": "46_2530_7457",
+      "category": "cup",
+      "foreground_iou": 0.06930693069306931
+    },
+    {
+      "window_id": "window-e0e86a4faddb3ca4b808",
+      "sequence_id": "46_2530_7457",
+      "category": "cup",
+      "foreground_iou": 0.041666666666666664
+    },
+    {
+      "window_id": "window-70446f366c885c755659",
+      "sequence_id": "46_2530_7457",
+      "category": "cup",
+      "foreground_iou": 0.05309734513274336
+    },
+    {
+      "window_id": "window-360d213efae4bfb4e4bd",
+      "sequence_id": "46_2530_7457",
+      "category": "cup",
+      "foreground_iou": 0.054474708171206226
+    },
+    {
+      "window_id": "window-012eac9179a1af100203",
+      "sequence_id": "586_87455_173418",
+      "category": "cup",
+      "foreground_iou": 0.08267716535433071
+    },
+    {
+      "window_id": "window-adb6a1b7dbd5df008151",
+      "sequence_id": "586_87455_173418",
+      "category": "cup",
+      "foreground_iou": 0.1091703056768559
+    },
+    {
+      "window_id": "window-f266b310251b779f7152",
+      "sequence_id": "586_87455_173418",
+      "category": "cup",
+      "foreground_iou": 0.1018867924528302
+    },
+    {
+      "window_id": "window-fa78e49bc020dcdfedd1",
+      "sequence_id": "586_87455_173418",
+      "category": "cup",
+      "foreground_iou": 0.05714285714285714
+    },
+    {
+      "window_id": "window-1b2e06b68dada592f5e5",
+      "sequence_id": "601_92676_184939",
+      "category": "cup",
+      "foreground_iou": 0.11221122112211221
+    },
+    {
+      "window_id": "window-d8508b1786e9f3489739",
+      "sequence_id": "601_92676_184939",
+      "category": "cup",
+      "foreground_iou": 0.043010752688172046
+    },
+    {
+      "window_id": "window-d9f26625066b5924a4da",
+      "sequence_id": "601_92676_184939",
+      "category": "cup",
+      "foreground_iou": 0.12786885245901639
+    },
+    {
+      "window_id": "window-db2cb99877007cedd99b",
+      "sequence_id": "601_92676_184939",
+      "category": "cup",
+      "foreground_iou": 0.12166172106824925
+    },
+    {
+      "window_id": "window-7823fec71fb10bcaf80c",
+      "sequence_id": "606_94767_190169",
+      "category": "cup",
+      "foreground_iou": 0.10800744878957169
+    },
+    {
+      "window_id": "window-89833687d1ec85714238",
+      "sequence_id": "606_94767_190169",
+      "category": "cup",
+      "foreground_iou": 0.10887096774193548
+    },
+    {
+      "window_id": "window-85a86c52226f31cae688",
+      "sequence_id": "606_94767_190169",
+      "category": "cup",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-719b698a4233a1d811c0",
+      "sequence_id": "606_94767_190169",
+      "category": "cup",
+      "foreground_iou": 0.0931899641577061
+    },
+    {
+      "window_id": "window-07428a24191ddf7bde32",
+      "sequence_id": "606_94989_191152",
+      "category": "cup",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-908d6fafbebc13807096",
+      "sequence_id": "606_94989_191152",
+      "category": "cup",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-78c63ea7db6e22806fb8",
+      "sequence_id": "606_94989_191152",
+      "category": "cup",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-3c22a734fdbdedbce547",
+      "sequence_id": "606_94989_191152",
+      "category": "cup",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-9eb497cf66ef6848088e",
+      "sequence_id": "372_41064_81761",
+      "category": "frisbee",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-b203c0a1dd02d6113c72",
+      "sequence_id": "372_41064_81761",
+      "category": "frisbee",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-0e4ad790c1382d12c988",
+      "sequence_id": "372_41064_81761",
+      "category": "frisbee",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-77a001672e6cd79d1665",
+      "sequence_id": "372_41064_81761",
+      "category": "frisbee",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-c474d06b316e57a7015c",
+      "sequence_id": "377_43414_86578",
+      "category": "frisbee",
+      "foreground_iou": 0.031007751937984496
+    },
+    {
+      "window_id": "window-122a5696ced050bcfe7c",
+      "sequence_id": "377_43414_86578",
+      "category": "frisbee",
+      "foreground_iou": 0.175
+    },
+    {
+      "window_id": "window-0855f3df1cb2ab6d4ed1",
+      "sequence_id": "377_43414_86578",
+      "category": "frisbee",
+      "foreground_iou": 0.0949367088607595
+    },
+    {
+      "window_id": "window-7b5aec9444225267d2fd",
+      "sequence_id": "377_43414_86578",
+      "category": "frisbee",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-01318a2756ee32236f47",
+      "sequence_id": "377_43778_87130",
+      "category": "frisbee",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-95b2542300761332f1ea",
+      "sequence_id": "377_43778_87130",
+      "category": "frisbee",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-fd30b3e951dec7dd1025",
+      "sequence_id": "377_43778_87130",
+      "category": "frisbee",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-f77dd788de03f643d696",
+      "sequence_id": "377_43778_87130",
+      "category": "frisbee",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-736830fddb8977708106",
+      "sequence_id": "378_44028_87976",
+      "category": "frisbee",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-c862ac0c2c2fdd2f37ae",
+      "sequence_id": "378_44028_87976",
+      "category": "frisbee",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-1951aa9f4a13d323210c",
+      "sequence_id": "378_44028_87976",
+      "category": "frisbee",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-324664f4e55d17c3d57f",
+      "sequence_id": "378_44028_87976",
+      "category": "frisbee",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-8d923a77d2a62727bde7",
+      "sequence_id": "401_52133_102218",
+      "category": "frisbee",
+      "foreground_iou": 0.574468085106383
+    },
+    {
+      "window_id": "window-4be83e46322487fcd7a3",
+      "sequence_id": "401_52133_102218",
+      "category": "frisbee",
+      "foreground_iou": 0.7586206896551724
+    },
+    {
+      "window_id": "window-d03f3fc00c0f093dd260",
+      "sequence_id": "401_52133_102218",
+      "category": "frisbee",
+      "foreground_iou": 0.7833333333333333
+    },
+    {
+      "window_id": "window-cca07abb2635dae15a51",
+      "sequence_id": "401_52133_102218",
+      "category": "frisbee",
+      "foreground_iou": 0.5194805194805194
+    },
+    {
+      "window_id": "window-cc6d8e07cdf288966330",
+      "sequence_id": "68_5179_12206",
+      "category": "frisbee",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-b821784238181952f14d",
+      "sequence_id": "68_5179_12206",
+      "category": "frisbee",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-05f33b0f7613835618b4",
+      "sequence_id": "68_5179_12206",
+      "category": "frisbee",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-0ed1a86c57797f0ed06d",
+      "sequence_id": "68_5179_12206",
+      "category": "frisbee",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-77c9d99c64b2ce110b39",
+      "sequence_id": "68_5336_12464",
+      "category": "frisbee",
+      "foreground_iou": 0.8733333333333333
+    },
+    {
+      "window_id": "window-3c1edf34e940f3bee1fd",
+      "sequence_id": "68_5336_12464",
+      "category": "frisbee",
+      "foreground_iou": 0.8433734939759037
+    },
+    {
+      "window_id": "window-c3f197743defb5e7c229",
+      "sequence_id": "68_5336_12464",
+      "category": "frisbee",
+      "foreground_iou": 0.8805031446540881
+    },
+    {
+      "window_id": "window-f20a173a6958a52670e6",
+      "sequence_id": "68_5336_12464",
+      "category": "frisbee",
+      "foreground_iou": 0.8271604938271605
+    },
+    {
+      "window_id": "window-0b92d949ed3ac1f020b2",
+      "sequence_id": "68_5343_12471",
+      "category": "frisbee",
+      "foreground_iou": 0.8333333333333334
+    },
+    {
+      "window_id": "window-1f4ac40d7d4cb70bc73c",
+      "sequence_id": "68_5343_12471",
+      "category": "frisbee",
+      "foreground_iou": 0.8181818181818182
+    },
+    {
+      "window_id": "window-0b0ac5a8f6cfaa8bfdd2",
+      "sequence_id": "68_5343_12471",
+      "category": "frisbee",
+      "foreground_iou": 0.8090452261306532
+    },
+    {
+      "window_id": "window-2460fe824ced93e9e579",
+      "sequence_id": "68_5343_12471",
+      "category": "frisbee",
+      "foreground_iou": 0.7880794701986755
+    },
+    {
+      "window_id": "window-d2328b49bfcd45bdd93e",
+      "sequence_id": "68_5347_12482",
+      "category": "frisbee",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-90a31d1f826f07adbd5e",
+      "sequence_id": "68_5347_12482",
+      "category": "frisbee",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-dbd0c06297bcd16a7587",
+      "sequence_id": "68_5347_12482",
+      "category": "frisbee",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-fe5c32097a1eb0468534",
+      "sequence_id": "68_5347_12482",
+      "category": "frisbee",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-8156bdef1d2ec15fa572",
+      "sequence_id": "31_1311_4007",
+      "category": "handbag",
+      "foreground_iou": 0.015625
+    },
+    {
+      "window_id": "window-cb1e52c2ef4e7f83b7b0",
+      "sequence_id": "31_1311_4007",
+      "category": "handbag",
+      "foreground_iou": 0.5446808510638298
+    },
+    {
+      "window_id": "window-421db0265279af8df1b4",
+      "sequence_id": "31_1311_4007",
+      "category": "handbag",
+      "foreground_iou": 0.10679611650485436
+    },
+    {
+      "window_id": "window-3906b4c366c4c644a9c0",
+      "sequence_id": "31_1311_4007",
+      "category": "handbag",
+      "foreground_iou": 0.16981132075471697
+    },
+    {
+      "window_id": "window-ea5222dbe3f9033c8f17",
+      "sequence_id": "396_49390_97448",
+      "category": "handbag",
+      "foreground_iou": 0.35802469135802467
+    },
+    {
+      "window_id": "window-c4bb2ad495ed714c90a5",
+      "sequence_id": "396_49390_97448",
+      "category": "handbag",
+      "foreground_iou": 0.7741935483870968
+    },
+    {
+      "window_id": "window-6d1d1e341cddd5a95efb",
+      "sequence_id": "396_49390_97448",
+      "category": "handbag",
+      "foreground_iou": 0.7076923076923077
+    },
+    {
+      "window_id": "window-8de266ac6e30c7ca95a9",
+      "sequence_id": "396_49390_97448",
+      "category": "handbag",
+      "foreground_iou": 0.7619047619047619
+    },
+    {
+      "window_id": "window-95496472510f4e4476a7",
+      "sequence_id": "396_49521_97656",
+      "category": "handbag",
+      "foreground_iou": 0.3142857142857143
+    },
+    {
+      "window_id": "window-f1f90c56913d57e51b22",
+      "sequence_id": "396_49521_97656",
+      "category": "handbag",
+      "foreground_iou": 0.10759493670886076
+    },
+    {
+      "window_id": "window-ef90efaf91ab1cbaeb49",
+      "sequence_id": "396_49521_97656",
+      "category": "handbag",
+      "foreground_iou": 0.27918781725888325
+    },
+    {
+      "window_id": "window-4f523cfb87ed4057b551",
+      "sequence_id": "396_49521_97656",
+      "category": "handbag",
+      "foreground_iou": 0.36774193548387096
+    },
+    {
+      "window_id": "window-a0a13cd877aad497e1ca",
+      "sequence_id": "396_49724_97937",
+      "category": "handbag",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-95a6c6445488b3fdaf3e",
+      "sequence_id": "396_49724_97937",
+      "category": "handbag",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-700ddff6729855e19359",
+      "sequence_id": "396_49724_97937",
+      "category": "handbag",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-a6cc3287fd1b9b1536ee",
+      "sequence_id": "396_49724_97937",
+      "category": "handbag",
+      "foreground_iou": 0.01282051282051282
+    },
+    {
+      "window_id": "window-eefd0481bfc5f0a0d104",
+      "sequence_id": "396_49732_97961",
+      "category": "handbag",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-b39383d37df5a00d3aa8",
+      "sequence_id": "396_49732_97961",
+      "category": "handbag",
+      "foreground_iou": 0.554140127388535
+    },
+    {
+      "window_id": "window-c90ae7044fd2b3c0e92a",
+      "sequence_id": "396_49732_97961",
+      "category": "handbag",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-fec137d7b301531eb1ef",
+      "sequence_id": "396_49732_97961",
+      "category": "handbag",
+      "foreground_iou": 0.010309278350515464
+    },
+    {
+      "window_id": "window-d1bee49c35588fe24a9e",
+      "sequence_id": "398_50417_98953",
+      "category": "handbag",
+      "foreground_iou": 0.2273838630806846
+    },
+    {
+      "window_id": "window-61247f4c5d5501e93c98",
+      "sequence_id": "398_50417_98953",
+      "category": "handbag",
+      "foreground_iou": 0.020080321285140562
+    },
+    {
+      "window_id": "window-c311243719fbd42e148c",
+      "sequence_id": "398_50417_98953",
+      "category": "handbag",
+      "foreground_iou": 0.02922077922077922
+    },
+    {
+      "window_id": "window-f18fa39460175df12f0f",
+      "sequence_id": "398_50417_98953",
+      "category": "handbag",
+      "foreground_iou": 0.02717391304347826
+    },
+    {
+      "window_id": "window-a803f7cdbb1bdd005f8e",
+      "sequence_id": "399_50953_99973",
+      "category": "handbag",
+      "foreground_iou": 0.07462686567164178
+    },
+    {
+      "window_id": "window-f86de5ea4407a3ba30e2",
+      "sequence_id": "399_50953_99973",
+      "category": "handbag",
+      "foreground_iou": 0.0958904109589041
+    },
+    {
+      "window_id": "window-f3192204ec8d191319f2",
+      "sequence_id": "399_50953_99973",
+      "category": "handbag",
+      "foreground_iou": 0.017241379310344827
+    },
+    {
+      "window_id": "window-f4b67992dde4897ef3d6",
+      "sequence_id": "399_50953_99973",
+      "category": "handbag",
+      "foreground_iou": 0.10967741935483871
+    },
+    {
+      "window_id": "window-d6493e7da1de2998f1b8",
+      "sequence_id": "406_54436_105686",
+      "category": "handbag",
+      "foreground_iou": 0.967032967032967
+    },
+    {
+      "window_id": "window-6f934dba464b249f7b04",
+      "sequence_id": "406_54436_105686",
+      "category": "handbag",
+      "foreground_iou": 0.9664804469273743
+    },
+    {
+      "window_id": "window-09b1a375811a6e83a737",
+      "sequence_id": "406_54436_105686",
+      "category": "handbag",
+      "foreground_iou": 0.9528795811518325
+    },
+    {
+      "window_id": "window-06225715e81892459fd7",
+      "sequence_id": "406_54436_105686",
+      "category": "handbag",
+      "foreground_iou": 0.9732620320855615
+    },
+    {
+      "window_id": "window-6b32068b5d05ee673e82",
+      "sequence_id": "194_20940_43635",
+      "category": "hydrant",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-c248d5a950b205b529ec",
+      "sequence_id": "194_20940_43635",
+      "category": "hydrant",
+      "foreground_iou": 0.3944954128440367
+    },
+    {
+      "window_id": "window-8cdad0ddb96cb07380a8",
+      "sequence_id": "194_20940_43635",
+      "category": "hydrant",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-67d9b7edfdac4547d281",
+      "sequence_id": "194_20940_43635",
+      "category": "hydrant",
+      "foreground_iou": 0.015625
+    },
+    {
+      "window_id": "window-85759544e41dc69c0373",
+      "sequence_id": "286_30168_59427",
+      "category": "hydrant",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-eefcb5cd98fbb7e483cf",
+      "sequence_id": "286_30168_59427",
+      "category": "hydrant",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-4f36a9e7f20330bbc739",
+      "sequence_id": "286_30168_59427",
+      "category": "hydrant",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-11fce221570e57df60b3",
+      "sequence_id": "286_30168_59427",
+      "category": "hydrant",
+      "foreground_iou": 0.013422818791946308
+    },
+    {
+      "window_id": "window-6e0c6fa640898c8fa769",
+      "sequence_id": "415_57142_110210",
+      "category": "hydrant",
+      "foreground_iou": 0.06842105263157895
+    },
+    {
+      "window_id": "window-dd93450e02bac34a034a",
+      "sequence_id": "415_57142_110210",
+      "category": "hydrant",
+      "foreground_iou": 0.012048192771084338
+    },
+    {
+      "window_id": "window-ede3ceb1845b57810990",
+      "sequence_id": "415_57142_110210",
+      "category": "hydrant",
+      "foreground_iou": 0.03007518796992481
+    },
+    {
+      "window_id": "window-2972b9a98e91efb2bedd",
+      "sequence_id": "415_57142_110210",
+      "category": "hydrant",
+      "foreground_iou": 0.11219512195121951
+    },
+    {
+      "window_id": "window-2c3a90bac61c87429452",
+      "sequence_id": "431_61002_119201",
+      "category": "hydrant",
+      "foreground_iou": 0.08421052631578947
+    },
+    {
+      "window_id": "window-2a2471492394caf527aa",
+      "sequence_id": "431_61002_119201",
+      "category": "hydrant",
+      "foreground_iou": 0.16346153846153846
+    },
+    {
+      "window_id": "window-2a90fd13a3ee3f53f3e2",
+      "sequence_id": "431_61002_119201",
+      "category": "hydrant",
+      "foreground_iou": 0.5116279069767442
+    },
+    {
+      "window_id": "window-b00dabc6f9716e137f30",
+      "sequence_id": "431_61002_119201",
+      "category": "hydrant",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-9b86b25618e7a58e9c6f",
+      "sequence_id": "433_61496_120188",
+      "category": "hydrant",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-1335caac1269f19bc639",
+      "sequence_id": "433_61496_120188",
+      "category": "hydrant",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-65701469f581d9ec18c5",
+      "sequence_id": "433_61496_120188",
+      "category": "hydrant",
+      "foreground_iou": 0.017857142857142856
+    },
+    {
+      "window_id": "window-5ba2a7113f51cc8858d1",
+      "sequence_id": "433_61496_120188",
+      "category": "hydrant",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-0d3a0b02c265659a5c10",
+      "sequence_id": "539_78730_152496",
+      "category": "hydrant",
+      "foreground_iou": 0.02262443438914027
+    },
+    {
+      "window_id": "window-8fdc5772b4b2c82da3cb",
+      "sequence_id": "539_78730_152496",
+      "category": "hydrant",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-3a8bb28098a43b660c2f",
+      "sequence_id": "539_78730_152496",
+      "category": "hydrant",
+      "foreground_iou": 0.08860759493670886
+    },
+    {
+      "window_id": "window-7922d0626f5166b327f0",
+      "sequence_id": "539_78730_152496",
+      "category": "hydrant",
+      "foreground_iou": 0.05056179775280899
+    },
+    {
+      "window_id": "window-7728e6911a8df985edd1",
+      "sequence_id": "79_8251_17496",
+      "category": "hydrant",
+      "foreground_iou": 0.5921052631578947
+    },
+    {
+      "window_id": "window-a150c73971f64321c21a",
+      "sequence_id": "79_8251_17496",
+      "category": "hydrant",
+      "foreground_iou": 0.18888888888888888
+    },
+    {
+      "window_id": "window-d3d9b8b9f5c432913612",
+      "sequence_id": "79_8251_17496",
+      "category": "hydrant",
+      "foreground_iou": 0.11392405063291139
+    },
+    {
+      "window_id": "window-22a655c121096b458c8c",
+      "sequence_id": "79_8251_17496",
+      "category": "hydrant",
+      "foreground_iou": 0.03896103896103896
+    },
+    {
+      "window_id": "window-48d81887ca507db17457",
+      "sequence_id": "379_44627_88943",
+      "category": "kite",
+      "foreground_iou": 0.024390243902439025
+    },
+    {
+      "window_id": "window-23722a1ce314a03baa28",
+      "sequence_id": "379_44627_88943",
+      "category": "kite",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-f8b9ee63d38e72c66053",
+      "sequence_id": "379_44627_88943",
+      "category": "kite",
+      "foreground_iou": 0.05
+    },
+    {
+      "window_id": "window-faa1b8dc0ab4553a87ee",
+      "sequence_id": "379_44627_88943",
+      "category": "kite",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-62e413ef978ce2bf4593",
+      "sequence_id": "404_53367_104030",
+      "category": "kite",
+      "foreground_iou": 0.0855614973262032
+    },
+    {
+      "window_id": "window-e2fca01b022d3cd8ccc6",
+      "sequence_id": "404_53367_104030",
+      "category": "kite",
+      "foreground_iou": 0.1267605633802817
+    },
+    {
+      "window_id": "window-678b43fef8c5dfea6a11",
+      "sequence_id": "409_55524_107245",
+      "category": "kite",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-aebf0c46e00065861245",
+      "sequence_id": "409_55524_107245",
+      "category": "kite",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-37f5ba795d1006e6ea00",
+      "sequence_id": "410_55739_107462",
+      "category": "kite",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-7105167ac88ce2843d4d",
+      "sequence_id": "410_55739_107462",
+      "category": "kite",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-7c51a4c90658139aa2c1",
+      "sequence_id": "410_55739_107462",
+      "category": "kite",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-66cddb60c36a49d71138",
+      "sequence_id": "410_55739_107462",
+      "category": "kite",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-329fa92f0081a707d7f2",
+      "sequence_id": "428_60131_116802",
+      "category": "kite",
+      "foreground_iou": 0.25793650793650796
+    },
+    {
+      "window_id": "window-35b4248c5df98c73c034",
+      "sequence_id": "428_60131_116802",
+      "category": "kite",
+      "foreground_iou": 0.35106382978723405
+    },
+    {
+      "window_id": "window-777d6d85e86174c3e901",
+      "sequence_id": "428_60131_116802",
+      "category": "kite",
+      "foreground_iou": 0.21929824561403508
+    },
+    {
+      "window_id": "window-d961661e6028662c820c",
+      "sequence_id": "428_60131_116802",
+      "category": "kite",
+      "foreground_iou": 0.38461538461538464
+    },
+    {
+      "window_id": "window-28cbe042259248f8cb29",
+      "sequence_id": "563_81469_161864",
+      "category": "kite",
+      "foreground_iou": 0.085
+    },
+    {
+      "window_id": "window-bc43d6834bd70147cbed",
+      "sequence_id": "563_81469_161864",
+      "category": "kite",
+      "foreground_iou": 0.08294930875576037
+    },
+    {
+      "window_id": "window-38c7631d26538bf3c553",
+      "sequence_id": "563_81469_161864",
+      "category": "kite",
+      "foreground_iou": 0.0881057268722467
+    },
+    {
+      "window_id": "window-7f7e509bbc775038335c",
+      "sequence_id": "563_81469_161864",
+      "category": "kite",
+      "foreground_iou": 0.05357142857142857
+    },
+    {
+      "window_id": "window-474c04348014af240f67",
+      "sequence_id": "610_96636_193668",
+      "category": "kite",
+      "foreground_iou": 0.7375
+    },
+    {
+      "window_id": "window-f9760bb4795e215eb714",
+      "sequence_id": "610_96636_193668",
+      "category": "kite",
+      "foreground_iou": 0.40625
+    },
+    {
+      "window_id": "window-c9ff3fee215c9286d58c",
+      "sequence_id": "610_96636_193668",
+      "category": "kite",
+      "foreground_iou": 0.5638297872340425
+    },
+    {
+      "window_id": "window-e803eecfe991f69e7496",
+      "sequence_id": "610_96636_193668",
+      "category": "kite",
+      "foreground_iou": 0.03333333333333333
+    },
+    {
+      "window_id": "window-951d97a57ed227ba5df1",
+      "sequence_id": "31_1328_4079",
+      "category": "microwave",
+      "foreground_iou": 0.01278772378516624
+    },
+    {
+      "window_id": "window-24ecabb1afcabdef5b37",
+      "sequence_id": "31_1328_4079",
+      "category": "microwave",
+      "foreground_iou": 0.05697445972495088
+    },
+    {
+      "window_id": "window-3dd6827ee02d8dc57b2d",
+      "sequence_id": "31_1328_4079",
+      "category": "microwave",
+      "foreground_iou": 0.11040339702760085
+    },
+    {
+      "window_id": "window-f80c5d36c09b681e6499",
+      "sequence_id": "31_1328_4079",
+      "category": "microwave",
+      "foreground_iou": 0.011160714285714286
+    },
+    {
+      "window_id": "window-e6126f6ef0dbe2ff3c9e",
+      "sequence_id": "399_51083_100220",
+      "category": "microwave",
+      "foreground_iou": 0.02097902097902098
+    },
+    {
+      "window_id": "window-19221af117ff11cbb454",
+      "sequence_id": "399_51083_100220",
+      "category": "microwave",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-b01257deae4c90b83430",
+      "sequence_id": "399_51083_100220",
+      "category": "microwave",
+      "foreground_iou": 0.13533834586466165
+    },
+    {
+      "window_id": "window-1a54831697474c38eab7",
+      "sequence_id": "399_51083_100220",
+      "category": "microwave",
+      "foreground_iou": 0.023255813953488372
+    },
+    {
+      "window_id": "window-4065f23bf720c97428b1",
+      "sequence_id": "407_54878_105791",
+      "category": "microwave",
+      "foreground_iou": 0.13541666666666666
+    },
+    {
+      "window_id": "window-ce4d5c90b1bc51f14840",
+      "sequence_id": "407_54878_105791",
+      "category": "microwave",
+      "foreground_iou": 0.13005272407732865
+    },
+    {
+      "window_id": "window-95cec41699a9d6c71cfb",
+      "sequence_id": "407_54878_105791",
+      "category": "microwave",
+      "foreground_iou": 0.13541666666666666
+    },
+    {
+      "window_id": "window-6574685213484ea8a5b1",
+      "sequence_id": "407_54878_105791",
+      "category": "microwave",
+      "foreground_iou": 0.29310344827586204
+    },
+    {
+      "window_id": "window-8dca633e10a6329f085d",
+      "sequence_id": "457_64457_127011",
+      "category": "microwave",
+      "foreground_iou": 0.12573099415204678
+    },
+    {
+      "window_id": "window-f8903e0314ca0482311a",
+      "sequence_id": "457_64457_127011",
+      "category": "microwave",
+      "foreground_iou": 0.0029850746268656717
+    },
+    {
+      "window_id": "window-57885244f7dc0528af2f",
+      "sequence_id": "457_64457_127011",
+      "category": "microwave",
+      "foreground_iou": 0.00392156862745098
+    },
+    {
+      "window_id": "window-942e7276d6c8aa466a9a",
+      "sequence_id": "457_64457_127011",
+      "category": "microwave",
+      "foreground_iou": 0.1288782816229117
+    },
+    {
+      "window_id": "window-4bebb6f0f65463dd8aa7",
+      "sequence_id": "563_81066_159397",
+      "category": "microwave",
+      "foreground_iou": 0.014457831325301205
+    },
+    {
+      "window_id": "window-f71ad3763003815890f9",
+      "sequence_id": "563_81066_159397",
+      "category": "microwave",
+      "foreground_iou": 0.16624040920716113
+    },
+    {
+      "window_id": "window-f54454483c84f93c4ea2",
+      "sequence_id": "563_81066_159397",
+      "category": "microwave",
+      "foreground_iou": 0.18724279835390947
+    },
+    {
+      "window_id": "window-1377dce906e5f11fe431",
+      "sequence_id": "563_81066_159397",
+      "category": "microwave",
+      "foreground_iou": 0.04790419161676647
+    },
+    {
+      "window_id": "window-ef319560bade760e11ea",
+      "sequence_id": "604_94163_188799",
+      "category": "microwave",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-843506fd14eddc7853f5",
+      "sequence_id": "604_94163_188799",
+      "category": "microwave",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-578fca09a8583fed1be4",
+      "sequence_id": "604_94163_188799",
+      "category": "microwave",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-86cc382709dfde853ba2",
+      "sequence_id": "604_94163_188799",
+      "category": "microwave",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-b406d72ed74b622e6ef4",
+      "sequence_id": "622_102555_206199",
+      "category": "microwave",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-179749df9c432b594061",
+      "sequence_id": "622_102555_206199",
+      "category": "microwave",
+      "foreground_iou": 0.004618937644341801
+    },
+    {
+      "window_id": "window-cfc06fdae37622155ce7",
+      "sequence_id": "622_102555_206199",
+      "category": "microwave",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-7b21614058e43eb71782",
+      "sequence_id": "622_102555_206199",
+      "category": "microwave",
+      "foreground_iou": 0.005050505050505051
+    },
+    {
+      "window_id": "window-ad4822214b3c517a7cf8",
+      "sequence_id": "158_17387_32896",
+      "category": "mouse",
+      "foreground_iou": 0.24516129032258063
+    },
+    {
+      "window_id": "window-8af3e5742846137b6e19",
+      "sequence_id": "158_17387_32896",
+      "category": "mouse",
+      "foreground_iou": 0.05454545454545454
+    },
+    {
+      "window_id": "window-70cb680013717ec0fa6a",
+      "sequence_id": "158_17387_32896",
+      "category": "mouse",
+      "foreground_iou": 0.14563106796116504
+    },
+    {
+      "window_id": "window-5d892f77f445dbc4dfdd",
+      "sequence_id": "158_17387_32896",
+      "category": "mouse",
+      "foreground_iou": 0.36619718309859156
+    },
+    {
+      "window_id": "window-5adbe29d4bf5022d9f27",
+      "sequence_id": "444_63845_126068",
+      "category": "mouse",
+      "foreground_iou": 0.6301369863013698
+    },
+    {
+      "window_id": "window-920c3369016de0e69db5",
+      "sequence_id": "444_63845_126068",
+      "category": "mouse",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-067bb0d81a5dd6cff76c",
+      "sequence_id": "444_63845_126068",
+      "category": "mouse",
+      "foreground_iou": 0.5
+    },
+    {
+      "window_id": "window-2afafe1933d8f62a6914",
+      "sequence_id": "444_63845_126068",
+      "category": "mouse",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-c56e31e4d81e80a40fff",
+      "sequence_id": "457_64489_127066",
+      "category": "mouse",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-2e91dbb9a4dc575cb369",
+      "sequence_id": "457_64489_127066",
+      "category": "mouse",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-5fb4d38367b31cba3862",
+      "sequence_id": "457_64489_127066",
+      "category": "mouse",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-7e20213b8aedc78c9301",
+      "sequence_id": "457_64489_127066",
+      "category": "mouse",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-37ecdf2e8fb2c9135366",
+      "sequence_id": "482_68923_133883",
+      "category": "mouse",
+      "foreground_iou": 0.43333333333333335
+    },
+    {
+      "window_id": "window-499b75bf48a6904d17b6",
+      "sequence_id": "482_68923_133883",
+      "category": "mouse",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-55700aea7bc7774f1eb5",
+      "sequence_id": "482_68923_133883",
+      "category": "mouse",
+      "foreground_iou": 0.375
+    },
+    {
+      "window_id": "window-96ce2094b097b6683c23",
+      "sequence_id": "482_68923_133883",
+      "category": "mouse",
+      "foreground_iou": 0.3611111111111111
+    },
+    {
+      "window_id": "window-e03cd01bcf0bd41c9599",
+      "sequence_id": "606_94983_191143",
+      "category": "mouse",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-fe3e596164530caaa9d7",
+      "sequence_id": "606_94983_191143",
+      "category": "mouse",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-26ead80225cd895d5bff",
+      "sequence_id": "606_94983_191143",
+      "category": "mouse",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-cea889d859e1b1dbdb00",
+      "sequence_id": "606_94983_191143",
+      "category": "mouse",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-a98982d17d674897e414",
+      "sequence_id": "614_98358_197416",
+      "category": "mouse",
+      "foreground_iou": 0.9130434782608695
+    },
+    {
+      "window_id": "window-2a8e377d48e606241922",
+      "sequence_id": "614_98358_197416",
+      "category": "mouse",
+      "foreground_iou": 0.6764705882352942
+    },
+    {
+      "window_id": "window-431e61500cdea38fd992",
+      "sequence_id": "614_98358_197416",
+      "category": "mouse",
+      "foreground_iou": 0.008298755186721992
+    },
+    {
+      "window_id": "window-3e25dc40bc2b2a06f9eb",
+      "sequence_id": "614_98358_197416",
+      "category": "mouse",
+      "foreground_iou": 0.015957446808510637
+    },
+    {
+      "window_id": "window-903361117664ce00767f",
+      "sequence_id": "602_93423_185631",
+      "category": "parkingmeter",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-b262551e9dd5249e323c",
+      "sequence_id": "602_93423_185631",
+      "category": "parkingmeter",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-d2fd9b052aedf9951516",
+      "sequence_id": "602_93423_185631",
+      "category": "parkingmeter",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-ed1d87832565bc0d9598",
+      "sequence_id": "602_93423_185631",
+      "category": "parkingmeter",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-10e499f6583dc0dcb906",
+      "sequence_id": "605_94713_189563",
+      "category": "parkingmeter",
+      "foreground_iou": 0.4506172839506173
+    },
+    {
+      "window_id": "window-3d2fb8fb11d71589d6c0",
+      "sequence_id": "605_94713_189563",
+      "category": "parkingmeter",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-90cca9ffa99c460950b4",
+      "sequence_id": "605_94713_189563",
+      "category": "parkingmeter",
+      "foreground_iou": 0.014492753623188406
+    },
+    {
+      "window_id": "window-da11692ddbaf96b7ee97",
+      "sequence_id": "605_94713_189563",
+      "category": "parkingmeter",
+      "foreground_iou": 0.03418803418803419
+    },
+    {
+      "window_id": "window-7fec4dbb0a82cd5bb17f",
+      "sequence_id": "137_15750_30949",
+      "category": "plant",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-4adfdd57f07d691943e8",
+      "sequence_id": "137_15750_30949",
+      "category": "plant",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-eb549ba30168887b3c80",
+      "sequence_id": "137_15750_30949",
+      "category": "plant",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-7970570d1e2f4609c8bf",
+      "sequence_id": "137_15750_30949",
+      "category": "plant",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-f882a5976e24417878c8",
+      "sequence_id": "34_1410_4421",
+      "category": "plant",
+      "foreground_iou": 0.11320754716981132
+    },
+    {
+      "window_id": "window-4df7c113a07300b82cf7",
+      "sequence_id": "34_1410_4421",
+      "category": "plant",
+      "foreground_iou": 0.00980392156862745
+    },
+    {
+      "window_id": "window-e03bf29abe4ef5ff82f6",
+      "sequence_id": "34_1410_4421",
+      "category": "plant",
+      "foreground_iou": 0.012738853503184714
+    },
+    {
+      "window_id": "window-734f35ba47a2aa79799d",
+      "sequence_id": "34_1410_4421",
+      "category": "plant",
+      "foreground_iou": 0.08333333333333333
+    },
+    {
+      "window_id": "window-8c15dc1f7be951e3ed14",
+      "sequence_id": "569_82609_162965",
+      "category": "plant",
+      "foreground_iou": 0.2648648648648649
+    },
+    {
+      "window_id": "window-16a2fc60051947d618cd",
+      "sequence_id": "569_82609_162965",
+      "category": "plant",
+      "foreground_iou": 0.072992700729927
+    },
+    {
+      "window_id": "window-868f824b522ca4bf1dfb",
+      "sequence_id": "569_82609_162965",
+      "category": "plant",
+      "foreground_iou": 0.2641509433962264
+    },
+    {
+      "window_id": "window-a0bca5213a149fa7e592",
+      "sequence_id": "569_82609_162965",
+      "category": "plant",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-17db8af9848572e53df9",
+      "sequence_id": "579_85874_169948",
+      "category": "plant",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-4c9e36c4b35649e075c2",
+      "sequence_id": "579_85874_169948",
+      "category": "plant",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-96d3511efa4cd0d0f02a",
+      "sequence_id": "579_85874_169948",
+      "category": "plant",
+      "foreground_iou": 0.021897810218978103
+    },
+    {
+      "window_id": "window-b35579eeb8e7cd5c77a1",
+      "sequence_id": "579_85874_169948",
+      "category": "plant",
+      "foreground_iou": 0.44339622641509435
+    },
+    {
+      "window_id": "window-23b7a7d15c624f3f9742",
+      "sequence_id": "589_88242_175116",
+      "category": "plant",
+      "foreground_iou": 0.34210526315789475
+    },
+    {
+      "window_id": "window-8c9f3b381d326e36c597",
+      "sequence_id": "589_88242_175116",
+      "category": "plant",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-2c8cbc35618ecf17817d",
+      "sequence_id": "589_88242_175116",
+      "category": "plant",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-cbe1942468af4029978b",
+      "sequence_id": "589_88242_175116",
+      "category": "plant",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-f54827122ce00f4b1308",
+      "sequence_id": "610_97080_194751",
+      "category": "plant",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-bfcd40b2b619175e7cd2",
+      "sequence_id": "610_97080_194751",
+      "category": "plant",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-b26f284b9e06e935e59b",
+      "sequence_id": "610_97080_194751",
+      "category": "plant",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-16befe9498e5135fb633",
+      "sequence_id": "610_97080_194751",
+      "category": "plant",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-3e6418830be040162bcc",
+      "sequence_id": "614_98398_197602",
+      "category": "plant",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-9a2ded8ab88a900f4fa2",
+      "sequence_id": "614_98398_197602",
+      "category": "plant",
+      "foreground_iou": 0.018018018018018018
+    },
+    {
+      "window_id": "window-27457f9b9c934b40bfaf",
+      "sequence_id": "614_98398_197602",
+      "category": "plant",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-3ee6ca206fbcc593ce71",
+      "sequence_id": "614_98398_197602",
+      "category": "plant",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-3ad0241c4773abbfa8db",
+      "sequence_id": "171_18580_33862",
+      "category": "sandwich",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-d52108208884de997c1e",
+      "sequence_id": "171_18580_33862",
+      "category": "sandwich",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-bd192d8cfb8fb7c4e62a",
+      "sequence_id": "171_18580_33862",
+      "category": "sandwich",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-ea255ea866d43ca06113",
+      "sequence_id": "171_18580_33862",
+      "category": "sandwich",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-6c0fa33687b359b351e4",
+      "sequence_id": "368_39870_78273",
+      "category": "sandwich",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-059923825b7cd7e0bd41",
+      "sequence_id": "368_39870_78273",
+      "category": "sandwich",
+      "foreground_iou": 0.0072992700729927005
+    },
+    {
+      "window_id": "window-d166cef45b7685d4103d",
+      "sequence_id": "368_39870_78273",
+      "category": "sandwich",
+      "foreground_iou": 0.8023255813953488
+    },
+    {
+      "window_id": "window-22e6d817ce9a7c9cdccd",
+      "sequence_id": "368_39870_78273",
+      "category": "sandwich",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-ace64fde5635a3068d9b",
+      "sequence_id": "368_39872_78304",
+      "category": "sandwich",
+      "foreground_iou": 0.009433962264150943
+    },
+    {
+      "window_id": "window-0744f65df9ba804133ed",
+      "sequence_id": "368_39872_78304",
+      "category": "sandwich",
+      "foreground_iou": 0.14201183431952663
+    },
+    {
+      "window_id": "window-6f6dd8327ea1be07ebd8",
+      "sequence_id": "368_39872_78304",
+      "category": "sandwich",
+      "foreground_iou": 0.19626168224299065
+    },
+    {
+      "window_id": "window-33c4474dffdbdd44cfd7",
+      "sequence_id": "368_39872_78304",
+      "category": "sandwich",
+      "foreground_iou": 0.11851851851851852
+    },
+    {
+      "window_id": "window-d4e51335d71d5896acc2",
+      "sequence_id": "369_40239_78932",
+      "category": "sandwich",
+      "foreground_iou": 0.21568627450980393
+    },
+    {
+      "window_id": "window-483405922c12460996c1",
+      "sequence_id": "369_40239_78932",
+      "category": "sandwich",
+      "foreground_iou": 0.17982456140350878
+    },
+    {
+      "window_id": "window-8e2b0c36443a1491f3b8",
+      "sequence_id": "369_40239_78932",
+      "category": "sandwich",
+      "foreground_iou": 0.1592920353982301
+    },
+    {
+      "window_id": "window-3aec67dd28b5aa0b281a",
+      "sequence_id": "369_40239_78932",
+      "category": "sandwich",
+      "foreground_iou": 0.04878048780487805
+    },
+    {
+      "window_id": "window-1785e5947372130c80b4",
+      "sequence_id": "385_45603_91217",
+      "category": "sandwich",
+      "foreground_iou": 0.5521235521235521
+    },
+    {
+      "window_id": "window-58ac6bd7bc34fde1ed42",
+      "sequence_id": "385_45603_91217",
+      "category": "sandwich",
+      "foreground_iou": 0.24050632911392406
+    },
+    {
+      "window_id": "window-1276856e80f0bde37c31",
+      "sequence_id": "385_45603_91217",
+      "category": "sandwich",
+      "foreground_iou": 0.30548302872062666
+    },
+    {
+      "window_id": "window-fbe6f5fcaa9b275b9192",
+      "sequence_id": "385_45603_91217",
+      "category": "sandwich",
+      "foreground_iou": 0.1695501730103806
+    },
+    {
+      "window_id": "window-5aa06ccb1c4fb2b4f83b",
+      "sequence_id": "398_50720_99533",
+      "category": "sandwich",
+      "foreground_iou": 0.04
+    },
+    {
+      "window_id": "window-0bef6bb9c3f71cfca246",
+      "sequence_id": "398_50720_99533",
+      "category": "sandwich",
+      "foreground_iou": 0.06923076923076923
+    },
+    {
+      "window_id": "window-9d647534e61bd720b9d3",
+      "sequence_id": "398_50720_99533",
+      "category": "sandwich",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-a815dd420846c2c8f9f2",
+      "sequence_id": "398_50720_99533",
+      "category": "sandwich",
+      "foreground_iou": 0.09401709401709402
+    },
+    {
+      "window_id": "window-8a27786371799a53a8d0",
+      "sequence_id": "420_58293_112781",
+      "category": "sandwich",
+      "foreground_iou": 0.8703703703703703
+    },
+    {
+      "window_id": "window-bac7da2c2ab38f062dad",
+      "sequence_id": "420_58293_112781",
+      "category": "sandwich",
+      "foreground_iou": 0.7222222222222222
+    },
+    {
+      "window_id": "window-d7d0f2084a72b89322ae",
+      "sequence_id": "420_58293_112781",
+      "category": "sandwich",
+      "foreground_iou": 0.36363636363636365
+    },
+    {
+      "window_id": "window-e9f454116d01c45fd353",
+      "sequence_id": "420_58293_112781",
+      "category": "sandwich",
+      "foreground_iou": 0.7049180327868853
+    },
+    {
+      "window_id": "window-fa47f288198d63c738f2",
+      "sequence_id": "422_58705_113983",
+      "category": "sandwich",
+      "foreground_iou": 0.17315175097276264
+    },
+    {
+      "window_id": "window-627294b44204865b0b0d",
+      "sequence_id": "422_58705_113983",
+      "category": "sandwich",
+      "foreground_iou": 0.19164619164619165
+    },
+    {
+      "window_id": "window-cac80e57794608f61bb1",
+      "sequence_id": "422_58705_113983",
+      "category": "sandwich",
+      "foreground_iou": 0.36533957845433257
+    },
+    {
+      "window_id": "window-810003d004e1c52fe2e6",
+      "sequence_id": "422_58705_113983",
+      "category": "sandwich",
+      "foreground_iou": 0.2303370786516854
+    },
+    {
+      "window_id": "window-d55c5c6776abcb8d29f5",
+      "sequence_id": "215_22689_47491",
+      "category": "stopsign",
+      "foreground_iou": 0.10869565217391304
+    },
+    {
+      "window_id": "window-fd2d49b4843beca897e3",
+      "sequence_id": "215_22689_47491",
+      "category": "stopsign",
+      "foreground_iou": 0.5862068965517241
+    },
+    {
+      "window_id": "window-d620c131aeafc6ca99b6",
+      "sequence_id": "215_22689_47491",
+      "category": "stopsign",
+      "foreground_iou": 0.19318181818181818
+    },
+    {
+      "window_id": "window-98294fa052b034b962e3",
+      "sequence_id": "215_22689_47491",
+      "category": "stopsign",
+      "foreground_iou": 0.09937888198757763
+    },
+    {
+      "window_id": "window-7178655b52ca9a209b8c",
+      "sequence_id": "421_58535_113110",
+      "category": "stopsign",
+      "foreground_iou": 0.05714285714285714
+    },
+    {
+      "window_id": "window-068464dc0a1a518ed967",
+      "sequence_id": "421_58535_113110",
+      "category": "stopsign",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-527be1a8925b34f6c2b1",
+      "sequence_id": "421_58535_113110",
+      "category": "stopsign",
+      "foreground_iou": 0.02877697841726619
+    },
+    {
+      "window_id": "window-731442126e26f7b72773",
+      "sequence_id": "421_58535_113110",
+      "category": "stopsign",
+      "foreground_iou": 0.3333333333333333
+    },
+    {
+      "window_id": "window-a7e5ca54972d873f618a",
+      "sequence_id": "435_61888_121383",
+      "category": "stopsign",
+      "foreground_iou": 0.6032608695652174
+    },
+    {
+      "window_id": "window-181c67450b7ef0aa9e4e",
+      "sequence_id": "435_61888_121383",
+      "category": "stopsign",
+      "foreground_iou": 0.6021505376344086
+    },
+    {
+      "window_id": "window-4b0df7cdf2ec4b8a1c0c",
+      "sequence_id": "435_61888_121383",
+      "category": "stopsign",
+      "foreground_iou": 0.6274509803921569
+    },
+    {
+      "window_id": "window-97cbb408e02d87146f8e",
+      "sequence_id": "435_61888_121383",
+      "category": "stopsign",
+      "foreground_iou": 0.5224719101123596
+    },
+    {
+      "window_id": "window-98b9e06b5f08f8a84c24",
+      "sequence_id": "554_79580_157131",
+      "category": "stopsign",
+      "foreground_iou": 0.037037037037037035
+    },
+    {
+      "window_id": "window-7a65d941494bc42029cd",
+      "sequence_id": "554_79580_157131",
+      "category": "stopsign",
+      "foreground_iou": 0.028846153846153848
+    },
+    {
+      "window_id": "window-0befda0a29a46973dfa6",
+      "sequence_id": "554_79580_157131",
+      "category": "stopsign",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-9800755687a70ed5dd95",
+      "sequence_id": "554_79580_157131",
+      "category": "stopsign",
+      "foreground_iou": 0.4444444444444444
+    },
+    {
+      "window_id": "window-c8351b11f1c858d35d70",
+      "sequence_id": "607_95424_189981",
+      "category": "stopsign",
+      "foreground_iou": 0.018867924528301886
+    },
+    {
+      "window_id": "window-22f930886e75db7d5688",
+      "sequence_id": "607_95424_189981",
+      "category": "stopsign",
+      "foreground_iou": 0.025423728813559324
+    },
+    {
+      "window_id": "window-c696c02b1a4718e9f8b2",
+      "sequence_id": "607_95424_189981",
+      "category": "stopsign",
+      "foreground_iou": 0.45054945054945056
+    },
+    {
+      "window_id": "window-ed2a8c2edb3e5ad522bb",
+      "sequence_id": "607_95424_189981",
+      "category": "stopsign",
+      "foreground_iou": 0.30319148936170215
+    },
+    {
+      "window_id": "window-6531fa60ba1afb28ec69",
+      "sequence_id": "609_96515_192758",
+      "category": "stopsign",
+      "foreground_iou": 0.19166666666666668
+    },
+    {
+      "window_id": "window-80b11b1c222f4cbd5e83",
+      "sequence_id": "609_96515_192758",
+      "category": "stopsign",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-2cfd234a891447212d2a",
+      "sequence_id": "609_96515_192758",
+      "category": "stopsign",
+      "foreground_iou": 0.04597701149425287
+    },
+    {
+      "window_id": "window-462ab84478a8ce53c13d",
+      "sequence_id": "609_96515_192758",
+      "category": "stopsign",
+      "foreground_iou": 0.6521739130434783
+    },
+    {
+      "window_id": "window-eade5852f4e17d963cfd",
+      "sequence_id": "617_99946_199054",
+      "category": "stopsign",
+      "foreground_iou": 0.3272058823529412
+    },
+    {
+      "window_id": "window-2e36bf5d0a1b2f87c3c6",
+      "sequence_id": "617_99946_199054",
+      "category": "stopsign",
+      "foreground_iou": 0.34558823529411764
+    },
+    {
+      "window_id": "window-f4c90dd0990c05c85085",
+      "sequence_id": "617_99946_199054",
+      "category": "stopsign",
+      "foreground_iou": 0.34375
+    },
+    {
+      "window_id": "window-048cfc878ce9f101aca9",
+      "sequence_id": "617_99946_199054",
+      "category": "stopsign",
+      "foreground_iou": 0.27941176470588236
+    },
+    {
+      "window_id": "window-16878f5c8c55ce7273f9",
+      "sequence_id": "375_42486_85102",
+      "category": "teddybear",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-ed76175d796353e8f2c8",
+      "sequence_id": "375_42486_85102",
+      "category": "teddybear",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-9e5fe39998b235a23080",
+      "sequence_id": "375_42486_85102",
+      "category": "teddybear",
+      "foreground_iou": 0.08609271523178808
+    },
+    {
+      "window_id": "window-ba216b54e7d69923e3a3",
+      "sequence_id": "375_42486_85102",
+      "category": "teddybear",
+      "foreground_iou": 0.009174311926605505
+    },
+    {
+      "window_id": "window-4f4aa2ebcfcfa3c16f18",
+      "sequence_id": "379_44417_88533",
+      "category": "teddybear",
+      "foreground_iou": 0.10526315789473684
+    },
+    {
+      "window_id": "window-cdea7ed9b448a1890dc4",
+      "sequence_id": "379_44417_88533",
+      "category": "teddybear",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-12635eefbcdc0af8dff4",
+      "sequence_id": "379_44417_88533",
+      "category": "teddybear",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-3e6c3225d2919e127a9a",
+      "sequence_id": "379_44417_88533",
+      "category": "teddybear",
+      "foreground_iou": 0.23076923076923078
+    },
+    {
+      "window_id": "window-4766c7b60968b01802ac",
+      "sequence_id": "38_1673_5082",
+      "category": "teddybear",
+      "foreground_iou": 0.17258883248730963
+    },
+    {
+      "window_id": "window-555b8489569c62acf563",
+      "sequence_id": "38_1673_5082",
+      "category": "teddybear",
+      "foreground_iou": 0.026143790849673203
+    },
+    {
+      "window_id": "window-e1e29549a2830062067d",
+      "sequence_id": "38_1673_5082",
+      "category": "teddybear",
+      "foreground_iou": 0.14285714285714285
+    },
+    {
+      "window_id": "window-09dec40f591258345155",
+      "sequence_id": "38_1673_5082",
+      "category": "teddybear",
+      "foreground_iou": 0.14285714285714285
+    },
+    {
+      "window_id": "window-45e315233efb2e6d45b0",
+      "sequence_id": "463_65700_128783",
+      "category": "teddybear",
+      "foreground_iou": 0.18396226415094338
+    },
+    {
+      "window_id": "window-9da0b4022af8d4259116",
+      "sequence_id": "463_65700_128783",
+      "category": "teddybear",
+      "foreground_iou": 0.44396551724137934
+    },
+    {
+      "window_id": "window-9e24f7defc5ff751c6c4",
+      "sequence_id": "463_65700_128783",
+      "category": "teddybear",
+      "foreground_iou": 0.020202020202020204
+    },
+    {
+      "window_id": "window-b08be3ddab6d50657f4d",
+      "sequence_id": "463_65700_128783",
+      "category": "teddybear",
+      "foreground_iou": 0.30327868852459017
+    },
+    {
+      "window_id": "window-79594e945457008b815b",
+      "sequence_id": "529_76990_149397",
+      "category": "teddybear",
+      "foreground_iou": 0.5
+    },
+    {
+      "window_id": "window-8b9c3a6169575f042845",
+      "sequence_id": "529_76990_149397",
+      "category": "teddybear",
+      "foreground_iou": 0.4928684627575277
+    },
+    {
+      "window_id": "window-434fd3e6ad3da0c78347",
+      "sequence_id": "529_76990_149397",
+      "category": "teddybear",
+      "foreground_iou": 0.5670103092783505
+    },
+    {
+      "window_id": "window-ee446937fb4e8d9bc582",
+      "sequence_id": "529_76990_149397",
+      "category": "teddybear",
+      "foreground_iou": 0.7107750472589792
+    },
+    {
+      "window_id": "window-81fb8346cd086ff49d3f",
+      "sequence_id": "534_77577_150665",
+      "category": "teddybear",
+      "foreground_iou": 0.3079470198675497
+    },
+    {
+      "window_id": "window-03fb8d85cbb1c38429de",
+      "sequence_id": "534_77577_150665",
+      "category": "teddybear",
+      "foreground_iou": 0.5266666666666666
+    },
+    {
+      "window_id": "window-916b059b988923448200",
+      "sequence_id": "534_77577_150665",
+      "category": "teddybear",
+      "foreground_iou": 0.5454545454545454
+    },
+    {
+      "window_id": "window-df0c1b2b86a991853d6c",
+      "sequence_id": "534_77577_150665",
+      "category": "teddybear",
+      "foreground_iou": 0.048295454545454544
+    },
+    {
+      "window_id": "window-9c417b7bf214982c3ce5",
+      "sequence_id": "616_99423_199584",
+      "category": "teddybear",
+      "foreground_iou": 0.17535545023696683
+    },
+    {
+      "window_id": "window-356a4849952325e63d3a",
+      "sequence_id": "616_99423_199584",
+      "category": "teddybear",
+      "foreground_iou": 0.11633663366336634
+    },
+    {
+      "window_id": "window-9ef8a5d1258bffe2a5a8",
+      "sequence_id": "616_99423_199584",
+      "category": "teddybear",
+      "foreground_iou": 0.06431535269709543
+    },
+    {
+      "window_id": "window-a07db3b766d399b7676e",
+      "sequence_id": "616_99423_199584",
+      "category": "teddybear",
+      "foreground_iou": 0.12652068126520682
+    },
+    {
+      "window_id": "window-0ca6afaf12a2d44af009",
+      "sequence_id": "624_103282_207377",
+      "category": "teddybear",
+      "foreground_iou": 0.020100502512562814
+    },
+    {
+      "window_id": "window-50e8f9ed340f25ea25f3",
+      "sequence_id": "624_103282_207377",
+      "category": "teddybear",
+      "foreground_iou": 0.16722408026755853
+    },
+    {
+      "window_id": "window-9e3c5edba1a5a1e1c1cd",
+      "sequence_id": "624_103282_207377",
+      "category": "teddybear",
+      "foreground_iou": 0.12393162393162394
+    },
+    {
+      "window_id": "window-387a3e549ac2e9707497",
+      "sequence_id": "624_103282_207377",
+      "category": "teddybear",
+      "foreground_iou": 0.7333333333333333
+    },
+    {
+      "window_id": "window-be6b26575651ee7cc956",
+      "sequence_id": "184_19888_38373",
+      "category": "toilet",
+      "foreground_iou": 0.4148936170212766
+    },
+    {
+      "window_id": "window-48aaeba3c71c374ef717",
+      "sequence_id": "184_19888_38373",
+      "category": "toilet",
+      "foreground_iou": 0.3398876404494382
+    },
+    {
+      "window_id": "window-0845e77d6a9e0629e63d",
+      "sequence_id": "184_19888_38373",
+      "category": "toilet",
+      "foreground_iou": 0.5170940170940171
+    },
+    {
+      "window_id": "window-a9089ad69aa37f7ca7d9",
+      "sequence_id": "184_19888_38373",
+      "category": "toilet",
+      "foreground_iou": 0.038348082595870206
+    },
+    {
+      "window_id": "window-6010c5f88ca52d1b2582",
+      "sequence_id": "533_77324_150679",
+      "category": "toilet",
+      "foreground_iou": 0.011594202898550725
+    },
+    {
+      "window_id": "window-401aa67285740de56d4a",
+      "sequence_id": "533_77324_150679",
+      "category": "toilet",
+      "foreground_iou": 0.016666666666666666
+    },
+    {
+      "window_id": "window-b11e22c0a260261e5ddd",
+      "sequence_id": "533_77324_150679",
+      "category": "toilet",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-d04bc0bcea8748bb0591",
+      "sequence_id": "533_77324_150679",
+      "category": "toilet",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-71ba524e0df5f45505d4",
+      "sequence_id": "564_81534_160286",
+      "category": "toilet",
+      "foreground_iou": 0.08974358974358974
+    },
+    {
+      "window_id": "window-a5d32c22a807c05ea5a3",
+      "sequence_id": "564_81534_160286",
+      "category": "toilet",
+      "foreground_iou": 0.01020408163265306
+    },
+    {
+      "window_id": "window-93ba6f81e14b6e55e84d",
+      "sequence_id": "564_81534_160286",
+      "category": "toilet",
+      "foreground_iou": 0.13005780346820808
+    },
+    {
+      "window_id": "window-6523510c7ccf5f2c49ee",
+      "sequence_id": "564_81534_160286",
+      "category": "toilet",
+      "foreground_iou": 0.07631578947368421
+    },
+    {
+      "window_id": "window-2514346e7f48d33ffd99",
+      "sequence_id": "580_86096_170254",
+      "category": "toilet",
+      "foreground_iou": 0.5374331550802139
+    },
+    {
+      "window_id": "window-04ccba6b5e9e64da3d6c",
+      "sequence_id": "580_86096_170254",
+      "category": "toilet",
+      "foreground_iou": 0.06693440428380187
+    },
+    {
+      "window_id": "window-d1e9abcc342390017662",
+      "sequence_id": "580_86096_170254",
+      "category": "toilet",
+      "foreground_iou": 0.004395604395604396
+    },
+    {
+      "window_id": "window-a354afcb09112418833e",
+      "sequence_id": "580_86096_170254",
+      "category": "toilet",
+      "foreground_iou": 0.009685230024213076
+    },
+    {
+      "window_id": "window-943597961c0bbed7b356",
+      "sequence_id": "199_21386_43613",
+      "category": "toyplane",
+      "foreground_iou": 0.2
+    },
+    {
+      "window_id": "window-a37e531b9e8390b5a2fa",
+      "sequence_id": "199_21386_43613",
+      "category": "toyplane",
+      "foreground_iou": 0.25274725274725274
+    },
+    {
+      "window_id": "window-d12d3df9137515694657",
+      "sequence_id": "199_21386_43613",
+      "category": "toyplane",
+      "foreground_iou": 0.18181818181818182
+    },
+    {
+      "window_id": "window-d3de746a1dc11e911fb3",
+      "sequence_id": "199_21386_43613",
+      "category": "toyplane",
+      "foreground_iou": 0.15517241379310345
+    },
+    {
+      "window_id": "window-bbb743da157695ea0370",
+      "sequence_id": "375_42843_85763",
+      "category": "toyplane",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-61b8a123124205171359",
+      "sequence_id": "375_42843_85763",
+      "category": "toyplane",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-e0ef15e50156289f8912",
+      "sequence_id": "375_42843_85763",
+      "category": "toyplane",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-f46407c261c57018659d",
+      "sequence_id": "376_42884_85882",
+      "category": "toyplane",
+      "foreground_iou": 0.036544850498338874
+    },
+    {
+      "window_id": "window-aeacce61616b99863ea3",
+      "sequence_id": "376_42884_85882",
+      "category": "toyplane",
+      "foreground_iou": 0.0026595744680851063
+    },
+    {
+      "window_id": "window-17ba87a79ad4a4078628",
+      "sequence_id": "376_42884_85882",
+      "category": "toyplane",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-62422bd2183d99a122e8",
+      "sequence_id": "378_44304_88262",
+      "category": "toyplane",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-90bde0bf70d640b17420",
+      "sequence_id": "378_44304_88262",
+      "category": "toyplane",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-08db980f5e95b807ce39",
+      "sequence_id": "378_44304_88262",
+      "category": "toyplane",
+      "foreground_iou": 0.05
+    },
+    {
+      "window_id": "window-67b12c58a1e72c70093e",
+      "sequence_id": "378_44304_88262",
+      "category": "toyplane",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-2d92e5d04797556a629e",
+      "sequence_id": "387_46553_92798",
+      "category": "toyplane",
+      "foreground_iou": 0.3431372549019608
+    },
+    {
+      "window_id": "window-11695605222ba72e6d7c",
+      "sequence_id": "387_46553_92798",
+      "category": "toyplane",
+      "foreground_iou": 0.09090909090909091
+    },
+    {
+      "window_id": "window-03014efc35294bf51298",
+      "sequence_id": "387_46553_92798",
+      "category": "toyplane",
+      "foreground_iou": 0.3170731707317073
+    },
+    {
+      "window_id": "window-33c878ca610da49c02c6",
+      "sequence_id": "387_46553_92798",
+      "category": "toyplane",
+      "foreground_iou": 0.23076923076923078
+    },
+    {
+      "window_id": "window-2a100f861aec5e4092de",
+      "sequence_id": "395_49077_97061",
+      "category": "toyplane",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-879e4ec58eff8fe42818",
+      "sequence_id": "395_49077_97061",
+      "category": "toyplane",
+      "foreground_iou": 0.1232876712328767
+    },
+    {
+      "window_id": "window-70c4d2e44f395fd8509a",
+      "sequence_id": "395_49077_97061",
+      "category": "toyplane",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-d6d8a18016988d0a43de",
+      "sequence_id": "395_49077_97061",
+      "category": "toyplane",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-a6cc6f79bf6a8513e73f",
+      "sequence_id": "406_54410_105654",
+      "category": "toyplane",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-cbbba706f2e8c528c349",
+      "sequence_id": "406_54410_105654",
+      "category": "toyplane",
+      "foreground_iou": 0.15789473684210525
+    },
+    {
+      "window_id": "window-d2fd75e7874482265758",
+      "sequence_id": "406_54410_105654",
+      "category": "toyplane",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-b1ae76817df1787142a2",
+      "sequence_id": "406_54410_105654",
+      "category": "toyplane",
+      "foreground_iou": 0.09523809523809523
+    },
+    {
+      "window_id": "window-55ba804cb585d3db0b6b",
+      "sequence_id": "375_42535_85230",
+      "category": "toytruck",
+      "foreground_iou": 0.04219409282700422
+    },
+    {
+      "window_id": "window-dc2f836d0636d05725f1",
+      "sequence_id": "375_42535_85230",
+      "category": "toytruck",
+      "foreground_iou": 0.7037037037037037
+    },
+    {
+      "window_id": "window-722614914348998c5ce5",
+      "sequence_id": "375_42535_85230",
+      "category": "toytruck",
+      "foreground_iou": 0.4491525423728814
+    },
+    {
+      "window_id": "window-fb90f8593ee1695f2735",
+      "sequence_id": "375_42535_85230",
+      "category": "toytruck",
+      "foreground_iou": 0.1323529411764706
+    },
+    {
+      "window_id": "window-5432eafc14f8b9b7e4df",
+      "sequence_id": "385_45406_90776",
+      "category": "toytruck",
+      "foreground_iou": 0.65
+    },
+    {
+      "window_id": "window-bc322c03639d0d64a00d",
+      "sequence_id": "385_45406_90776",
+      "category": "toytruck",
+      "foreground_iou": 0.38028169014084506
+    },
+    {
+      "window_id": "window-8b383e93f982a8f9430a",
+      "sequence_id": "385_45406_90776",
+      "category": "toytruck",
+      "foreground_iou": 0.2604166666666667
+    },
+    {
+      "window_id": "window-6bf5e724ef4bd0e36b13",
+      "sequence_id": "385_45406_90776",
+      "category": "toytruck",
+      "foreground_iou": 0.37012987012987014
+    },
+    {
+      "window_id": "window-deb58ebe78704f13748c",
+      "sequence_id": "399_51078_100199",
+      "category": "toytruck",
+      "foreground_iou": 0.8137254901960784
+    },
+    {
+      "window_id": "window-0cc7ee20f29d9b88c07b",
+      "sequence_id": "399_51078_100199",
+      "category": "toytruck",
+      "foreground_iou": 0.7857142857142857
+    },
+    {
+      "window_id": "window-c1bb70f262ada7528642",
+      "sequence_id": "399_51078_100199",
+      "category": "toytruck",
+      "foreground_iou": 0.7980769230769231
+    },
+    {
+      "window_id": "window-9e96126789e7f7024178",
+      "sequence_id": "399_51078_100199",
+      "category": "toytruck",
+      "foreground_iou": 0.7313432835820896
+    },
+    {
+      "window_id": "window-76ba01180a934da60185",
+      "sequence_id": "410_55778_108161",
+      "category": "toytruck",
+      "foreground_iou": 0.4036697247706422
+    },
+    {
+      "window_id": "window-c6ccef0e7e2eb50b7568",
+      "sequence_id": "410_55778_108161",
+      "category": "toytruck",
+      "foreground_iou": 0.4166666666666667
+    },
+    {
+      "window_id": "window-e2eac27e66b62b7e32f7",
+      "sequence_id": "410_55778_108161",
+      "category": "toytruck",
+      "foreground_iou": 0.6372549019607843
+    },
+    {
+      "window_id": "window-555dd60f24210ba9598d",
+      "sequence_id": "410_55778_108161",
+      "category": "toytruck",
+      "foreground_iou": 0.1574074074074074
+    },
+    {
+      "window_id": "window-b49bcc75f62e892a24be",
+      "sequence_id": "416_57430_111052",
+      "category": "toytruck",
+      "foreground_iou": 0.6626506024096386
+    },
+    {
+      "window_id": "window-231293fe2fd785d1f6d9",
+      "sequence_id": "416_57430_111052",
+      "category": "toytruck",
+      "foreground_iou": 0.2527881040892193
+    },
+    {
+      "window_id": "window-77ffc6abd32d07a1978a",
+      "sequence_id": "416_57430_111052",
+      "category": "toytruck",
+      "foreground_iou": 0.6887417218543046
+    },
+    {
+      "window_id": "window-854f8472331603bbca9f",
+      "sequence_id": "416_57430_111052",
+      "category": "toytruck",
+      "foreground_iou": 0.516260162601626
+    },
+    {
+      "window_id": "window-e576283090fd13eae34a",
+      "sequence_id": "514_73704_143395",
+      "category": "toytruck",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-f64d3deb7073c358e36c",
+      "sequence_id": "514_73704_143395",
+      "category": "toytruck",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-5573f2cc0fe74cd7321a",
+      "sequence_id": "514_73704_143395",
+      "category": "toytruck",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-5cd1d7937a3f3f76eb10",
+      "sequence_id": "514_73704_143395",
+      "category": "toytruck",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-1c68b2a547dca9330552",
+      "sequence_id": "558_80475_157761",
+      "category": "toytruck",
+      "foreground_iou": 0.10613207547169812
+    },
+    {
+      "window_id": "window-b2fc529a7283fca46698",
+      "sequence_id": "558_80475_157761",
+      "category": "toytruck",
+      "foreground_iou": 0.20540540540540542
+    },
+    {
+      "window_id": "window-9513f8d50713a53a5beb",
+      "sequence_id": "558_80475_157761",
+      "category": "toytruck",
+      "foreground_iou": 0.14922480620155038
+    },
+    {
+      "window_id": "window-bd9d25e57dfdb519dcc9",
+      "sequence_id": "558_80475_157761",
+      "category": "toytruck",
+      "foreground_iou": 0.10675381263616558
+    },
+    {
+      "window_id": "window-7fc071a5beef1559a62e",
+      "sequence_id": "589_88447_176582",
+      "category": "toytruck",
+      "foreground_iou": 0.015625
+    },
+    {
+      "window_id": "window-31603d9501e06eb00009",
+      "sequence_id": "589_88447_176582",
+      "category": "toytruck",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-9dc08cb3ed6d3dc24670",
+      "sequence_id": "589_88447_176582",
+      "category": "toytruck",
+      "foreground_iou": 0.02631578947368421
+    },
+    {
+      "window_id": "window-19f2cdcdd1662382b884",
+      "sequence_id": "77_7898_16245",
+      "category": "toytruck",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-caa6fa981ae7e289659e",
+      "sequence_id": "77_7898_16245",
+      "category": "toytruck",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-7d95beec1f2cdd467a0b",
+      "sequence_id": "77_7898_16245",
+      "category": "toytruck",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-5ce066c8cd0f4c2ae5e8",
+      "sequence_id": "77_7898_16245",
+      "category": "toytruck",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-355111b21e7787e356f5",
+      "sequence_id": "353_37565_70702",
+      "category": "umbrella",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-c1825eb3ff63b23acbd9",
+      "sequence_id": "353_37565_70702",
+      "category": "umbrella",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-69e2316989cfc7e3f015",
+      "sequence_id": "353_37565_70702",
+      "category": "umbrella",
+      "foreground_iou": 0.0027548209366391185
+    },
+    {
+      "window_id": "window-734d0406cd60068ee265",
+      "sequence_id": "353_37565_70702",
+      "category": "umbrella",
+      "foreground_iou": 0.31620553359683795
+    },
+    {
+      "window_id": "window-692540b80f261708ce5e",
+      "sequence_id": "385_45663_91327",
+      "category": "umbrella",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-63cfcc3c548650719f7e",
+      "sequence_id": "385_45663_91327",
+      "category": "umbrella",
+      "foreground_iou": 0.036931818181818184
+    },
+    {
+      "window_id": "window-26fbc5a96b526d6b3621",
+      "sequence_id": "385_45663_91327",
+      "category": "umbrella",
+      "foreground_iou": 0.011029411764705883
+    },
+    {
+      "window_id": "window-e3b3908c3d77c4ee0222",
+      "sequence_id": "385_45663_91327",
+      "category": "umbrella",
+      "foreground_iou": 0.014285714285714285
+    },
+    {
+      "window_id": "window-ea6d59b9482126847e8b",
+      "sequence_id": "391_46960_93539",
+      "category": "umbrella",
+      "foreground_iou": 0.5125348189415042
+    },
+    {
+      "window_id": "window-f6a45cae4c736f28d5db",
+      "sequence_id": "391_46960_93539",
+      "category": "umbrella",
+      "foreground_iou": 0.6009280742459396
+    },
+    {
+      "window_id": "window-0e397ed9bf056e991c01",
+      "sequence_id": "391_46960_93539",
+      "category": "umbrella",
+      "foreground_iou": 0.1918819188191882
+    },
+    {
+      "window_id": "window-73c6124b187ce7098e28",
+      "sequence_id": "391_46960_93539",
+      "category": "umbrella",
+      "foreground_iou": 0.5903083700440529
+    },
+    {
+      "window_id": "window-e44d65e4532b3ffb3cff",
+      "sequence_id": "397_50309_98785",
+      "category": "umbrella",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-4f3c02d4f8402ab9bcdc",
+      "sequence_id": "397_50309_98785",
+      "category": "umbrella",
+      "foreground_iou": 0.013123359580052493
+    },
+    {
+      "window_id": "window-37e686c9f16f4b770b37",
+      "sequence_id": "397_50309_98785",
+      "category": "umbrella",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-ef40a365da73130b3772",
+      "sequence_id": "397_50309_98785",
+      "category": "umbrella",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-423f4c718a7c52621101",
+      "sequence_id": "401_51928_101769",
+      "category": "umbrella",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-f78acc84fc2b745db28f",
+      "sequence_id": "401_51928_101769",
+      "category": "umbrella",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-49f325a1fe5208c45569",
+      "sequence_id": "401_51928_101769",
+      "category": "umbrella",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-1d76b646786a3d5160eb",
+      "sequence_id": "401_51928_101769",
+      "category": "umbrella",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-eff84b2dccd54c4795de",
+      "sequence_id": "405_54056_105426",
+      "category": "umbrella",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-59b7dff36b2f9fe5f782",
+      "sequence_id": "405_54056_105426",
+      "category": "umbrella",
+      "foreground_iou": 0.024330900243309004
+    },
+    {
+      "window_id": "window-db10a5fd98966c232cfa",
+      "sequence_id": "405_54056_105426",
+      "category": "umbrella",
+      "foreground_iou": 0.007957559681697613
+    },
+    {
+      "window_id": "window-a0bcc1b12cff6e631cec",
+      "sequence_id": "405_54056_105426",
+      "category": "umbrella",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-0d2272bbc40682a381b0",
+      "sequence_id": "407_54872_105779",
+      "category": "umbrella",
+      "foreground_iou": 0.10843373493975904
+    },
+    {
+      "window_id": "window-a8adc44a75c38ba4570e",
+      "sequence_id": "407_54872_105779",
+      "category": "umbrella",
+      "foreground_iou": 0.7725631768953068
+    },
+    {
+      "window_id": "window-0b03f21eb86d2611c8f1",
+      "sequence_id": "407_54872_105779",
+      "category": "umbrella",
+      "foreground_iou": 0.04072398190045249
+    },
+    {
+      "window_id": "window-52f778cab24995293013",
+      "sequence_id": "407_54872_105779",
+      "category": "umbrella",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-bde5c8dbdcf871793be7",
+      "sequence_id": "492_70412_136006",
+      "category": "umbrella",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-15e3cbee9f9219d2c239",
+      "sequence_id": "492_70412_136006",
+      "category": "umbrella",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-d24d99af98fc1c162e21",
+      "sequence_id": "492_70412_136006",
+      "category": "umbrella",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-bcbc5f6a793dafe6347a",
+      "sequence_id": "492_70412_136006",
+      "category": "umbrella",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-df25cbdab09705b0fb02",
+      "sequence_id": "523_75549_147586",
+      "category": "umbrella",
+      "foreground_iou": 0.701195219123506
+    },
+    {
+      "window_id": "window-e7639e50156fc3487078",
+      "sequence_id": "523_75549_147586",
+      "category": "umbrella",
+      "foreground_iou": 0.676056338028169
+    },
+    {
+      "window_id": "window-92fbe5e703fec23178a3",
+      "sequence_id": "523_75549_147586",
+      "category": "umbrella",
+      "foreground_iou": 0.9487179487179487
+    },
+    {
+      "window_id": "window-b775d7a95488e1e367a9",
+      "sequence_id": "523_75549_147586",
+      "category": "umbrella",
+      "foreground_iou": 0.6797752808988764
+    },
+    {
+      "window_id": "window-afcf53cc2ecedd1310c0",
+      "sequence_id": "529_76972_149292",
+      "category": "umbrella",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-f11a09aad6fe3cfe9f18",
+      "sequence_id": "529_76972_149292",
+      "category": "umbrella",
+      "foreground_iou": 0.8053435114503816
+    },
+    {
+      "window_id": "window-d7c3ad6fd69795e268f2",
+      "sequence_id": "529_76972_149292",
+      "category": "umbrella",
+      "foreground_iou": 0.536
+    },
+    {
+      "window_id": "window-dc2af9f16efe4a5bf1a7",
+      "sequence_id": "529_76972_149292",
+      "category": "umbrella",
+      "foreground_iou": 0.9053254437869822
+    },
+    {
+      "window_id": "window-ad4c91055b52a780323e",
+      "sequence_id": "219_23126_48665",
+      "category": "wineglass",
+      "foreground_iou": 0.12030075187969924
+    },
+    {
+      "window_id": "window-96d520f54246e7877fb1",
+      "sequence_id": "219_23126_48665",
+      "category": "wineglass",
+      "foreground_iou": 0.1440972222222222
+    },
+    {
+      "window_id": "window-0a4868fa5f20ce6b1471",
+      "sequence_id": "219_23126_48665",
+      "category": "wineglass",
+      "foreground_iou": 0.022569444444444444
+    },
+    {
+      "window_id": "window-1b1b0ca00bdcd1b0f763",
+      "sequence_id": "219_23126_48665",
+      "category": "wineglass",
+      "foreground_iou": 0.41232227488151657
+    },
+    {
+      "window_id": "window-72845f32f7d01c5b5dcf",
+      "sequence_id": "400_51387_100909",
+      "category": "wineglass",
+      "foreground_iou": 0.03468208092485549
+    },
+    {
+      "window_id": "window-1c6a20ab563108168bdc",
+      "sequence_id": "400_51387_100909",
+      "category": "wineglass",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-612f2d14c5f16f31ae74",
+      "sequence_id": "400_51387_100909",
+      "category": "wineglass",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-385e6ad6dce2fb564fd9",
+      "sequence_id": "400_51387_100909",
+      "category": "wineglass",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-5d1dde152afc845e070a",
+      "sequence_id": "403_52945_103427",
+      "category": "wineglass",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-640aae98264ec32923e3",
+      "sequence_id": "403_52945_103427",
+      "category": "wineglass",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-fd756cc58ea7bfeb6ade",
+      "sequence_id": "403_52945_103427",
+      "category": "wineglass",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-6f38b89f3ba8664748ac",
+      "sequence_id": "403_52945_103427",
+      "category": "wineglass",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-d423a8ce45b113654ca5",
+      "sequence_id": "501_72104_140340",
+      "category": "wineglass",
+      "foreground_iou": 0.017094017094017096
+    },
+    {
+      "window_id": "window-b6e4d1bd13b4cd60ee10",
+      "sequence_id": "501_72104_140340",
+      "category": "wineglass",
+      "foreground_iou": 0.05555555555555555
+    },
+    {
+      "window_id": "window-2ddc14748a9673459265",
+      "sequence_id": "501_72104_140340",
+      "category": "wineglass",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-cea4093d953c1b587ce0",
+      "sequence_id": "501_72104_140340",
+      "category": "wineglass",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-78a8e9edb1ed2624476e",
+      "sequence_id": "581_86373_171555",
+      "category": "wineglass",
+      "foreground_iou": 0.018292682926829267
+    },
+    {
+      "window_id": "window-02353a210e5c538b93d6",
+      "sequence_id": "581_86373_171555",
+      "category": "wineglass",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-a37276c38cda9cb8d25b",
+      "sequence_id": "581_86373_171555",
+      "category": "wineglass",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-3edd58e270ce48c21f41",
+      "sequence_id": "581_86373_171555",
+      "category": "wineglass",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-a5a45d2561892b56302e",
+      "sequence_id": "586_87495_173857",
+      "category": "wineglass",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-ca3a32c3cba712ad3688",
+      "sequence_id": "586_87495_173857",
+      "category": "wineglass",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-977f5e1071709d62f7b5",
+      "sequence_id": "586_87495_173857",
+      "category": "wineglass",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-ab181aaacc3970366739",
+      "sequence_id": "586_87495_173857",
+      "category": "wineglass",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-c20657161e7ea0a8248b",
+      "sequence_id": "68_5283_12401",
+      "category": "wineglass",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-79bd48a9840d85f7848e",
+      "sequence_id": "68_5283_12401",
+      "category": "wineglass",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-bf70edcf3a6b12a8b02c",
+      "sequence_id": "68_5283_12401",
+      "category": "wineglass",
+      "foreground_iou": 0.0
+    },
+    {
+      "window_id": "window-57382016d24907cc0c11",
+      "sequence_id": "68_5283_12401",
+      "category": "wineglass",
+      "foreground_iou": 0.0
+    }
+  ]
+}

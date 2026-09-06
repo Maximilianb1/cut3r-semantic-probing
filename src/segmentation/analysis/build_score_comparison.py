@@ -32,7 +32,7 @@ inference_segmentation.py --save-masks have produced metrics for each backbone):
 
     python -m src.segmentation.analysis.build_score_comparison \
         --experiments-root src/segmentation/experiments \
-        --backbones cut3r_trained cut3r_random dinov2 --run-suffix=-expanded-bestval
+        --backbones cut3r-trained cut3r-random dinov2 --run-suffix=-mlp
 """
 
 from __future__ import annotations
@@ -78,7 +78,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--experiments-root", required=True, type=Path)
     parser.add_argument("--backbones", nargs="+", required=True)
-    parser.add_argument("--run-suffix", default="", help="e.g. -expanded-bestval to match segmentation-<backbone>-expanded-bestval dirs")
+    parser.add_argument("--run-suffix", default="", help="e.g. -mlp to match segmentation-<backbone>-mlp dirs")
     parser.add_argument("--split", default="test")
     parser.add_argument("--n-boot", type=int, default=10000)
     parser.add_argument("--seed", type=int, default=20260825,

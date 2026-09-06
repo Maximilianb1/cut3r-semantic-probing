@@ -258,6 +258,7 @@ def plot_training_curves(
     return fig
 
 
+
 # ---- 5. Unified learning curves (all backbone x head-capacity combinations) ----
 
 def plot_unified_learning_curves(

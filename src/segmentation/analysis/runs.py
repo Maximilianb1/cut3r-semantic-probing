@@ -31,6 +31,15 @@ def resolve_run_dir(experiments_root: Path, backbone: str, run_suffix: str = "")
     return experiments_root / f"segmentation-{backbone}{run_suffix}"
 
 
+def resolve_report_dir(reports_root: Path, backbone: str, probe: str) -> Path:
+    """Maps a backbone id (``cut3r_trained``, underscored) + probe (``linear``/``mlp``)
+    to its promoted run directory under ``reports/segmentation/`` (hyphenated,
+    no ``segmentation-`` prefix -- distinct from the gitignored
+    ``resolve_run_dir`` working-directory layout, since only metrics.json /
+    inference-<split>.json are committed here, never masks)."""
+    return reports_root / f"{backbone.replace('_', '-')}-{probe}"
+
+
 def load_metrics(run_dir: Path) -> dict[str, Any]:
     return json.loads((run_dir / "metrics.json").read_text(encoding="utf-8"))
 
