@@ -32,7 +32,7 @@ training:
   # adam | adamw | sgd (sgd also reads `momentum`)
   optimizer: adam
   epochs: 20
-  batch_size: 16
+  batch_size: 64
   lr: 0.001
   weight_decay: 0.0
   pos_weight: null
