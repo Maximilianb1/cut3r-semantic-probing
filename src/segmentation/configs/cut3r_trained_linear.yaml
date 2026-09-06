@@ -1,21 +1,17 @@
-experiment: segmentation-cut3r-random-expanded-linear
-backbone: cut3r-random
+experiment: segmentation-cut3r-trained-linear
+backbone: cut3r-trained
 
 # The linear-probe capacity ablation: identical data/recipe to
-# cut3r_random_expanded_mlp.yaml, hidden_dims: [] instead of [512]. Answers
+# cut3r_trained_mlp.yaml, hidden_dims: [] instead of [512]. Answers
 # question flagged there -- is this backbone's segmentation signal
 # (near-)linearly decodable, or does it need the extra MLP capacity? Compare
 # against that [512] run via analysis/build_probe_capacity_comparison.py.
-#
-# Random-initialized CUT3R baseline: the same architecture with every module
-# that exposes reset_parameters re-initialized under a fixed seed. See
-# ../../backbones/README.md for what this control does and does not isolate.
 probe_cache:
-  dir: ${CUT3R_CACHE_ROOT}/probe/cut3r-random
-  train_dirs:
-    - ${CUT3R_CACHE_ROOT}/probe/cut3r-random
-    - ${CUT3R_CACHE_ROOT}/probe/cut3r-random-leftover
-    - ${CUT3R_CACHE_ROOT}/probe/cut3r-random-cap100-new-train
+  cache_dirs:
+    - ${CUT3R_CACHE_ROOT}/probe/cut3r-trained
+    - ${CUT3R_CACHE_ROOT}/probe/cut3r-trained-leftover
+    - ${CUT3R_CACHE_ROOT}/probe/cut3r-trained-cap100-new-train
+  split_override_path: configs/segmentation_split_override.json
 
 model:
   feature_dim: 768
@@ -47,4 +43,4 @@ splits:
   test: test
 
 output:
-  dir: src/segmentation/experiments/segmentation-cut3r-random-expanded-linear
+  dir: src/segmentation/experiments/segmentation-cut3r-trained-linear

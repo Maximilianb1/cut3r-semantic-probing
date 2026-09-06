@@ -1,17 +1,21 @@
-experiment: segmentation-cut3r-trained-expanded-linear
-backbone: cut3r-trained
+experiment: segmentation-dinov2-linear
+backbone: dinov2-vitb14
 
 # The linear-probe capacity ablation: identical data/recipe to
-# cut3r_trained_expanded_mlp.yaml, hidden_dims: [] instead of [512]. Answers
+# dinov2_mlp.yaml, hidden_dims: [] instead of [512]. Answers the
 # question flagged there -- is this backbone's segmentation signal
 # (near-)linearly decodable, or does it need the extra MLP capacity? Compare
 # against that [512] run via analysis/build_probe_capacity_comparison.py.
+#
+# Advanced frozen baseline: torch.hub dinov2_vitb14. feature_dim 768 matches
+# CUT3R so the head is comparable. Its token grid is finer than CUT3R's
+# (patch 14 vs 16), so IoU is measured on a different grid.
 probe_cache:
-  dir: ${CUT3R_CACHE_ROOT}/probe/cut3r-trained
-  train_dirs:
-    - ${CUT3R_CACHE_ROOT}/probe/cut3r-trained
-    - ${CUT3R_CACHE_ROOT}/probe/cut3r-trained-leftover
-    - ${CUT3R_CACHE_ROOT}/probe/cut3r-trained-cap100-new-train
+  cache_dirs:
+    - ${CUT3R_CACHE_ROOT}/probe/dinov2-vitb14
+    - ${CUT3R_CACHE_ROOT}/probe/dinov2-vitb14-leftover
+    - ${CUT3R_CACHE_ROOT}/probe/dinov2-vitb14-cap100-new-train
+  split_override_path: configs/segmentation_split_override.json
 
 model:
   feature_dim: 768
@@ -43,4 +47,4 @@ splits:
   test: test
 
 output:
-  dir: src/segmentation/experiments/segmentation-cut3r-trained-expanded-linear
+  dir: src/segmentation/experiments/segmentation-dinov2-linear

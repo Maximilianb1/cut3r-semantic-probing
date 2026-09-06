@@ -1,29 +1,31 @@
-experiment: segmentation-dinov2-expanded-mlp
+experiment: segmentation-dinov2-mlp
 backbone: dinov2-vitb14
 
-# Expanded training (docs/data/part-a-cache-layout.md "Safe Use"): same head/recipe
-# as dinov2_partial_mlp.yaml, but train_dirs unions the original+leftover+
-# cap100-new-train caches' train rows; val/test stay on `dir` alone for a comparable
-# score. All three paths must exist first. Not smoke-testable via
-# make_synthetic_probe_cache.py as-is (see tests/test_segmentation_dataset.py for
-# that coverage instead). See dinov2_expanded_linear.yaml for the same data with a
-# linear (hidden_dims: []) head instead.
+# cache_dirs pools the original+leftover+cap100-new-train caches (the full
+# window union) for every split, relabeled by split_override_path's independent
+# stratified split (scripts/derive_segmentation_split.py) rather than each
+# cache's own recorded split. All three paths must exist first. Not
+# smoke-testable via make_synthetic_probe_cache.py as-is (see
+# tests/test_segmentation_dataset.py for that coverage instead). See
+# dinov2_linear.yaml for the same data with a linear (hidden_dims: []) head
+# instead.
 #
 # Advanced frozen baseline: torch.hub dinov2_vitb14. feature_dim 768 matches
 # CUT3R so the head is comparable. Its token grid is finer than CUT3R's
 # (patch 14 vs 16), so IoU is measured on a different grid.
 probe_cache:
-  dir: ${CUT3R_CACHE_ROOT}/probe/dinov2-vitb14
-  train_dirs:
+  cache_dirs:
     - ${CUT3R_CACHE_ROOT}/probe/dinov2-vitb14
     - ${CUT3R_CACHE_ROOT}/probe/dinov2-vitb14-leftover
     - ${CUT3R_CACHE_ROOT}/probe/dinov2-vitb14-cap100-new-train
+  split_override_path: configs/segmentation_split_override.json
 
 model:
   feature_dim: 768
   num_classes: 1
   # [] is a true linear probe; [512] is a 1-hidden-layer MLP probe. Both are
-  # run and reported; see reports/segmentation/probe-capacity-ablation/.
+  # run and reported; see reports/segmentation/dinov2-linear/ and
+  # reports/segmentation/dinov2-mlp/.
   hidden_dims: [512]
   activation: gelu
   dropout: 0.0
@@ -50,4 +52,4 @@ splits:
   test: test
 
 output:
-  dir: src/segmentation/experiments/segmentation-dinov2-expanded-mlp
+  dir: src/segmentation/experiments/segmentation-dinov2-mlp

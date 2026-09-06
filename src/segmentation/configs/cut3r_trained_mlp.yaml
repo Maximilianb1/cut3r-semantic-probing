@@ -1,25 +1,27 @@
-experiment: segmentation-cut3r-trained-expanded-mlp
+experiment: segmentation-cut3r-trained-mlp
 backbone: cut3r-trained
 
-# Expanded training (docs/data/part-a-cache-layout.md "Safe Use"): same head/recipe
-# as cut3r_trained_partial_mlp.yaml, but train_dirs unions the original+leftover+
-# cap100-new-train caches' train rows; val/test stay on `dir` alone for a comparable
-# score. All three paths must exist first. Not smoke-testable via
-# make_synthetic_probe_cache.py as-is (see tests/test_segmentation_dataset.py for
-# that coverage instead). See cut3r_trained_expanded_linear.yaml for the same data
-# with a linear (hidden_dims: []) head instead.
+# cache_dirs pools the original+leftover+cap100-new-train caches (the full
+# window union) for every split, relabeled by split_override_path's independent
+# stratified split (scripts/derive_segmentation_split.py) rather than each
+# cache's own recorded split. All three paths must exist first. Not
+# smoke-testable via make_synthetic_probe_cache.py as-is (see
+# tests/test_segmentation_dataset.py for that coverage instead). See
+# cut3r_trained_linear.yaml for the same data with a linear (hidden_dims: [])
+# head instead.
 probe_cache:
-  dir: ${CUT3R_CACHE_ROOT}/probe/cut3r-trained
-  train_dirs:
+  cache_dirs:
     - ${CUT3R_CACHE_ROOT}/probe/cut3r-trained
     - ${CUT3R_CACHE_ROOT}/probe/cut3r-trained-leftover
     - ${CUT3R_CACHE_ROOT}/probe/cut3r-trained-cap100-new-train
+  split_override_path: configs/segmentation_split_override.json
 
 model:
   feature_dim: 768
   num_classes: 1
   # [] is a true linear probe; [512] is a 1-hidden-layer MLP probe. Both are
-  # run and reported; see reports/segmentation/probe-capacity-ablation/.
+  # run and reported; see reports/segmentation/cut3r-trained-linear/ and
+  # reports/segmentation/cut3r-trained-mlp/.
   hidden_dims: [512]
   activation: gelu
   dropout: 0.0
@@ -46,4 +48,4 @@ splits:
   test: test
 
 output:
-  dir: src/segmentation/experiments/segmentation-cut3r-trained-expanded-mlp
+  dir: src/segmentation/experiments/segmentation-cut3r-trained-mlp
