@@ -95,9 +95,9 @@ CUT3R-random 0.2298 -> 0.2772), justifying the extraction and storage cost.
   supplements, not supersedes, ADR 0002.
 - Per-category training-window counts are no longer exactly balanced after
   the expansion: 25 of 26 categories land in a ~370-400-window band, and
-  `parkingmeter` sits apart at ~181. The category-representation check in
-  `reports/segmentation/expanded-100cap/comparison/` measures whether that
-  imbalance tracks per-category IoU.
+  `parkingmeter` sits apart at ~181. Whether that imbalance tracks
+  per-category IoU can be checked directly against each run's per-category
+  IoU in `reports/segmentation/<backbone>-<probe>/inference-test.json`.
 - Any other Part-A task (e.g. classification) that wants to reuse this
   expanded training cap must adopt it explicitly; it is not automatically
   in scope project-wide.
@@ -110,6 +110,5 @@ CUT3R-random 0.2298 -> 0.2772), justifying the extraction and storage cost.
 - `cap100-new-train` manifest `summary.json` counts (1,762 sequences, 42,288
   frames, 6,901 windows) match the deterministic re-generation, per ADR
   0002's manifest-regeneration-and-hash-comparison validation step.
-- Empirical macro-IoU deltas for all three backbones in
-  `reports/segmentation/expanded-100cap/`, compared directly against the
-  30-sequence baseline in `reports/segmentation/baseline-30cap/`.
+- Empirical macro-IoU for all three backbones, trained on this expanded cap,
+  is in `reports/segmentation/` (see `reports/segmentation/README.md`).

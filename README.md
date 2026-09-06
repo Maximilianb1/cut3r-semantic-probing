@@ -21,30 +21,33 @@ the same architecture and a dedicated 2D vision model:
 
 | | Foreground segmentation<br>(test macro-IoU) | Object identity<br>(26-way test accuracy) |
 |---|---|---|
-| **CUT3R-trained** | **0.777** | **0.708** |
-| CUT3R-random | 0.277 | 0.214 |
-| DINOv2 ViT-B/14 | 0.806 | 0.953 |
+| **CUT3R-trained** | **0.787** | **0.708** |
+| CUT3R-random | 0.291 | 0.214 |
+| DINOv2 ViT-B/14 | 0.785 | 0.953 |
 | *chance* | — | *0.038* |
 
 **Geometric pretraining produces semantics as a by-product.** CUT3R-trained
-beats its own randomly-initialised twin by +0.50 on segmentation IoU and +0.49
-on classification accuracy (paired 95% CI [0.443, 0.543]). The architecture and
-the head explain none of that; the pretraining explains all of it.
+beats its own randomly-initialised twin by +0.49 on segmentation IoU (paired
+95% CI [0.455, 0.527]) and +0.49 on classification accuracy (paired 95% CI
+[0.443, 0.543]). The architecture and the head explain none of that; the
+pretraining explains all of it.
 
-**On localisation it reaches vision-model parity.** 0.777 against DINOv2's
-0.806 — the paired bootstrap interval on that difference contains zero. On
-recall it is ahead (0.94 vs 0.89); it over-predicts foreground slightly
-(precision 0.79 vs 0.89).
+**On localisation it reaches vision-model parity.** 0.787 against DINOv2's
+0.785 — the paired bootstrap interval on that difference contains zero
+([−0.016, +0.015]). On recall it is ahead (0.91 vs 0.88); it over-predicts
+foreground slightly (precision 0.84 vs 0.87).
 
 **On identity a real gap remains.** DINOv2's 0.953 is +0.245 [0.203, 0.288]
 above CUT3R-trained. Geometry gets you a long way past chance, not all the way
 to a model trained for the task.
 
-**The signal is close to linearly available.** Replacing the MLP head with a
-plain linear layer costs CUT3R-trained 0.037 IoU and *nothing* in
-classification accuracy (−0.024 [−0.051, 0.002], interval spanning zero), while
-it costs the random control 42% of its score. A representation that needs no
-nonlinear readout is one whose semantic content is already largely disentangled.
+**Probe capacity matters far less for a real signal than for none.**
+Replacing the MLP head with a plain linear layer costs CUT3R-trained 0.054 IoU
+(95% CI [0.041, 0.068] — a real cost, not noise) and nothing in classification
+accuracy (−0.024 [−0.051, 0.002], interval spanning zero). It costs the random
+control 0.105 IoU — about 36% of its own score, versus roughly 7% for
+CUT3R-trained. A linear readout loses far more of a near-random backbone's
+signal than it loses of a real one's.
 
 Every interval above resamples complete CO3D **sequences**, not windows —
 four views of one physical object are not four independent observations.
