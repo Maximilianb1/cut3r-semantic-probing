@@ -39,7 +39,7 @@ script list):
 |---|---|---|
 | `macro-iou-ci-linear.png` | 1 — random-vs-trained gap | `build_headline_gap.py` |
 | `capacity-macro-iou-bars.png` | 2 — linear-vs-MLP gap, per backbone | `build_capacity_slope_and_pr.py` |
-| `capacity-confusion-counts.png` | 2 — where the MLP gap comes from (TP/FP/FN, not just the precision/recall ratio) | `build_capacity_slope_and_pr.py` |
+| `capacity-pr-shift.png` | 2 — where the MLP gap comes from (precision vs. recall shift, i.e. fewer FP vs. fewer FN) | `build_capacity_slope_and_pr.py` |
 | `category-difficulty-heatmap.png` | 3 — category difficulty is dataset-, not embedding-, driven | `build_category_difficulty_heatmap.py` |
 | `learning-curve-panels.png` | 5 — best_val_epoch per run | `build_learning_curve_panels.py` |
 

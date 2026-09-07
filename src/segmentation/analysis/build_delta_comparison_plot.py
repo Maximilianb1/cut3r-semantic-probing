@@ -1,6 +1,6 @@
 """Build a side-by-side qualitative grid (Input | GT | A Pred | B Pred) for the
 windows where two backbones' foreground IoU differs the most -- the actual
-photos behind build_score_comparison.py's paired per-window comparison.
+photos behind a paired per-window IoU comparison.
 
 1. Joins both backbones' inference-<split>.json on window_id, ranks by
    foreground-IoU delta (A minus B).

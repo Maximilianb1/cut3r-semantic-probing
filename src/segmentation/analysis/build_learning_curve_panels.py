@@ -5,12 +5,11 @@ backbone), val macro-foreground-IoU vs. epoch, with a marker at each run's
 best_val_epoch (metrics.json's `best_val_epoch` -- the checkpoint actually
 selected and reported, not whichever epoch training happened to stop on).
 
-Splitting into two panels by probe capacity (rather than one 6-line overlay,
-which build_unified_learning_curves.py already provides) makes the outlier
-shapes easy to read at a glance: cut3r_random-linear should visibly peak
-early then fall for the rest of the budget, and dinov2-mlp should peak early
-then mildly overfit -- both easier to see against same-capacity peers than
-against all 6 lines at once.
+Splitting into two panels by probe capacity (rather than one 6-line overlay)
+makes the outlier shapes easy to read at a glance: cut3r_random-linear should
+visibly peak early then fall for the rest of the budget, and dinov2-mlp
+should peak early then mildly overfit -- both easier to see against
+same-capacity peers than against all 6 lines at once.
 
 No CI: this is a single training run per config (one seed each), not a
 resampled statistic -- there's nothing to bootstrap here without repeated
