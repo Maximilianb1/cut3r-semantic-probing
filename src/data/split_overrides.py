@@ -1,11 +1,11 @@
 """
 Layer a per-category floor on top of an existing sequence split.
 
-Segmentation reuses classification's train/val/test sequence membership as its
-split boundary (so a sequence held out for one probing task is never silently
-trained on by the other), then promotes just enough additional sequences into
-a thin split - typically ``test`` - so no category's score rests on too few
-sequences. Nothing here touches a cache: callers apply the resulting mapping
+Segmentation derives its own train/val/test sequence membership
+(``scripts/derive_segmentation_split.py``), then promotes just enough
+additional sequences into a thin split - typically ``test`` - so no
+category's score rests on too few sequences. Nothing here touches a
+cache: callers apply the resulting mapping
 at read time via ``split_override`` on the segmentation datasets
 (``src/segmentation/dataset_segmentation.py``).
 
