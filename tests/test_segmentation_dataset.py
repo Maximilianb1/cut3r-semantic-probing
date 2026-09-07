@@ -159,3 +159,95 @@ def test_build_datasets_rejects_expanded_train_that_leaks_into_val(
     ])
     with pytest.raises(ValueError, match="more than one split"):
         build_datasets(_config(original_cache, train_dirs=[original_cache, leaking]))
+
+
+### split_override ###
+
+
+def test_dataset_split_override_relabels_without_mutating_row_split(original_cache) -> None:
+    # seqA's windows are "train" in the cache; relabel seqA to "test" for reading.
+    override = {"seqA": "test"}
+    promoted = ProbeCacheDataset(original_cache, split="test", split_override=override)
+    assert {row["window_id"] for row in promoted.rows} == {"o0"}
+    assert promoted.sequence_ids() == {"seqA"}
+    # The train split, filtered under the same override, must no longer see seqA.
+    remaining_train = ProbeCacheDataset(original_cache, split="train", split_override=override)
+    assert remaining_train.sequence_ids() == {"seqB"}
+    # A dataset built without the override still sees the cache's original split.
+    unpatched = ProbeCacheDataset(original_cache, split="train")
+    assert unpatched.sequence_ids() == {"seqA", "seqB"}
+
+
+def test_combined_dataset_split_override_applies_across_every_cache_dir(
+    original_cache, cap100_cache
+) -> None:
+    # seqD lives only in cap100_cache, recorded there as "train"; promote it to "val".
+    override = {"seqD": "val"}
+    combined = CombinedProbeCacheDataset(
+        [original_cache, cap100_cache], split="val", split_override=override
+    )
+    assert combined.sequence_ids() == {"seqC", "seqD"}  # seqC was already val
+
+
+def _config_with_cache_dirs(cache_dirs, *, split_override_path=None):
+    # No "dir" needed in this mode - every split reads from the pooled cache_dirs.
+    config = {
+        "probe_cache": {"cache_dirs": [str(d) for d in cache_dirs]},
+        "splits": {"train": "train", "val": "val"},
+    }
+    if split_override_path is not None:
+        config["probe_cache"]["split_override_path"] = str(split_override_path)
+    return config
+
+
+def test_build_datasets_cache_dirs_mode_pools_every_split_across_every_dir(
+    original_cache, leftover_cache, cap100_cache
+) -> None:
+    train_set, val_set, record = build_datasets(
+        _config_with_cache_dirs([original_cache, leftover_cache, cap100_cache])
+    )
+    assert isinstance(train_set, CombinedProbeCacheDataset)
+    assert isinstance(val_set, CombinedProbeCacheDataset)
+    assert len(train_set) == 5  # o0, o1, l0, c0, c1
+    assert len(val_set) == 1  # o2
+    assert record["cache_dirs"] == [str(original_cache), str(leftover_cache), str(cap100_cache)]
+    assert record["split_override_path"] is None
+
+
+def test_build_datasets_cache_dirs_mode_honors_split_override_path(
+    tmp_path, original_cache, cap100_cache
+) -> None:
+    import json
+
+    # Promote seqD (native split "train", lives only in cap100_cache) into "val".
+    override_path = tmp_path / "override.json"
+    override_path.write_text(json.dumps({"split_override": {"seqD": "val"}}), encoding="utf-8")
+
+    train_set, val_set, record = build_datasets(
+        _config_with_cache_dirs(
+            [original_cache, cap100_cache], split_override_path=override_path
+        )
+    )
+    assert val_set.sequence_ids() == {"seqC", "seqD"}
+    assert "seqD" not in train_set.sequence_ids()
+    assert record["split_override_path"] == str(override_path)
+
+
+def test_build_datasets_train_dirs_and_cache_dirs_are_mutually_exclusive(original_cache) -> None:
+    config = _config(original_cache, train_dirs=[original_cache])
+    config["probe_cache"]["cache_dirs"] = [str(original_cache)]
+    with pytest.raises(ValueError, match="mutually exclusive"):
+        build_datasets(config)
+
+
+def test_split_override_path_without_cache_dirs_raises(tmp_path, original_cache) -> None:
+    import json
+
+    from src.segmentation.train_segmentation import resolve_probe_cache_dataset
+
+    override_path = tmp_path / "override.json"
+    override_path.write_text(json.dumps({"split_override": {}}), encoding="utf-8")
+    config = _config(original_cache)
+    config["probe_cache"]["split_override_path"] = str(override_path)
+    with pytest.raises(ValueError, match="requires probe_cache.cache_dirs"):
+        resolve_probe_cache_dataset(config, split="train", categories=None)

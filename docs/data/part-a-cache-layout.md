@@ -26,17 +26,17 @@ sequence.
 
 ## Combining them safely
 
-For expanded training, take the union of the `train` rows from the original
-cache, the matching leftover cache, and the matching `cap100-new-train` cache.
+Pool the `train`, `val`, and `test` rows from the original cache, the matching
+leftover cache, and the matching `cap100-new-train` cache via
+`probe_cache.cache_dirs`, then relabel every pooled window into one shared,
+sequence-disjoint split via `probe_cache.split_override_path` — independent of
+whichever split each cache originally recorded. This gives every category more
+validation/test coverage than the original cache alone, while keeping the
+split strictly sequence-disjoint.
 
-Keep validation and test on the original cache alone. The leftover cache carries
-extra val/test rows, and folding those in would define a different evaluation
-set — the scores would no longer be comparable to the 30-cap runs.
-
-The `*_expanded_mlp.yaml` and `*_expanded_linear.yaml` configs do exactly this
-through `probe_cache.train_dirs`; see `CombinedProbeCacheDataset` in
-`src/segmentation/dataset_segmentation.py` and `build_datasets` in
-`src/segmentation/train_segmentation.py`.
+Every `src/segmentation/configs/*.yaml` does exactly this; see
+`CombinedProbeCacheDataset` in `src/segmentation/dataset_segmentation.py` and
+`build_datasets` in `src/segmentation/train_segmentation.py`.
 
 ## Layouts differ between partitions
 

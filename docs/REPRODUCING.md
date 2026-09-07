@@ -84,10 +84,13 @@ sequence-level field inside every cache index.
 | `full51-cut3r_random_weights-part-a-cap100-new-train` | `cut3r-random-cap100-new-train/` | The same, CUT3R-random. |
 | `dinov2-vitb14-part-a-cap100-new-train` | `dinov2-vitb14-cap100-new-train/` | The same, DINOv2. |
 
-The `*_partial_mlp.yaml` configs read the first group only. The `*_expanded_*`
-configs union all three of a backbone's train rows via `probe_cache.train_dirs`,
-while validation and test stay on the original cache alone so the scores remain
-comparable. Never mix two backbones' tensors into one feature arm.
+Every `src/segmentation/configs/*.yaml` pools all three of a backbone's cache
+directories (original + leftover + cap100-new-train) via `probe_cache.cache_dirs`
+for every split, then relabels every window into one shared, sequence-disjoint
+train/val/test split via `probe_cache.split_override_path`
+(`configs/segmentation_split_override.json`) — independent of whichever split
+each cache originally recorded. Never mix two backbones' tensors into one
+feature arm.
 
 **Stage-0 target-feature caches.** The raw extraction output over all 51
 categories, before task labels were attached. Only needed to re-derive a probe
@@ -189,20 +192,19 @@ tensors and never loads a backbone.
 export CUT3R_CACHE_ROOT=/path/to/caches
 
 python -m src.segmentation.train_segmentation \
-  --config src/segmentation/configs/cut3r_trained_expanded_mlp.yaml \
-  --checkpoint-selection best_val \
-  --output-dir src/segmentation/experiments/cut3r-trained-expanded-bestval
+  --config src/segmentation/configs/cut3r_trained_mlp.yaml \
+  --checkpoint-selection best_val
 
 python -m src.segmentation.inference_segmentation \
-  --config src/segmentation/configs/cut3r_trained_expanded_mlp.yaml \
-  --checkpoint src/segmentation/experiments/cut3r-trained-expanded-bestval/head.pt \
-  --split test --save-dir src/segmentation/experiments/cut3r-trained-expanded-bestval --save-masks
+  --config src/segmentation/configs/cut3r_trained_mlp.yaml \
+  --checkpoint src/segmentation/experiments/segmentation-cut3r-trained-mlp/head.pt \
+  --split test --save-dir src/segmentation/experiments/segmentation-cut3r-trained-mlp --save-masks
 ```
 
-Swap the config for any other `<backbone>_<data>_<capacity>.yaml` to change
-backbone, data scale, or head capacity. Training is deterministic under the
-seed fixed in each config (`20260729`), so results are bit-identical rather
-than approximately reproducible.
+Swap the config for any other `<backbone>_<capacity>.yaml` to change backbone
+or head capacity. Training is deterministic under the seed fixed in each
+config (`20260729`), so results are bit-identical rather than approximately
+reproducible.
 
 Without CO3D or a GPU you can still exercise the whole path on a synthetic
 cache; see the smoke-test section of

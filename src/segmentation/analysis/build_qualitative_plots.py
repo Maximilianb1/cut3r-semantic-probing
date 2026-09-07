@@ -17,7 +17,7 @@ Run example:
         --manifest-dir ${CUT3R_ARTIFACT_ROOT}/manifests/full51-part-a-v1 \
         --dataset-root ${CO3D_ROOT} \
         --experiments-root src/segmentation/experiments \
-        --backbones cut3r_trained cut3r_random dinov2 --run-suffix -bestval
+        --backbones cut3r-trained cut3r-random dinov2 --run-suffix -mlp
 """
 
 from __future__ import annotations
@@ -54,7 +54,7 @@ def main() -> None:
     parser.add_argument("--dataset-root", required=True, type=Path)
     parser.add_argument("--experiments-root", required=True, type=Path)
     parser.add_argument("--backbones", nargs="+", required=True)
-    parser.add_argument("--run-suffix", default="", help="e.g. -bestval to match segmentation-<backbone>-bestval dirs")
+    parser.add_argument("--run-suffix", default="", help="e.g. -mlp to match segmentation-<backbone>-mlp dirs")
     parser.add_argument("--split", default="test")
     parser.add_argument("--k", type=int, default=5)
     parser.add_argument("--timeout", type=float, default=120.0)

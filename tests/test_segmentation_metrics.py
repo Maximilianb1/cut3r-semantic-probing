@@ -8,18 +8,23 @@ path that inference uses.
 
 from __future__ import annotations
 
+import math
+
 import pytest
 import torch
 
 from src.segmentation.train_segmentation import BinaryMetrics
 
 
-def _batch(counts, categories, grids, window_ids) -> dict[str, object]:
+def _batch(counts, categories, grids, window_ids, sequence_ids=None) -> dict[str, object]:
+    # Defaults each window to its own sequence (the common case in these tests);
+    # pass sequence_ids explicitly to put multiple windows in one sequence.
     return {
         "counts": torch.tensor(counts, dtype=torch.int64),
         "categories": list(categories),
         "token_grids": list(grids),
         "window_ids": list(window_ids),
+        "sequence_ids": list(sequence_ids) if sequence_ids is not None else list(window_ids),
     }
 
 
@@ -45,6 +50,59 @@ def test_macro_iou_averages_windows_and_micro_iou_pools_tokens() -> None:
     assert result["micro_foreground_iou"] == pytest.approx(0.5)
     # 4 of 6 tokens predicted correctly.
     assert result["token_accuracy"] == pytest.approx(4 / 6)
+
+
+def test_background_iou_and_mean_iou_are_tracked_symmetrically_to_foreground() -> None:
+    # Window A: predict [1,1,0,0] against [1,0,0,0]
+    #   fg: intersection 1, union 2, IoU 0.5
+    #   bg: pred bg={2,3}, gt bg={1,2,3} -> intersection 2, union 3, IoU 2/3
+    # Window B: predict [1,0] against [1,1]
+    #   fg: intersection 1, union 2, IoU 0.5
+    #   bg: pred bg={1}, gt bg={} -> intersection 0, union 1, IoU 0.0
+    metrics = BinaryMetrics()
+    metrics.update(
+        _logits([1, 1, 0, 0, 1, 0]),
+        torch.tensor([1.0, 0.0, 0.0, 0.0, 1.0, 1.0]),
+        _batch([4, 2], ["apple", "bench"], [(2, 2), (1, 2)], ["a", "b"]),
+    )
+    result = metrics.result()
+
+    assert result["macro_background_iou"] == pytest.approx((2 / 3 + 0.0) / 2)
+    assert result["mean_iou"] == pytest.approx(
+        (result["macro_foreground_iou"] + result["macro_background_iou"]) / 2
+    )
+    # Global confusion counts: tp=2, fp=1, fn=1, tn=2 over the 6 tokens.
+    assert (result["tp"], result["fp"], result["fn"], result["tn"]) == (2, 1, 1, 2)
+    assert result["foreground_precision"] == pytest.approx(2 / 3)
+    assert result["foreground_recall"] == pytest.approx(2 / 3)
+    assert result["background_recall"] == pytest.approx(2 / 3)
+    assert result["mean_class_accuracy"] == pytest.approx(2 / 3)
+
+
+def test_auroc_and_auprc_are_tracked_pooled_and_per_category() -> None:
+    # Same batch as the background-IoU test above, worked through by hand:
+    # scores (raw logits) = [2,2,-2,-2,2,-2], labels = [1,0,0,0,1,1].
+    # Window "apple" = tokens 0-3 (1 positive, 3 negatives).
+    # Window "bench" = tokens 4-5 (2 positives, 0 negatives -> AUROC undefined there).
+    metrics = BinaryMetrics()
+    metrics.update(
+        _logits([1, 1, 0, 0, 1, 0]),
+        torch.tensor([1.0, 0.0, 0.0, 0.0, 1.0, 1.0]),
+        _batch([4, 2], ["apple", "bench"], [(2, 2), (1, 2)], ["a", "b"]),
+    )
+    result = metrics.result()
+
+    assert result["auroc"] == pytest.approx(2 / 3)
+    assert result["auprc"] == pytest.approx(11 / 18)
+
+    assert result["per_category_auroc"]["apple"] == pytest.approx(2.5 / 3)
+    assert math.isnan(result["per_category_auroc"]["bench"])  # no negatives in that window
+    assert result["per_category_auprc"]["apple"] == pytest.approx(0.5)
+    assert result["per_category_auprc"]["bench"] == pytest.approx(1.0)
+
+    # bench's undefined AUROC is excluded from the macro average, not treated as 0/1.
+    assert result["mean_category_auroc"] == pytest.approx(2.5 / 3)
+    assert result["mean_category_auprc"] == pytest.approx((0.5 + 1.0) / 2)
 
 
 def test_macro_and_micro_iou_diverge_when_windows_hold_uneven_foreground() -> None:

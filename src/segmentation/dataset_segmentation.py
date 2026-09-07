@@ -26,6 +26,13 @@ later be split back into their per-window groups.
 
 Splits (train / val / test) are read straight from the cache rows, which carry
 the manifest's **sequence-level** assignment - this module never invents splits.
+
+``split_override`` is the one exception, and it still doesn't invent anything:
+it's an optional ``{sequence_id: split}`` patch (typically produced by
+``scripts/derive_segmentation_split.py``, see ``src/data/split_overrides.py``)
+that relabels which split a sequence's rows count as *for filtering purposes
+only* - the row's own recorded ``split`` field is never mutated, so provenance
+stays intact even when a sequence has been promoted into a thinner split.
 """
 
 from __future__ import annotations
@@ -39,11 +46,21 @@ from torch.utils.data import Dataset
 from src.backbones.probe_cache import load_probe_index, load_target_tokens
 
 
+def _effective_split(row: dict[str, Any], split_override: dict[str, str] | None) -> str:
+    if split_override is None:
+        return row["split"]
+    return split_override.get(row["sequence_id"], row["split"])
+
+
 def _filter_rows(
-    rows: list[dict[str, Any]], *, split: str | None, categories: list[str] | None
+    rows: list[dict[str, Any]],
+    *,
+    split: str | None,
+    categories: list[str] | None,
+    split_override: dict[str, str] | None = None,
 ) -> list[dict[str, Any]]:
     if split is not None:
-        rows = [row for row in rows if row["split"] == split]
+        rows = [row for row in rows if _effective_split(row, split_override) == split]
     if categories is not None:
         allowed = set(categories)
         rows = [row for row in rows if row["category"] in allowed]
@@ -67,19 +84,26 @@ class ProbeCacheDataset(Dataset):
         *,
         split: str | None = None,
         categories: list[str] | None = None,
+        split_override: dict[str, str] | None = None,
     ) -> None:
         """
         Select the cache rows for one split (and optionally some categories).
 
         "split" alone is the normal call: "categories" defaults to "None", which keeps all 51.
-        "split=None" likewise means every split.
+        "split=None" likewise means every split. "split_override" (see module
+        docstring) relabels which split a sequence counts as before filtering.
 
         Raises ``ValueError`` when the filters leave no windows, so an empty
         dataset can never be trained or evaluated on silently.
         """
         # Reads index.parquet only - a few hundred KB of bookkeeping, no tensors.
         self.cache_dir = Path(cache_dir)
-        rows = _filter_rows(load_probe_index(self.cache_dir), split=split, categories=categories)
+        rows = _filter_rows(
+            load_probe_index(self.cache_dir),
+            split=split,
+            categories=categories,
+            split_override=split_override,
+        )
         if not rows: # Dataset is empty
             raise ValueError(
                 f"No probe-cache windows for split={split!r} categories={categories!r} "
@@ -116,6 +140,7 @@ class ProbeCacheDataset(Dataset):
             "count": spatial.shape[0],  # N, this window's token count
             "token_grid": tuple(int(value) for value in row["token_grid"]), # (grid_h, grid_w), ints, with (grid_h * grid_w == N)
             "window_id": row["window_id"], # the cache's window key, for per-window reporting
+            "sequence_id": row["sequence_id"], # CO3D sequence, for sequence-cluster bootstrap
             "category": row["category"], # CO3D category, for per-category reporting
             "category_index": int(row["category_index"]), # CO3D category index, for per-category reporting
         }
@@ -143,13 +168,22 @@ class CombinedProbeCacheDataset(Dataset):
         *,
         split: str | None = None,
         categories: list[str] | None = None,
+        split_override: dict[str, str] | None = None,
     ) -> None:
+        """See :class:`ProbeCacheDataset` for ``split_override``; it applies
+        identically across every cache in ``cache_dirs``, since a sequence
+        promoted into a thinner split may physically live in any one of them."""
         if not cache_dirs:
             raise ValueError("cache_dirs must be non-empty")
         self.entries: list[tuple[Path, dict[str, Any]]] = []
         for cache_dir in cache_dirs:
             cache_dir = Path(cache_dir)
-            rows = _filter_rows(load_probe_index(cache_dir), split=split, categories=categories)
+            rows = _filter_rows(
+                load_probe_index(cache_dir),
+                split=split,
+                categories=categories,
+                split_override=split_override,
+            )
             self.entries.extend((cache_dir, row) for row in rows)
         if not self.entries:
             raise ValueError(
@@ -178,6 +212,7 @@ class CombinedProbeCacheDataset(Dataset):
             "count": spatial.shape[0],
             "token_grid": tuple(int(value) for value in row["token_grid"]),
             "window_id": row["window_id"],
+            "sequence_id": row["sequence_id"],
             "category": row["category"],
             "category_index": int(row["category_index"]),
         }
@@ -203,6 +238,7 @@ def collate_windows(batch: list[dict[str, Any]]) -> dict[str, Any]:
         "counts": counts,  # [B]
         "token_grids": [item["token_grid"] for item in batch],
         "window_ids": [item["window_id"] for item in batch],
+        "sequence_ids": [item["sequence_id"] for item in batch],
         "categories": [item["category"] for item in batch],
     }
 

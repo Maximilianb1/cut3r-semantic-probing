@@ -1,6 +1,6 @@
 """Build a side-by-side qualitative grid (Input | GT | A Pred | B Pred) for the
 windows where two backbones' foreground IoU differs the most -- the actual
-photos behind build_score_comparison.py's paired per-window comparison.
+photos behind a paired per-window IoU comparison.
 
 1. Joins both backbones' inference-<split>.json on window_id, ranks by
    foreground-IoU delta (A minus B).
@@ -18,7 +18,7 @@ Run example:
         --manifest-dir ${CUT3R_ARTIFACT_ROOT}/manifests/full51-part-a-v1 \
         --dataset-root ${CO3D_ROOT} \
         --experiments-root src/segmentation/experiments \
-        --backbone-a cut3r_trained --backbone-b dinov2 --run-suffix=-expanded-bestval
+        --backbone-a cut3r-trained --backbone-b dinov2 --run-suffix=-mlp
 """
 
 from __future__ import annotations
@@ -51,7 +51,7 @@ def main() -> None:
     parser.add_argument("--experiments-root", required=True, type=Path)
     parser.add_argument("--backbone-a", required=True)
     parser.add_argument("--backbone-b", required=True)
-    parser.add_argument("--run-suffix", default="", help="e.g. -expanded-bestval to match segmentation-<backbone>-expanded-bestval dirs")
+    parser.add_argument("--run-suffix", default="", help="e.g. -mlp to match segmentation-<backbone>-mlp dirs")
     parser.add_argument("--split", default="test")
     parser.add_argument("--k", type=int, default=5, help="windows shown per direction (top-k favoring each backbone)")
     parser.add_argument("--timeout", type=float, default=120.0)

@@ -56,7 +56,8 @@ error correlation is preserved; the unpaired version is computed as a
 sensitivity check and never used as the headline.
 
 Implementations: `src/classification/bootstrap_accuracy.py` and
-`src/segmentation/analysis/build_score_comparison.py`.
+`src/segmentation/bootstrap_iou.py`, used by the `analysis/build_*.py`
+scripts (e.g. `build_headline_gap.py`, `build_capacity_slope_and_pr.py`).
 
 ## Deviation from the original plan
 
