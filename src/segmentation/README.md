@@ -102,7 +102,7 @@ directory, using `masks-<split>.pt` from `inference_segmentation.py
 | File | Purpose |
 |---|---|
 | `build_qualitative_plots.py` | Worst-5/best-5 test windows by IoU, as image grids per backbone. |
-| `build_delta_comparison_plot.py` | Paired two-backbone grid on the windows where per-window IoU differs most. |
+| `build_delta_comparison_plot.py` | Paired two-backbone grid, `--rank-by iou` (default: windows where per-window IoU differs most) or `--rank-by precision-gap` (finding 7's over-prediction signature: A's precision far below B's while A's recall still matches or beats B's). |
 
 `figures.py` (shared plotting helpers) and `runs.py` (shared run-loading /
 display-name helpers) back all of the above and aren't run directly.

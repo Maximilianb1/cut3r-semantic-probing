@@ -40,6 +40,7 @@ script list):
 | `macro-iou-ci-linear.png` | 1 — random-vs-trained gap | `build_headline_gap.py` |
 | `capacity-macro-iou-bars.png` | 2 — linear-vs-MLP gap, per backbone | `build_capacity_slope_and_pr.py` |
 | `capacity-pr-shift.png` | 2 — where the MLP gap comes from (precision vs. recall shift, i.e. fewer FP vs. fewer FN) | `build_capacity_slope_and_pr.py` |
+| `precision-gap-cut3r-trained-vs-dinov2-test.png` | 7 — qualitative: test windows where CUT3R-trained matches/beats DINOv2's recall but loses hardest on precision | `build_delta_comparison_plot.py --rank-by precision-gap` |
 | `category-difficulty-heatmap.png` | 3 — category difficulty is dataset-, not embedding-, driven | `build_category_difficulty_heatmap.py` |
 | `learning-curve-panels.png` | 5 — best_val_epoch per run | `build_learning_curve_panels.py` |
 
@@ -127,6 +128,20 @@ linear = 3 (then degrades for the rest of training), CUT3R-random-MLP = 16,
 CUT3R-trained-linear = 18, CUT3R-trained-MLP = 17, DINOv2-linear = 20,
 DINOv2-MLP = 10 (the one run that visibly overfits afterward, from its
 unregularized 512-unit head).
+
+**7. CUT3R-trained and DINOv2 reach near-identical mIoU (finding 2) through
+different error profiles, not the same one.** Sequence-cluster bootstrap
+(`bootstrap-precision-recall-differences.csv`): CUT3R-trained's precision is
+significantly lower than DINOv2's at both probe capacities (linear −0.032,
+95% CI [−0.052, −0.012]; MLP −0.028, 95% CI [−0.052, −0.003]), and its recall
+is significantly higher at MLP capacity (+0.023, 95% CI [0.002, 0.051]) —
+directionally higher but not significant at linear capacity (+0.007, 95% CI
+[−0.006, 0.021]). CUT3R-trained over-predicts foreground more than DINOv2 does at matching mIoU.
+Qualitatively (`precision-gap-cut3r-trained-vs-dinov2-test.png`, filtered to
+windows where CUT3R-trained's recall already matches or beats DINOv2's) that
+over-prediction is scattered false-positive speckle across the frame, not a
+coherent depth/ground-plane region — DINOv2's prediction stays tightly bounded
+on the object where CUT3R-trained's does not.
 
 ## Reproducing
 
