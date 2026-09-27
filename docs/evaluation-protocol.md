@@ -27,10 +27,10 @@ Three aggregations are computed, and all three are reported:
 | micro-IoU | one IoU over all tokens pooled together |
 | per-category | mean over the windows of each category, reported separately |
 
-Macro and micro are reported side by side on purpose. They agree for DINOv2
-(0.806 / 0.805) and CUT3R-trained (0.777 / 0.749), which rules out a
-foreground-size bias; they diverge for CUT3R-random (0.277 / 0.223), which says
-it does worse still on large-foreground windows.
+Macro and micro are reported side by side on purpose. On the current split all
+three agree closely -- DINOv2 (0.785 / 0.782), CUT3R-trained (0.787 / 0.777),
+CUT3R-random (0.291 / 0.287) -- ruling out a foreground-size bias for every
+backbone, not just the two strong ones.
 
 ## Classification: accuracy at two levels
 
