@@ -18,6 +18,7 @@ python -m scripts.compare_caches --left /cache/preflight-a --right /cache/prefli
 python -m scripts.audit_cached_window export --cache-dir /cache/full51-part-a-v1 --output-dir /artifacts/audits/part-a-window
 python -m scripts.audit_cached_window inspect --reference-dir /artifacts/audits/part-a-window --dataset-root /data/co3d --output /artifacts/audits/part-a-window/inputs-and-features.png
 python -m scripts.audit_cached_window reconstruct --reference-dir /artifacts/audits/part-a-window --config configs/stage0/full51-part-a.yaml --output-dir /artifacts/audits/part-a-window/reconstruction
+python scripts/build_results_overview_plot.py --output reports/results-overview.png
 ```
 
 `download_co3d_selective` accepts only explicit category lists and finite
@@ -55,3 +56,10 @@ the six image/state trajectories, requires exact float16 equality with the
 reference, then invokes CUT3R's original DPT reconstruction head and writes a
 colored point cloud plus three orthographic inspection views. The PCA image is
 only a feature visualization; it is never described as a 3D reconstruction.
+
+`build_results_overview_plot.py` builds the top-level results figure
+(`reports/results-overview.png`): segmentation macro-IoU and state-token
+classification accuracy, backbone x probe-capacity, with 95% sequence-cluster
+bootstrap CIs. It only reads the bootstrap CSVs already committed under
+`reports/segmentation/comparison/` and `reports/classification/` — no cache,
+no GPU, no model weights.
