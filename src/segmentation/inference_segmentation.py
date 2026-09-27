@@ -117,6 +117,10 @@ def run_inference(config: dict[str, Any], *, checkpoint: str | Path | None = Non
                 "sequence_id": p["sequence_id"],
                 "category": p["category"],
                 "foreground_iou": p["foreground_iou"],
+                "tp": p["tp"],
+                "fp": p["fp"],
+                "fn": p["fn"],
+                "tn": p["tn"],
             }
             for p in per_window
         ],

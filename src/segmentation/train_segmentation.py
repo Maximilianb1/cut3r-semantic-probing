@@ -362,6 +362,10 @@ class BinaryMetrics:
                     "category": category,
                     "token_grid": list(grid),
                     "foreground_iou": iou,
+                    "tp": int(((pred == 1) & (gt == 1)).sum().item()),
+                    "fp": int(((pred == 1) & (gt == 0)).sum().item()),
+                    "fn": int(((pred == 0) & (gt == 1)).sum().item()),
+                    "tn": int(((pred == 0) & (gt == 0)).sum().item()),
                 }
                 if self.collect_masks:
                     record["predicted_labels"] = pred.reshape(grid).cpu()
