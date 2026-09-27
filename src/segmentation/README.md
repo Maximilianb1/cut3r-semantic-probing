@@ -75,7 +75,10 @@ pooled to the backbone's token grid), not full pixel resolution:
 | `model_segmentation.py` | `SegmentationProbe` — trainable per-token MLP head over cached features (`hidden_dims=[]` gives a true linear probe). Also holds and applies the standardization statistics. |
 | `dataset_segmentation.py` | `ProbeCacheDataset` over the probe-feature cache (target-frame tokens + mask only), with collation for variable-size token grids. |
 | `train_segmentation.py` | Config-driven training loop: computes train-only standardization, trains the head, tracks foreground IoU + token accuracy, asserts sequence-disjoint splits. `--checkpoint-selection` picks what `head.pt` holds: `last` (default) is the final epoch; `best_val` tracks validation macro-IoU and also keeps the final epoch as `head-last.pt`. |
-| `inference_segmentation.py` | Reloads `head.pt` and evaluates a chosen split (default `test`); optional per-window masks via `--save-masks`. |
+| `inference_segmentation.py` | Reloads `head.pt` and evaluates a chosen split (default `test`); optional per-window masks via `--save-masks`. Each `per_window_iou` row also carries that window's `tp`/`fp`/`fn`/`tn`, so precision/recall can be bootstrapped from the committed inference file without re-running inference. |
+| `bootstrap_iou.py` | `SequenceIoUClusters` (sequence-cluster sufficient statistics, with per-sequence category) plus `bootstrap_iou_ci`/`bootstrap_iou_difference` — the sequence-cluster bootstrap, mirroring `src/classification/bootstrap_accuracy.py`. Also holds `derive_seed`/`summarize`, the small helpers shared with `bootstrap_precision_recall.py`. |
+| `bootstrap_precision_recall.py` | `SequencePrecisionRecallClusters` (per-sequence pooled `tp`/`fp`/`fn`) plus `bootstrap_precision_recall_ci`/`bootstrap_precision_recall_difference` — same sequence-cluster resampling as `bootstrap_iou.py`, but on pooled counts (ratio-of-sums), since precision/recall are ratios and per-window ratios get unstable on windows with few foreground tokens. Mirrors `_ratio_distribution` in `src/classification/bootstrap_accuracy.py`. |
+| `build_test_report.py` | Consolidated held-out test report, mirroring `src/classification/build_test_report.py`: bootstrap CI and paired/unpaired differences (IoU and precision/recall) for every meaningful run pair, a per-category IoU CI breakdown, and a window win/loss/tie tally — all from the committed `inference-<split>.json` files, never re-running inference. Writes `reports/segmentation/comparison/{bootstrap-iou-ci.csv, bootstrap-iou-per-category.csv, bootstrap-iou-differences.csv, bootstrap-precision-recall-ci.csv, bootstrap-precision-recall-differences.csv, test-bootstrap-report.json}`. |
 | `configs/*.yaml` | One config per `<backbone>_<capacity>.yaml`: backbone (`cut3r_trained`, `cut3r_random`, `dinov2`) × head capacity (`mlp` = one 512-unit hidden layer, `linear` = `hidden_dims: []`). All six read the same pooled cache via `probe_cache.cache_dirs`, relabeled by the shared `split_override_path`. Only `probe_cache`/`model.hidden_dims`/`output.dir` differ between them. |
 | `analysis/` | Post-hoc scripts that turn already-computed `metrics.json`/`inference-<split>.json` into plots — never re-train or re-run inference. See below. |
 
@@ -99,7 +102,7 @@ directory, using `masks-<split>.pt` from `inference_segmentation.py
 | File | Purpose |
 |---|---|
 | `build_qualitative_plots.py` | Worst-5/best-5 test windows by IoU, as image grids per backbone. |
-| `build_delta_comparison_plot.py` | Paired two-backbone grid on the windows where per-window IoU differs most. |
+| `build_delta_comparison_plot.py` | Paired two-backbone grid, `--rank-by iou` (default: windows where per-window IoU differs most) or `--rank-by precision-gap` (finding 7's over-prediction signature: A's precision far below B's while A's recall still matches or beats B's). |
 
 `figures.py` (shared plotting helpers) and `runs.py` (shared run-loading /
 display-name helpers) back all of the above and aren't run directly.

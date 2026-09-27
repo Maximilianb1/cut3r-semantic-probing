@@ -21,13 +21,14 @@ def test_iou_clusters_averages_a_sequences_windows_before_the_macro_average() ->
     # seq-A: two windows, IoU 1.0 and 0.0 -> sequence_iou 0.5
     # seq-B: one window, IoU 0.8 -> sequence_iou 0.8
     inference = _inference([
-        {"window_id": "w0", "sequence_id": "seq-A", "foreground_iou": 1.0},
-        {"window_id": "w1", "sequence_id": "seq-A", "foreground_iou": 0.0},
-        {"window_id": "w2", "sequence_id": "seq-B", "foreground_iou": 0.8},
+        {"window_id": "w0", "sequence_id": "seq-A", "category": "apple", "foreground_iou": 1.0},
+        {"window_id": "w1", "sequence_id": "seq-A", "category": "apple", "foreground_iou": 0.0},
+        {"window_id": "w2", "sequence_id": "seq-B", "category": "bowl", "foreground_iou": 0.8},
     ])
     clusters = iou_clusters(inference)
 
     assert clusters.sequence_ids == ("seq-A", "seq-B")
+    assert clusters.categories == ("apple", "bowl")
     assert clusters.sequence_iou == pytest.approx([0.5, 0.8])
     # Macro-IoU here weights seq-A and seq-B equally (0.5, 0.8), NOT the 3
     # underlying windows equally (which would give (1+0+0.8)/3 = 0.6) - that
@@ -37,16 +38,40 @@ def test_iou_clusters_averages_a_sequences_windows_before_the_macro_average() ->
 
 def test_iou_clusters_rejects_duplicate_window_ids() -> None:
     inference = _inference([
-        {"window_id": "w0", "sequence_id": "seq-A", "foreground_iou": 1.0},
-        {"window_id": "w0", "sequence_id": "seq-A", "foreground_iou": 0.0},
+        {"window_id": "w0", "sequence_id": "seq-A", "category": "apple", "foreground_iou": 1.0},
+        {"window_id": "w0", "sequence_id": "seq-A", "category": "apple", "foreground_iou": 0.0},
     ])
     with pytest.raises(ValueError, match="Duplicate window_id"):
         iou_clusters(inference)
 
 
+def test_iou_clusters_rejects_a_sequence_that_changes_category() -> None:
+    inference = _inference([
+        {"window_id": "w0", "sequence_id": "seq-A", "category": "apple", "foreground_iou": 1.0},
+        {"window_id": "w1", "sequence_id": "seq-A", "category": "bowl", "foreground_iou": 0.0},
+    ])
+    with pytest.raises(ValueError, match="changes category"):
+        iou_clusters(inference)
+
+
 def test_assert_paired_clusters_rejects_mismatched_sequences() -> None:
-    left = iou_clusters(_inference([{"window_id": "w0", "sequence_id": "seq-A", "foreground_iou": 1.0}]))
-    right = iou_clusters(_inference([{"window_id": "w1", "sequence_id": "seq-B", "foreground_iou": 1.0}]))
+    left = iou_clusters(_inference(
+        [{"window_id": "w0", "sequence_id": "seq-A", "category": "apple", "foreground_iou": 1.0}]
+    ))
+    right = iou_clusters(_inference(
+        [{"window_id": "w1", "sequence_id": "seq-B", "category": "apple", "foreground_iou": 1.0}]
+    ))
+    with pytest.raises(ValueError, match="disagree"):
+        assert_paired_clusters(left, right)
+
+
+def test_assert_paired_clusters_rejects_mismatched_categories() -> None:
+    left = iou_clusters(_inference(
+        [{"window_id": "w0", "sequence_id": "seq-A", "category": "apple", "foreground_iou": 1.0}]
+    ))
+    right = iou_clusters(_inference(
+        [{"window_id": "w0", "sequence_id": "seq-A", "category": "bowl", "foreground_iou": 1.0}]
+    ))
     with pytest.raises(ValueError, match="disagree"):
         assert_paired_clusters(left, right)
 
@@ -54,7 +79,7 @@ def test_assert_paired_clusters_rejects_mismatched_sequences() -> None:
 def test_bootstrap_ci_collapses_to_a_point_when_every_sequence_agrees() -> None:
     # Zero variance across sequences -> every resample gives the same mean.
     inference = _inference([
-        {"window_id": f"w{i}", "sequence_id": f"seq-{i}", "foreground_iou": 0.7}
+        {"window_id": f"w{i}", "sequence_id": f"seq-{i}", "category": "apple", "foreground_iou": 0.7}
         for i in range(5)
     ])
     clusters = iou_clusters(inference)
@@ -73,13 +98,15 @@ def test_bootstrap_ci_widens_with_more_within_sequence_variance() -> None:
     # sequences should show a wider CI for the noisier one.
     generator = np.random.default_rng(0)
     agreeing = _inference([
-        {"window_id": f"a{i}", "sequence_id": f"seq-{i}", "foreground_iou": 0.5}
+        {"window_id": f"a{i}", "sequence_id": f"seq-{i}", "category": "apple", "foreground_iou": 0.5}
         for i in range(20)
     ])
     noisy_rows = []
     for i in range(20):
         value = 0.0 if i % 2 == 0 else 1.0
-        noisy_rows.append({"window_id": f"n{i}", "sequence_id": f"seq-{i}", "foreground_iou": value})
+        noisy_rows.append(
+            {"window_id": f"n{i}", "sequence_id": f"seq-{i}", "category": "apple", "foreground_iou": value}
+        )
     noisy = _inference(noisy_rows)
 
     agreeing_ci = bootstrap_iou_ci(iou_clusters(agreeing), samples=5000, seed=2)
@@ -93,7 +120,7 @@ def test_bootstrap_ci_widens_with_more_within_sequence_variance() -> None:
 
 def test_paired_difference_is_zero_when_target_equals_reference() -> None:
     inference = _inference([
-        {"window_id": f"w{i}", "sequence_id": f"seq-{i}", "foreground_iou": 0.3 + 0.1 * i}
+        {"window_id": f"w{i}", "sequence_id": f"seq-{i}", "category": "apple", "foreground_iou": 0.3 + 0.1 * i}
         for i in range(6)
     ])
     clusters = iou_clusters(inference)
@@ -109,11 +136,11 @@ def test_paired_difference_recovers_a_known_gap() -> None:
     # for both - a paired comparison means the two runs were scored on the
     # exact same physical test windows, only the model differs.
     target = iou_clusters(_inference([
-        {"window_id": f"w{i}", "sequence_id": f"seq-{i}", "foreground_iou": 0.6}
+        {"window_id": f"w{i}", "sequence_id": f"seq-{i}", "category": "apple", "foreground_iou": 0.6}
         for i in range(10)
     ]))
     reference = iou_clusters(_inference([
-        {"window_id": f"w{i}", "sequence_id": f"seq-{i}", "foreground_iou": 0.4}
+        {"window_id": f"w{i}", "sequence_id": f"seq-{i}", "category": "apple", "foreground_iou": 0.4}
         for i in range(10)
     ]))
     result = bootstrap_iou_difference(target, reference, samples=2000, seed=4)

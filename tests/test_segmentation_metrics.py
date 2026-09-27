@@ -174,6 +174,8 @@ def test_per_window_records_appear_only_when_collection_is_requested() -> None:
     assert record["category"] == "apple"
     assert record["token_grid"] == [2, 2]
     assert record["foreground_iou"] == pytest.approx(0.5)
+    # pred=[1,1,0,0], gt=[1,0,0,0]: tp at index 0, fp at index 1, no fn, tn at 2/3.
+    assert (record["tp"], record["fp"], record["fn"], record["tn"]) == (1, 1, 0, 2)
     # Masks are extra weight; they are not saved unless inference asks for them.
     assert "predicted_labels" not in record
 

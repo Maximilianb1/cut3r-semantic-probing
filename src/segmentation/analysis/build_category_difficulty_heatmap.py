@@ -73,9 +73,14 @@ def main() -> None:
     categories = sorted(set.intersection(*(set(d.keys()) for d in per_category.values())))
     matrix = np.array([[per_category[key][c] for key in run_keys] for c in categories])  # [n_cat, n_run]
 
-    # Sort rows by mean rank across runs (hardest = lowest IoU rank = top of plot).
+    # Sort rows by mean rank across the trained-backbone runs only (hardest = lowest
+    # IoU rank = top of plot). cut3r_random is excluded from the sort -- it's shown
+    # for comparison, but including it would let its (weakly correlated) ranking
+    # drag categories' positions away from where they actually sit for the trained
+    # backbones, which is what this figure is meant to illustrate.
+    trained_col_idx = [i for i, (b, _) in enumerate(run_keys) if b != "cut3r_random"]
     ranks_per_run = np.apply_along_axis(lambda col: col.argsort().argsort(), 0, matrix)
-    mean_rank = ranks_per_run.mean(axis=1)
+    mean_rank = ranks_per_run[:, trained_col_idx].mean(axis=1)
     order = np.argsort(mean_rank)  # ascending: lowest mean rank (hardest) first
     matrix_sorted = matrix[order]
     categories_sorted = [categories[i] for i in order]

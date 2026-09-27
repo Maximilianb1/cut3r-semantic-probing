@@ -36,6 +36,7 @@ class SequenceIoUClusters:
     """Sufficient statistics for sequence-level macro-IoU."""
 
     sequence_ids: tuple[str, ...]
+    categories: tuple[str, ...]
     window_ids: tuple[tuple[str, ...], ...]
     sequence_iou: np.ndarray  # mean foreground IoU of that sequence's windows
 
@@ -63,28 +64,41 @@ def iou_clusters(inference: dict[str, Any]) -> SequenceIoUClusters:
         grouped.setdefault(str(row["sequence_id"]), []).append(row)
 
     sequence_ids: list[str] = []
+    categories: list[str] = []
     window_ids: list[tuple[str, ...]] = []
     sequence_iou: list[float] = []
     for sequence_id, records in sorted(grouped.items()):
+        record_categories = {str(record["category"]) for record in records}
+        if len(record_categories) != 1:
+            raise ValueError(
+                f"Sequence {sequence_id!r} changes category: {sorted(record_categories)}"
+            )
         sequence_ids.append(sequence_id)
+        categories.append(next(iter(record_categories)))
         window_ids.append(tuple(sorted(str(record["window_id"]) for record in records)))
         sequence_iou.append(float(np.mean([float(record["foreground_iou"]) for record in records])))
 
     return SequenceIoUClusters(
         sequence_ids=tuple(sequence_ids),
+        categories=tuple(categories),
         window_ids=tuple(window_ids),
         sequence_iou=np.asarray(sequence_iou, dtype=np.float64),
     )
 
 
 def assert_paired_clusters(left: SequenceIoUClusters, right: SequenceIoUClusters) -> None:
-    """Require the exact same sequence/window test observations."""
-    for name in ("sequence_ids", "window_ids"):
+    """Require the exact same sequence/category/window test observations."""
+    for name in ("sequence_ids", "categories", "window_ids"):
         if getattr(left, name) != getattr(right, name):
             raise ValueError(f"Paired inferences disagree on {name}")
 
 
-def _summary(distribution: np.ndarray, point: float) -> dict[str, Any]:
+def summarize(distribution: np.ndarray, point: float) -> dict[str, Any]:
+    """Percentile-CI summary of one bootstrap distribution.
+
+    Shared with ``bootstrap_precision_recall.py`` so both metrics report the
+    same ``estimate``/``ci95``/``bootstrap_standard_error`` shape.
+    """
     lower, upper = np.quantile(distribution, (0.025, 0.975))
     return {
         "estimate": float(point),
@@ -108,7 +122,7 @@ def bootstrap_iou_ci(
         "samples": samples,
         "seed": seed,
         "clusters": count,
-        "macro_iou": _summary(distribution, clusters.macro_iou),
+        "macro_iou": summarize(distribution, clusters.macro_iou),
     }
 
 
@@ -140,5 +154,5 @@ def bootstrap_iou_difference(
         "samples": samples,
         "seed": seed,
         "clusters": count,
-        "macro_iou_difference": _summary(distribution, target.macro_iou - reference.macro_iou),
+        "macro_iou_difference": summarize(distribution, target.macro_iou - reference.macro_iou),
     }
