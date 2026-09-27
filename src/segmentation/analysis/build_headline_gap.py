@@ -39,7 +39,7 @@ def main() -> None:
     parser.add_argument("--reports-root", type=Path, default=Path("reports/segmentation"))
     parser.add_argument("--backbones", nargs="+", default=["cut3r_random", "cut3r_trained", "dinov2"])
     parser.add_argument("--split", default="test")
-    parser.add_argument("--n-boot", type=int, default=10000)
+    parser.add_argument("--n-boot", type=int, default=20000)
     parser.add_argument("--seed", type=int, default=20260825)
     parser.add_argument("--output-dir", type=Path, default=None,
                          help="default: <reports-root>/comparison")

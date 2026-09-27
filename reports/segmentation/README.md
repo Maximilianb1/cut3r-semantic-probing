@@ -50,6 +50,29 @@ reconstructing it needs a change to `inference_segmentation.py` (save raw
 scores, not just the thresholded mask) plus a re-run, not just a new script
 over data already on hand.
 
+`comparison/` also holds the machine-readable test-bootstrap report, built by
+[`src/segmentation/build_test_report.py`](../../src/segmentation/README.md)
+from the same six committed `inference-test.json` files — mirroring
+[`reports/classification`](../classification/README.md)'s report:
+
+| File | Contents |
+|---|---|
+| `bootstrap-iou-ci.csv` | Point estimate, 95% CI, and bootstrap standard error on macro-IoU, per run. |
+| `bootstrap-iou-per-category.csv` | The same CI restricted to one category's test sequences (skipped below 5 sequences). |
+| `bootstrap-iou-differences.csv` | Paired and unpaired macro-IoU differences for every meaningful run pair, plus a window-level win/loss/tie tally. |
+| `bootstrap-precision-recall-ci.csv` | Point estimate, 95% CI, and bootstrap standard error on pooled foreground precision and recall, per run. Ratio-of-sums (pooled `tp`/`fp`/`fn` per sequence cluster), not an average of per-window ratios — see [`bootstrap_precision_recall.py`](../../src/segmentation/README.md). |
+| `bootstrap-precision-recall-differences.csv` | Paired and unpaired precision/recall differences for every meaningful run pair. |
+| `test-bootstrap-report.json` | The complete record, including the resampling protocol. |
+
+Regenerate with:
+
+```bash
+python -m src.segmentation.build_test_report
+```
+
+Everything above is rebuilt from the committed per-run `metrics.json` /
+`inference-test.json` alone — no cache, no GPU, no model weights.
+
 ## Headline results (test split, 1,077 windows)
 
 | Backbone | Probe | mIoU | AUROC | AUPRC | Precision | Recall |
